@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>TAP FLIP — Outpost Boyz Arcade</title>
+  <meta name="description" content="Flip gravity, dodge blocks, chase the high score. Free from Outpost Boyz.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔄</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; background: #070a0f; touch-action: manipulation; }
+    #game { display: block; width: 100vw; height: 100vh; height: 100dvh; }
+    .home-btn {
+      position: fixed; top: 10px; left: 10px; z-index: 10;
+      font-family: 'Press Start 2P', monospace; font-size: 8px;
+      color: #7d8da0; text-decoration: none;
+      background: rgba(7,10,15,0.7); border: 1px solid #1d2a3a;
+      padding: 8px 10px;
+    }
+    .home-btn:hover { color: #41ff6b; border-color: #41ff6b; }
+  </style>
+</head>
+<body>
+  <a class="home-btn" href="../../">◂ OUTPOST BOYZ</a>
+  <canvas id="game"></canvas>
+  <script>
+  (function () {
+    'use strict';
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const PIXEL = "'Press Start 2P', monospace";
+
+    let W = 0, H = 0, dpr = 1;
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth; H = window.innerHeight;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Track geometry: play area between a floor and ceiling band.
+    const BAND = () => Math.max(26, H * 0.06);
+    const SIZE = () => Math.max(22, Math.min(W, H) * 0.045);
+
+    const state = {
+      mode: 'menu',           // menu | play | dead
+      score: 0,
+      best: +(localStorage.getItem('ob-tapflip-best') || 0),
+      speed: 0,
+      player: { y: 0, vy: 0, onCeiling: false, grav: 1 },
+      obstacles: [],
+      spawnIn: 0,
+      t: 0
+    };
+
+    function reset() {
+      state.score = 0;
+      state.speed = Math.max(260, W * 0.32);
+      state.player.grav = 1;
+      state.player.onCeiling = false;
+      state.player.y = H - BAND() - SIZE();
+      state.player.vy = 0;
+      state.obstacles = [];
+      state.spawnIn = 0.9;
+    }
+
+    function flip() {
+      if (state.mode === 'menu') { state.mode = 'play'; reset(); return; }
+      if (state.mode === 'dead') { state.mode = 'play'; reset(); return; }
+      // only flip when grounded on floor or ceiling
+      const p = state.player;
+      const grounded = p.grav === 1
+        ? p.y >= H - BAND() - SIZE() - 0.5
+        : p.y <= BAND() + 0.5;
+      if (grounded) { p.grav *= -1; p.vy = 0; }
+    }
+
+    window.addEventListener('pointerdown', flip);
+    window.addEventListener('keydown', e => {
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'ArrowDown') { e.preventDefault(); flip(); }
+    });
+
+    function spawn() {
+      const onTop = Math.random() < 0.5;
+      const h = SIZE() * (1 + Math.random() * 1.6);
+      const w = SIZE() * (0.7 + Math.random() * 0.9);
+      state.obstacles.push({
+        x: W + w, w, h, top: onTop,
+        color: onTop ? '#ff4d9d' : '#ffb454'
+      });
+      // gap shrinks as speed grows
+      const gap = (SIZE() * 7) / (state.speed / Math.max(260, W * 0.32));
+      state.spawnIn = (gap / state.speed) * (0.85 + Math.random() * 0.5);
+    }
+
+    function update(dt) {
+      if (state.mode !== 'play') return;
+      const p = state.player;
+      const G = H * 4.6;
+
+      state.speed += dt * (W * 0.012);
+      state.score += dt * state.speed * 0.045;
+
+      p.vy += G * p.grav * dt;
+      p.y += p.vy * dt;
+
+      const floorY = H - BAND() - SIZE();
+      const ceilY = BAND();
+      if (p.grav === 1 && p.y > floorY) { p.y = floorY; p.vy = 0; }
+      if (p.grav === -1 && p.y < ceilY) { p.y = ceilY; p.vy = 0; }
+
+      state.spawnIn -= dt;
+      if (state.spawnIn <= 0) spawn();
+
+      const px = W * 0.22, ps = SIZE();
+      for (const o of state.obstacles) {
+        o.x -= state.speed * dt;
+        const oy = o.top ? BAND() : H - BAND() - o.h;
+        if (px < o.x + o.w && px + ps > o.x && p.y < oy + o.h && p.y + ps > oy) {
+          state.mode = 'dead';
+          state.best = Math.max(state.best, Math.floor(state.score));
+          localStorage.setItem('ob-tapflip-best', state.best);
+        }
+      }
+      state.obstacles = state.obstacles.filter(o => o.x + o.w > -10);
+    }
+
+    function drawBands() {
+      ctx.fillStyle = '#101823';
+      ctx.fillRect(0, 0, W, BAND());
+      ctx.fillRect(0, H - BAND(), W, BAND());
+      ctx.fillStyle = '#41ff6b';
+      ctx.fillRect(0, BAND() - 3, W, 3);
+      ctx.fillRect(0, H - BAND(), W, 3);
+    }
+
+    function text(str, size, y, color, glow) {
+      ctx.font = size + 'px ' + PIXEL;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = color;
+      ctx.shadowColor = glow || color;
+      ctx.shadowBlur = glow ? 16 : 0;
+      ctx.fillText(str, W / 2, y);
+      ctx.shadowBlur = 0;
+    }
+
+    function draw() {
+      ctx.fillStyle = '#070a0f';
+      ctx.fillRect(0, 0, W, H);
+
+      // grid backdrop
+      ctx.strokeStyle = 'rgba(65,255,107,0.05)';
+      ctx.lineWidth = 1;
+      const g = 44;
+      const off = (state.t * (state.mode === 'play' ? state.speed : 40) * 0.35) % g;
+      for (let x = -off; x < W; x += g) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+
+      drawBands();
+
+      const ps = SIZE(), px = W * 0.22;
+
+      if (state.mode === 'play' || state.mode === 'dead') {
+        for (const o of state.obstacles) {
+          const oy = o.top ? BAND() : H - BAND() - o.h;
+          ctx.fillStyle = o.color;
+          ctx.shadowColor = o.color; ctx.shadowBlur = 12;
+          ctx.fillRect(o.x, oy, o.w, o.h);
+          ctx.shadowBlur = 0;
+        }
+        ctx.fillStyle = '#41ff6b';
+        ctx.shadowColor = '#41ff6b'; ctx.shadowBlur = 18;
+        ctx.fillRect(px, state.player.y, ps, ps);
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#04140a';
+        const eye = ps * 0.18;
+        ctx.fillRect(px + ps * 0.58, state.player.y + (state.player.grav === 1 ? ps * 0.2 : ps * 0.62), eye, eye);
+
+        text('SCORE ' + Math.floor(state.score), Math.max(11, W * 0.016), BAND() + 34, '#d7e2ee');
+      }
+
+      if (state.mode === 'menu') {
+        text('TAP FLIP', Math.min(42, W * 0.08), H * 0.4, '#41ff6b', '#41ff6b');
+        text('TAP OR SPACE TO FLIP GRAVITY', Math.max(9, Math.min(13, W * 0.02)), H * 0.52, '#7d8da0');
+        if (Math.floor(state.t * 1.6) % 2 === 0)
+          text('TAP TO START', Math.max(10, Math.min(16, W * 0.025)), H * 0.62, '#ffb454', '#ffb454');
+        if (state.best > 0)
+          text('BEST ' + state.best, Math.max(9, Math.min(12, W * 0.018)), H * 0.71, '#4dd8ff');
+      }
+
+      if (state.mode === 'dead') {
+        ctx.fillStyle = 'rgba(7,10,15,0.72)';
+        ctx.fillRect(0, 0, W, H);
+        text('WRECKED', Math.min(38, W * 0.07), H * 0.38, '#ff4d9d', '#ff4d9d');
+        text('SCORE ' + Math.floor(state.score) + '   BEST ' + state.best, Math.max(10, Math.min(14, W * 0.022)), H * 0.5, '#d7e2ee');
+        if (Math.floor(state.t * 1.6) % 2 === 0)
+          text('TAP TO RETRY', Math.max(10, Math.min(16, W * 0.025)), H * 0.6, '#41ff6b', '#41ff6b');
+      }
+
+      // scanlines
+      ctx.fillStyle = 'rgba(0,0,0,0.10)';
+      for (let y = 0; y < H; y += 3) ctx.fillRect(0, y, W, 1);
+    }
+
+    let last = performance.now();
+    function loop(now) {
+      const dt = Math.min(0.033, (now - last) / 1000);
+      last = now;
+      state.t += dt;
+      update(dt);
+      draw();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  })();
+  </script>
+</body>
+</html>

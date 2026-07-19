@@ -1,0 +1,22 @@
+{
+  "games": [
+    {
+      "slug": "tap-flip",
+      "title": "TAP FLIP",
+      "tagline": "Flip gravity. Dodge everything. How far can you run?",
+      "icon": "🔄",
+      "color": "#41ff6b",
+      "controls": "TAP / SPACE",
+      "badge": "NEW",
+      "added": "2026-07-18"
+    },
+    {
+      "slug": "coming-soon-1",
+      "title": "???",
+      "tagline": "Next cartridge in production.",
+      "icon": "📼",
+      "color": "#ff4d9d",
+      "comingSoon": true
+    }
+  ]
+}

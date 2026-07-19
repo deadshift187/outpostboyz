@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Outpost Boyz — Gaming Beyond Limits</title>
+  <meta name="description" content="Outpost Boyz — indie game studio. Play our free arcade games right in your browser, and wishlist our co-op chaos games on Steam.">
+  <meta property="og:title" content="Outpost Boyz — Gaming Beyond Limits">
+  <meta property="og:description" content="Free browser arcade games + co-op chaos on Steam. Insert coin.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://outpostboyz.com/">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="crt" aria-hidden="true"></div>
+
+  <nav class="nav">
+    <a class="nav-logo" href="#top">OUTPOST<span>BOYZ</span></a>
+    <div class="nav-links">
+      <a href="#arcade">Arcade</a>
+      <a href="#steam">Steam</a>
+      <a href="#about">About</a>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <p class="hero-kicker">▚▚ INDIE GAME STUDIO ▞▞</p>
+    <h1 class="hero-logo">OUTPOST<br><span>BOYZ</span></h1>
+    <p class="hero-tag">GAMING&nbsp;BEYOND&nbsp;LIMITS</p>
+    <p class="hero-sub">Free arcade games in your browser. Big co-op chaos on Steam.<br>No ads. No paywalls. Just play.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#arcade">▸ PLAY FREE GAMES</a>
+      <a class="btn btn-ghost" href="#steam">OUR STEAM GAMES</a>
+    </div>
+    <p class="hero-coin blink">INSERT COIN — PRESS START</p>
+  </header>
+
+  <main>
+    <section class="section" id="arcade">
+      <h2 class="section-title"><span class="tick">■</span> FREE ARCADE</h2>
+      <p class="section-sub">Instant play. Phone or desktop. Always free.</p>
+      <div class="game-grid" id="gameGrid">
+        <p class="loading">LOADING CARTRIDGES…</p>
+      </div>
+    </section>
+
+    <section class="section" id="steam">
+      <h2 class="section-title"><span class="tick">■</span> ON STEAM</h2>
+      <p class="section-sub">The big ones. Grab your crew.</p>
+
+      <div class="steam-grid">
+        <article class="steam-card featured">
+          <div class="steam-badge">FIRST TITLE</div>
+          <h3>RUFF TRANSIT</h3>
+          <p class="steam-pitch">Co-op moving-company chaos. Pack the truck, beat the clock, don't ask what's in the boxes.</p>
+          <p class="steam-status">▸ COMING TO STEAM</p>
+          <a class="btn btn-primary btn-sm steam-cta" href="#signup">GET NOTIFIED</a>
+        </article>
+
+        <article class="steam-card">
+          <div class="steam-badge dim">IN DEVELOPMENT</div>
+          <h3>DEAD SHIFT</h3>
+          <p class="steam-pitch">Survive the occupation. Loot the ruins. Make it back before the shift ends.</p>
+          <p class="steam-status">▸ IN THE LAB</p>
+        </article>
+
+        <article class="steam-card">
+          <div class="steam-badge dim">TOP SECRET</div>
+          <h3>???</h3>
+          <p class="steam-pitch">More co-op mayhem in the pipeline. The arcade gets first leaks.</p>
+          <p class="steam-status">▸ CLASSIFIED</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <h2 class="section-title"><span class="tick">■</span> WHO WE ARE</h2>
+      <div class="about-box">
+        <p>Outpost Boyz is a small crew making games that are stupid fun with friends. The arcade up top is our playground — quick games, free forever, straight in your browser. The Steam titles are the main event: co-op chaos built for you and your crew to lose it laughing.</p>
+        <p>Play the free stuff. If you like how we cook, wishlist the big ones.</p>
+      </div>
+    </section>
+
+    <section class="section" id="signup">
+      <div class="signup-box">
+        <h2 class="section-title center">JOIN THE CREW</h2>
+        <p class="section-sub center">New free games + Steam launch alerts. Zero spam.</p>
+        <form class="signup-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" data-note="wire-later">
+          <input type="email" name="email" placeholder="your@email.com" required aria-label="Email address">
+          <button class="btn btn-primary" type="submit">SIGN UP</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-logo">OUTPOST<span>BOYZ</span></p>
+    <p>© 2026 Outpost Boyz — All rights reserved. Gaming Beyond Limits.</p>
+  </footer>
+
+  <script src="assets/arcade.js"></script>
+</body>
+</html>
