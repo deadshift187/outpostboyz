@@ -287,6 +287,37 @@ body {
 .steam-cta { align-self: flex-start; }
 
 /* ---------- about / signup ---------- */
+.about-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 380px) 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .about-grid { grid-template-columns: 1fr; }
+}
+.crew-photo {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 10px;
+}
+.crew-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.crew-names {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 12px 4px 4px;
+}
+.crew-names span {
+  font-family: var(--pixel);
+  font-size: 9px;
+  color: var(--amber);
+  text-shadow: 0 0 8px rgba(255, 180, 84, 0.5);
+}
 .about-box {
   background: var(--panel);
   border: 1px solid var(--line);
