@@ -509,3 +509,11 @@ body {
 .game-card { border-top: 6px solid var(--gc, var(--ink)); }
 .game-icon { filter: none; }
 .game-card:hover { background: #fafafa; }
+
+/* v9 lab buttons on the neutral chrome: beaker shape + slime green */
+.btn { border-radius: 4px 4px 18px 18px; }
+.btn-solid { background: #39ff14; color: #000; border-color: #000; }
+.btn-solid:hover { background: #000; color: #39ff14; }
+.btn-red { background: #39ff14; color: #000; border-color: #000; }
+.btn-red:hover { background: #000; color: #39ff14; }
+.game-play { border-radius: 4px 4px 14px 14px; }
