@@ -7,10 +7,18 @@
       "icon": "🔄",
       "color": "#41ff6b",
       "controls": "TAP / SPACE",
-      "badge": "NEW",
       "added": "2026-07-18"
     },
     {
+      "slug": "block-nine",
+      "title": "BLOCK NINE",
+      "tagline": "Drag. Fit. Clear the grid. One wrong block ends it all.",
+      "icon": "🟧",
+      "color": "#ffb454",
+      "controls": "DRAG PIECES",
+      "badge": "NEW",
+      "added": "2026-07-20"
+    },    {
       "slug": "coming-soon-1",
       "title": "???",
       "tagline": "Next cartridge in production.",
