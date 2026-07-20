@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Outpost Boyz — Style Picker</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0e0e11;
+      color: #e8e8ec;
+      font-family: 'Inter', system-ui, sans-serif;
+      padding: 40px 20px 80px;
+    }
+    .wrap { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 28px; font-weight: 800; letter-spacing: 1px; }
+    .sub { color: #8b8b95; margin: 6px 0 30px; font-size: 15px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 14px;
+    }
+    a.card {
+      display: block;
+      background: #17171c;
+      border: 1px solid #26262e;
+      border-radius: 10px;
+      padding: 18px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.12s, border-color 0.12s;
+    }
+    a.card:hover { transform: translateY(-3px); border-color: #5a5a68; }
+    .vid {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 3px 9px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      color: #0e0e11;
+    }
+    .name { font-weight: 800; font-size: 16px; margin-bottom: 4px; }
+    .desc { color: #8b8b95; font-size: 13px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>OUTPOST BOYZ — STYLE PICKER</h1>
+    <p class="sub">Tap any card, judge on your phone, answer by ID. Same site content — 14 different skins.</p>
+    <div class="grid">
+      <a class="card" href="../"><span class="vid" style="background:#41ff6b">V1</span><div class="name">Retro Pixel Arcade</div><div class="desc">Neon green CRT, Press Start 2P, scanlines, insert coin.</div></a>
+      <a class="card" href="../v2/"><span class="vid" style="background:#e0a33e">V2</span><div class="name">Bunker / Hazmat</div><div class="desc">Amber hazard tape, military stencil, red warning glow.</div></a>
+      <a class="card" href="../v3/"><span class="vid" style="background:#9dff20">V3</span><div class="name">Tactical Ops HUD</div><div class="desc">Acid green targeting brackets, SECTOR labels, operator list.</div></a>
+      <a class="card" href="../v4/"><span class="vid" style="background:#ff3b30">V4</span><div class="name">VHS Analog Horror</div><div class="desc">● REC camcorder overlay, glitch title, recovered-tape sections.</div></a>
+      <a class="card" href="../v5/"><span class="vid" style="background:#8aa0ff">V5</span><div class="name">PS1 Memory Card</div><div class="desc">PlayStation-1 nostalgia, ✕ ○ △ □ glyphs, memory card slots.</div></a>
+      <a class="card" href="../v6/"><span class="vid" style="background:#e50914">V6</span><div class="name">Esports Org</div><div class="desc">100 Thieves energy — huge bold type, one red accent, expensive-clean.</div></a>
+      <a class="card" href="../v7/"><span class="vid" style="background:#ffd60a">V7</span><div class="name">Friendslop Sticker Chaos</div><div class="desc">Tilted sticker cards, thick outlines, meme energy, bright pops.</div></a>
+      <a class="card" href="../v8/"><span class="vid" style="background:#ff2975">V8</span><div class="name">Synthwave Outrun</div><div class="desc">Sunset grid floor, chrome title, pink/cyan neon, 80s VHS cover.</div></a>
+      <a class="card" href="../v9/"><span class="vid" style="background:#39ff14">V9</span><div class="name">Toxic Biolab</div><div class="desc">Slime green + warning purple, specimen jars, quarantine stamps.</div></a>
+      <a class="card" href="../v10/"><span class="vid" style="background:#ffffff">V10</span><div class="name">Brutalist Streetwear</div><div class="desc">Black-on-white fashion drop, massive type, marquee tickers.</div></a>
+      <a class="card" href="../v11/"><span class="vid" style="background:#ffd200">V11</span><div class="name">Comic Book</div><div class="desc">Halftone dots, panel borders, speech bubbles, ISSUE #1.</div></a>
+      <a class="card" href="../v12/"><span class="vid" style="background:#0066ff">V12</span><div class="name">Whiteout Sci-Fi</div><div class="desc">Clean bright futurist, ice white, one electric blue, Apple-of-gaming.</div></a>
+      <a class="card" href="../v13/"><span class="vid" style="background:#ff5e00">V13</span><div class="name">Heavy Metal</div><div class="desc">Doom album cover — molten orange, jagged dividers, band-lineup crew.</div></a>
+      <a class="card" href="../v14/"><span class="vid" style="background:#c6ff00">V14</span><div class="name">Y2K Cyber Chrome</div><div class="desc">Chrome logo, glossy pills, orbit rings, 2001 internet but polished.</div></a>
+    </div>
+  </div>
+</body>
+</html>
