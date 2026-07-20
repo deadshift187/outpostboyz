@@ -521,7 +521,7 @@ body {
 .hero-bg {
   position: absolute;
   inset: 0;
-  background: url('assets/crew.jpg') center 22% / cover no-repeat;
+  background: url('crew.jpg') center 22% / cover no-repeat;
   filter: grayscale(1) contrast(1.15);
 }
 .hero-bg::after {
