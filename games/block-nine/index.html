@@ -39,18 +39,20 @@
 
   .boardwrap{position:relative;width:100%;aspect-ratio:1;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
   #board{position:relative;width:100%;height:100%;display:grid;grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(9,1fr);gap:3px;touch-action:none}
-  .c{background:var(--cell);border-radius:5px;transition:background .08s, transform .12s}
+  .c{background:var(--cell);border-radius:5px;transition:background .05s, transform .07s}
   /* subtle 3x3 box tint (no margins — keeps drag math uniform) */
   .c.box{background:#242745}
   .c.fill{transition:none}
   .c.prev{background:rgba(255,179,64,.28);box-shadow:inset 0 0 0 1px rgba(255,179,64,.5)}
   .c.prev.bad{background:rgba(255,107,125,.22);box-shadow:inset 0 0 0 1px rgba(255,107,125,.45)}
-  .c.clearing{animation:pop .28s ease forwards}
-  @keyframes pop{0%{transform:scale(1);filter:brightness(1.6)}100%{transform:scale(.2);opacity:0}}
+  .c.clearing{animation:pop .13s ease forwards}
+  @keyframes pop{0%{transform:scale(1)}100%{transform:scale(.35);opacity:0}}
 
   .tray{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;min-height:104px}
   .slot{background:var(--panel);border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;justify-content:center;padding:10px;touch-action:none}
-  .slot.used{opacity:.25}
+  .slot.used{background:transparent;border-style:dashed;border-color:#ffffff16}
+  .slot.lifted{border-style:dashed;border-color:var(--accent)}
+  .slot.lifted .piece{opacity:.22}
   .piece{display:grid;gap:3px;touch-action:none;cursor:grab}
   .pb{width:var(--pb,22px);height:var(--pb,22px);border-radius:5px}
   .pb.empty{background:transparent}
@@ -59,7 +61,7 @@
 
   .combo{position:absolute;left:50%;top:44%;transform:translateX(-50%);font-weight:900;font-size:34px;color:var(--accent);
     text-shadow:0 2px 20px rgba(255,179,64,.6);pointer-events:none;opacity:0}
-  .combo.show{animation:combo 1s ease forwards}
+  .combo.show{animation:combo .62s ease forwards}
   @keyframes combo{0%{opacity:0;transform:translateX(-50%) scale(.6)}25%{opacity:1;transform:translateX(-50%) scale(1.1)}70%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-30px) scale(1)}}
 
   .over{position:absolute;inset:0;background:rgba(13,14,24,.92);backdrop-filter:blur(4px);border-radius:18px;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;z-index:120}
@@ -193,14 +195,23 @@ function decodeCode(str){str=(str||'').trim().toUpperCase();if(!str)return null;
 
 function newPiece(){
   const key=pick(mode==='hard'?BAG_HARD:BAG_CHILL);
-  return {shape:S[key],color:PAL[Math.floor(rng()*PAL.length)],used:false};
+  return {base:S[key],step:0,shape:S[key].map(a=>a.slice()),color:PAL[Math.floor(rng()*PAL.length)],used:false};
 }
 function refillPieces(){pieces=[newPiece(),newPiece(),newPiece()];renderTray();}
 
 function pieceDims(shape){let mr=0,mc=0;for(const[r,c]of shape){mr=Math.max(mr,r);mc=Math.max(mc,c);}return{h:mr+1,w:mc+1};}
 function normShape(cells){const mr=Math.min(...cells.map(x=>x[0])),mc=Math.min(...cells.map(x=>x[1]));return cells.map(([r,c])=>[r-mr,c-mc]);}
 function rotateCW(shape){return normShape(shape.map(([r,c])=>[c,-r]));}
-function rotatePiece(idx){const p=pieces[idx];if(p.used)return;p.shape=rotateCW(p.shape);}
+function mirrorShape(shape){return normShape(shape.map(([r,c])=>[r,-c]));}
+// 8 orientations: 4 rotations, then the mirrored 4. Rotating alone can never turn a J into an L,
+// which is why the "reverse L" felt missing — now a tap cycles all the way round to it.
+function orient(base,step){
+  let sh=(step>=4)?mirrorShape(base):base.map(a=>a.slice());
+  for(let i=0;i<(step%4);i++) sh=rotateCW(sh);
+  return normShape(sh);
+}
+function rotatePiece(idx){const p=pieces[idx];if(p.used)return;
+  p.step=(p.step+1)%8; p.shape=orient(p.base,p.step);}
 
 function renderTray(){
   trayEl.innerHTML='';
@@ -243,6 +254,7 @@ function startDrag(e,idx){
   }
   g.style.display='none';
   document.body.appendChild(g);
+  const slotEl=trayEl.children[idx]; if(slotEl)slotEl.classList.add('lifted');
   dragging={idx,p,g,w,h,cs,startX:e.clientX,startY:e.clientY,moved:false};
   moveGhost(e.clientX,e.clientY);
   window.addEventListener('pointermove',onMove,{passive:false});
@@ -285,6 +297,7 @@ function onUp(){
   window.removeEventListener('pointermove',onMove);
   window.removeEventListener('pointerup',onUp);
   const{p,idx,g,moved}=dragging;
+  const slotEl=trayEl.children[idx]; if(slotEl)slotEl.classList.remove('lifted');
   g.remove();clearPrev();
   if(!moved){ rotatePiece(idx); sizePieces(); renderTray(); dragging=null; return; }
   const t=targetCell();
@@ -328,7 +341,7 @@ function resolveClears(){
   const gained=cellsCleared*2 + lines*10*combo + (lines>1?lines*15:0);
   score+=gained;
   toClear.forEach(k=>{const[r,c]=k.split('_').map(Number);board[r][c]=0;cellAt(r,c).classList.add('clearing');});
-  setTimeout(()=>{toClear.forEach(k=>{const[r,c]=k.split('_').map(Number);const el=cellAt(r,c);el.classList.remove('clearing','fill');el.style.background='';});},280);
+  setTimeout(()=>{toClear.forEach(k=>{const[r,c]=k.split('_').map(Number);const el=cellAt(r,c);el.classList.remove('clearing','fill');el.style.background='';});},130);
   if(lines>1||combo>1){
     comboEl.textContent=(combo>1?combo+'x ':'')+ (lines>1?lines+' CLEARS!':'CLEAR!');
     comboEl.classList.remove('show');void comboEl.offsetWidth;comboEl.classList.add('show');
