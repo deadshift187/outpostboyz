@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Paper Route '88 — Outpost Boyz</title>
+<style>
+  :root{color-scheme:dark;--ink:#f4f1e8;--dim:#b7c0a0;--accent:#ffb43a;--accent2:#5ec4ff;--bad:#ff5d5d;--good:#7be08a;
+    --mono:ui-monospace,"Cascadia Code","Consolas",monospace;--body:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+  html,body{margin:0;height:100%}
+  body{background:radial-gradient(120% 80% at 50% 0%,#2a3350,#0f1119);color:var(--ink);font-family:var(--body);
+    display:flex;justify-content:center;overscroll-behavior:none;touch-action:none}
+  .wrap{width:100%;max-width:460px;padding:42px 10px 12px;display:flex;flex-direction:column;gap:8px;height:100dvh}
+  .hud{display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:var(--mono);font-size:13px}
+  .hud .b{font-weight:800;font-size:16px;font-variant-numeric:tabular-nums}
+  .pill{background:rgba(0,0,0,.28);border:1px solid #ffffff22;border-radius:10px;padding:5px 9px;display:flex;gap:6px;align-items:center}
+  .pill .lab{color:var(--dim);font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+  #lives{color:var(--bad);letter-spacing:2px}
+  .stage{position:relative;flex:1;min-height:0;display:flex;align-items:stretch;justify-content:center}
+  canvas{width:100%;height:100%;object-fit:contain;image-rendering:auto;border-radius:12px;
+    border:1px solid #ffffff1a;background:#3f7d3a;touch-action:none;display:block}
+  .ctrls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .tbtn{font-family:var(--mono);font-weight:800;font-size:16px;letter-spacing:.04em;border:1px solid #ffffff2a;
+    background:linear-gradient(180deg,#2a2f45,#1b1f30);color:var(--ink);padding:15px 8px;border-radius:12px;cursor:pointer}
+  .tbtn:active{transform:scale(.97);background:#ffb43a;color:#241701}
+  .hint{font-family:var(--mono);font-size:10.5px;color:var(--dim);text-align:center;letter-spacing:.02em}
+
+  .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;gap:14px;padding:24px;background:rgba(11,13,20,.86);backdrop-filter:blur(3px);border-radius:12px;z-index:5}
+  .overlay.hide{display:none}
+  .overlay .brand{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
+  .overlay h1{margin:0;font-weight:900;font-size:clamp(30px,9vw,46px);line-height:.9;color:var(--accent);text-shadow:2px 2px 0 #a55}
+  .overlay p{margin:0;color:var(--dim);font-size:14px;max-width:30ch;line-height:1.5}
+  .overlay .big{font-size:22px;font-weight:900;color:var(--ink)}
+  .overlay .big b{color:var(--accent)}
+  .go{border:0;border-radius:12px;padding:14px 34px;font-size:18px;font-weight:800;cursor:pointer;background:var(--accent);color:#241701}
+  .newbest{color:var(--good);font-family:var(--mono);font-weight:800;letter-spacing:.08em}
+  @media (prefers-reduced-motion:reduce){.overlay{backdrop-filter:none}}
+</style>
+</head>
+<body>
+<a class="home-btn" href="../../" style="position:fixed;top:10px;left:10px;z-index:10;font-family:'Press Start 2P',monospace;font-size:8px;color:#7d8da0;text-decoration:none;background:rgba(7,10,15,0.7);border:1px solid #1d2a3a;padding:8px 10px;">◂ OUTPOST BOYZ</a>
+
+<div class="wrap">
+  <div class="hud">
+    <div class="pill"><span class="lab">Score</span><span class="b" id="score">0</span></div>
+    <div class="pill"><span class="lab">Papers</span><span class="b" id="papers">15</span></div>
+    <div class="pill"><span class="lab">Best</span><span class="b" id="best">0</span></div>
+    <div class="pill"><span class="lab">Lives</span><span class="b" id="lives">❤❤❤</span></div>
+  </div>
+
+  <div class="stage">
+    <canvas id="cv" width="400" height="640"></canvas>
+    <div class="overlay" id="start">
+      <div class="brand">Outpost Boys</div>
+      <h1>PAPER<br>ROUTE '88</h1>
+      <p>Deliver papers to the <b style="color:var(--accent)">glowing mailboxes</b>. Dodge cars, cans, and dogs. Grab paper bundles before you run dry.</p>
+      <p style="font-size:12px">Drag to steer · tap <b>◀</b>/<b>▶</b> to throw<br>Desktop: A/D or ← → steer · Q/E throw</p>
+      <button class="go" id="startBtn">Start route</button>
+    </div>
+    <div class="overlay hide" id="over">
+      <h1 style="color:var(--bad);text-shadow:2px 2px 0 #500">WIPEOUT!</h1>
+      <div class="newbest" id="newbest" style="display:none">★ NEW BEST ★</div>
+      <div class="big">Score <b id="finalScore">0</b></div>
+      <div class="hint" id="finStats"></div>
+      <button class="go" id="againBtn">Ride again</button>
+    </div>
+  </div>
+
+  <div class="ctrls">
+    <button class="tbtn" id="throwL">◀ THROW</button>
+    <button class="tbtn" id="throwR">THROW ▶</button>
+  </div>
+  <div class="hint">Drag anywhere on the street to steer</div>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const CW=400, CH=640;
+const ROAD_L=96, ROAD_R=304, BIKE_Y=520;
+const scoreEl=document.getElementById('score'), papersEl=document.getElementById('papers'),
+      bestEl=document.getElementById('best'), livesEl=document.getElementById('lives'),
+      startEl=document.getElementById('start'), overEl=document.getElementById('over');
+
+let bikeX, targetX, speed, score, papers, lives, dist, combo, invuln, running, spawnTimer, houseTimer, best;
+let houses, obstacles, pickups, papersFly, floaters;
+
+best=parseInt(localStorage.getItem('ob-paper-route-best')||'0',10)||0; bestEl.textContent=best;
+
+function reset(){
+  bikeX=200; targetX=200; speed=3.0; score=0; papers=15; lives=3; dist=0; combo=0; invuln=0;
+  spawnTimer=0; houseTimer=0;
+  houses=[]; obstacles=[]; pickups=[]; papersFly=[]; floaters=[];
+  // pre-fill some houses
+  for(let y=-40;y>-CH;y-=110){ addHouseRow(y); }
+  updateHUD();
+}
+function addHouseRow(y){
+  ['L','R'].forEach(side=>{
+    const sub=Math.random()<0.5;
+    houses.push({side,y,sub,delivered:false, color:pickHouse()});
+  });
+}
+function pickHouse(){const c=['#c8663f','#b9944a','#6d8f57','#8a6da0','#5a86a8','#a85a6d'];return c[Math.floor(Math.random()*c.length)];}
+
+function updateHUD(){
+  scoreEl.textContent=score; papersEl.textContent=papers;
+  livesEl.textContent='❤'.repeat(Math.max(0,lives))||'—';
+}
+
+// ---------- input ----------
+let dragging=false;
+function canvasX(clientX){const r=cv.getBoundingClientRect();return (clientX-r.left)*(CW/r.width);}
+cv.addEventListener('pointerdown',e=>{dragging=true;targetX=clamp(canvasX(e.clientX),ROAD_L+16,ROAD_R-16);});
+cv.addEventListener('pointermove',e=>{if(dragging)targetX=clamp(canvasX(e.clientX),ROAD_L+16,ROAD_R-16);});
+window.addEventListener('pointerup',()=>dragging=false);
+const keys={};
+window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;
+  if(e.key.toLowerCase()==='q')throwPaper(-1); if(e.key.toLowerCase()==='e')throwPaper(1);
+  if([' ','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();});
+window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+document.getElementById('throwL').addEventListener('click',()=>throwPaper(-1));
+document.getElementById('throwR').addEventListener('click',()=>throwPaper(1));
+document.getElementById('startBtn').addEventListener('click',start);
+document.getElementById('againBtn').addEventListener('click',start);
+
+function throwPaper(dir){
+  if(!running||papers<=0)return;
+  papers--; updateHUD();
+  papersFly.push({x:bikeX,y:BIKE_Y-6,vx:dir*4.4,vy:speed*0.55,dir,life:120});
+}
+function clamp(v,a,b){return v<a?a:v>b?b:v;}
+
+// ---------- loop ----------
+function start(){ reset(); startEl.classList.add('hide'); overEl.classList.add('hide'); running=true; requestAnimationFrame(loop); }
+function gameOver(){
+  running=false;
+  const isBest=score>best; if(isBest){best=score;localStorage.setItem('ob-paper-route-best',String(best));bestEl.textContent=best;}
+  document.getElementById('finalScore').textContent=score;
+  document.getElementById('newbest').style.display=isBest?'block':'none';
+  document.getElementById('finStats').textContent=Math.floor(dist)+' m delivered';
+  overEl.classList.remove('hide');
+}
+
+let last=0;
+function loop(t){
+  if(!running)return;
+  update(); render();
+  requestAnimationFrame(loop);
+}
+
+function update(){
+  speed=Math.min(6.4, 3.0+dist/900);
+  dist+=speed/12;
+  if(invuln>0)invuln--;
+  // steer (keyboard)
+  if(keys['a']||keys['arrowleft'])targetX-=5.2;
+  if(keys['d']||keys['arrowright'])targetX+=5.2;
+  targetX=clamp(targetX,ROAD_L+16,ROAD_R-16);
+  bikeX+=(targetX-bikeX)*0.25;
+
+  // spawn houses
+  houseTimer-=speed;
+  if(houseTimer<=0){ addHouseRow(-60); houseTimer=110; }
+  // spawn obstacles + pickups
+  spawnTimer-=speed;
+  if(spawnTimer<=0){
+    spawnTimer=Math.max(26, 70-dist/40);
+    const r=Math.random();
+    if(r<0.14 && papers<20){ pickups.push({x:rand(ROAD_L+18,ROAD_R-18),y:-30}); }
+    else{
+      const type=r<0.5?'car':(r<0.72?'can':(r<0.86?'hydrant':'dog'));
+      obstacles.push({type,x:rand(ROAD_L+22,ROAD_R-22),y:-40,vx:0});
+    }
+  }
+
+  const dy=speed;
+  // houses
+  for(const h of houses)h.y+=dy;
+  houses=houses.filter(h=>{ if(h.y>CH+40){ if(h.sub&&!h.delivered)combo=0; return false;} return true; });
+
+  // pickups
+  for(const p of pickups)p.y+=dy;
+  pickups=pickups.filter(p=>{
+    if(Math.abs(p.x-bikeX)<26 && Math.abs(p.y-BIKE_Y)<26){ papers=Math.min(30,papers+5); updateHUD(); floater('+5 papers','#5ec4ff',p.x,p.y); return false; }
+    return p.y<CH+30;
+  });
+
+  // obstacles
+  for(const o of obstacles){ o.y+=dy; if(o.type==='dog'){ o.x+=Math.sign(bikeX-o.x)*0.7; } }
+  obstacles=obstacles.filter(o=>{
+    if(invuln<=0 && Math.abs(o.x-bikeX)<24 && Math.abs(o.y-BIKE_Y)<30){ crash(); return false; }
+    return o.y<CH+40;
+  });
+
+  // flying papers -> deliver to subscriber mailboxes
+  for(const f of papersFly){ f.x+=f.vx; f.y+=f.vy; f.life--;
+    for(const h of houses){ if(!h.sub||h.delivered)continue;
+      const mb=mailbox(h), px=9, pt=12, pb=16;
+      if(f.x>mb.x-px&&f.x<mb.x+mb.w+px&&f.y>mb.y-pt&&f.y<mb.y+mb.h+pb){
+        h.delivered=true; combo++; const pts=100*Math.min(5,combo);
+        score+=pts; floater('+'+pts+(combo>1?'  x'+Math.min(5,combo):''),'#7be08a',mb.x+mb.w/2,mb.y); updateHUD(); f.life=0; break;
+      }
+    }
+  }
+  papersFly=papersFly.filter(f=>f.life>0 && f.x>-20 && f.x<CW+20 && f.y<CH+20);
+
+  // floaters
+  for(const fl of floaters){fl.y-=0.8;fl.life--;}
+  floaters=floaters.filter(fl=>fl.life>0);
+
+  score+=speed*0.015; // distance points
+  scoreEl.textContent=Math.floor(score);
+}
+function rand(a,b){return a+Math.random()*(b-a);}
+function floater(txt,col,x,y){floaters.push({txt,col,x,y,life:60});}
+function crash(){
+  lives--; invuln=90; combo=0; updateHUD();
+  floater('CRASH!','#ff5d5d',bikeX,BIKE_Y-30);
+  if(lives<=0)gameOver();
+}
+
+function mailbox(h){
+  const y=h.y+52;
+  if(h.side==='L')return {x:ROAD_L-16,y,w:14,h:18};
+  return {x:ROAD_R+2,y,w:14,h:18};
+}
+
+// ---------- render ----------
+function render(){
+  // grass
+  ctx.fillStyle='#4c9142';ctx.fillRect(0,0,CW,CH);
+  // sidewalks
+  ctx.fillStyle='#b9b6a8';ctx.fillRect(ROAD_L-24,0,24,CH);ctx.fillRect(ROAD_R,0,24,CH);
+  // road
+  ctx.fillStyle='#41434c';ctx.fillRect(ROAD_L,0,ROAD_R-ROAD_L,CH);
+  // lane dashes (scrolling)
+  ctx.fillStyle='#e8d15a';const off=(dist*12)%40;
+  for(let y=-40+off;y<CH;y+=40){ctx.fillRect(CW/2-3,y,6,22);}
+
+  // houses + mailboxes
+  for(const h of houses)drawHouse(h);
+  // pickups
+  for(const p of pickups){ ctx.fillStyle='#e9e4d4';roundRect(p.x-10,p.y-8,20,16,3);ctx.fill();
+    ctx.fillStyle='#7a7259';ctx.fillRect(p.x-10,p.y-2,20,3); ctx.fillStyle='#3a3630';ctx.font='9px monospace';ctx.textAlign='center';ctx.fillText('NEWS',p.x,p.y+3); }
+  // obstacles
+  for(const o of obstacles)drawObstacle(o);
+  // flying papers
+  ctx.fillStyle='#f3efe0';for(const f of papersFly){ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.life*0.4);ctx.fillRect(-4,-4,8,8);ctx.restore();}
+  // bike + paperboy
+  drawBike();
+  // floaters
+  ctx.textAlign='center';ctx.font='bold 14px system-ui';
+  for(const fl of floaters){ctx.globalAlpha=Math.min(1,fl.life/30);ctx.fillStyle=fl.col;ctx.fillText(fl.txt,fl.x,fl.y);ctx.globalAlpha=1;}
+}
+
+function drawHouse(h){
+  const w=64,x=h.side==='L'?(ROAD_L-24-w):(ROAD_R+24), y=h.y;
+  // yard/house body
+  ctx.fillStyle=h.color;ctx.fillRect(x+6,y,w-12,58);
+  // roof
+  ctx.fillStyle='#3a2f2a';ctx.beginPath();ctx.moveTo(x+2,y);ctx.lineTo(x+w/2,y-20);ctx.lineTo(x+w-2,y);ctx.closePath();ctx.fill();
+  // door + window
+  ctx.fillStyle='#2c2622';ctx.fillRect(x+w/2-6,y+34,12,24);
+  ctx.fillStyle=h.sub?'#fff3c0':'#9fb7c9';ctx.fillRect(x+12,y+12,14,14);ctx.fillRect(x+w-26,y+12,14,14);
+  // mailbox
+  const mb=mailbox(h);
+  if(h.sub&&!h.delivered){ ctx.fillStyle='#ffb43a';ctx.shadowColor='#ffb43a';ctx.shadowBlur=12;ctx.fillRect(mb.x,mb.y,mb.w,mb.h);ctx.shadowBlur=0;
+    ctx.fillStyle='#a55';ctx.fillRect(mb.x+mb.w-3,mb.y-6,3,8); }
+  else if(h.sub&&h.delivered){ ctx.fillStyle='#6b8f5a';ctx.fillRect(mb.x,mb.y,mb.w,mb.h); }
+  else { ctx.fillStyle='#7a7768';ctx.fillRect(mb.x,mb.y,mb.w,mb.h); }
+}
+
+function drawObstacle(o){
+  if(o.type==='car'){ ctx.fillStyle='#d24b4b';roundRect(o.x-16,o.y-22,32,44,6);ctx.fill();
+    ctx.fillStyle='#2a2a30';ctx.fillRect(o.x-13,o.y-16,26,10);ctx.fillRect(o.x-13,o.y+4,26,10);
+    ctx.fillStyle='#ffe';ctx.fillRect(o.x-13,o.y-22,26,4); }
+  else if(o.type==='can'){ ctx.fillStyle='#5a6470';roundRect(o.x-9,o.y-11,18,22,3);ctx.fill();ctx.fillStyle='#40474f';ctx.fillRect(o.x-10,o.y-13,20,4); }
+  else if(o.type==='hydrant'){ ctx.fillStyle='#e0c23a';roundRect(o.x-7,o.y-10,14,20,4);ctx.fill();ctx.fillStyle='#b89a20';ctx.fillRect(o.x-10,o.y-2,20,4); }
+  else if(o.type==='dog'){ ctx.fillStyle='#6b4a2f';roundRect(o.x-12,o.y-7,24,14,5);ctx.fill();ctx.fillStyle='#6b4a2f';ctx.fillRect(o.x+8,o.y-12,8,8);
+    ctx.fillStyle='#000';ctx.fillRect(o.x+13,o.y-9,2,2); }
+}
+
+function drawBike(){
+  if(invuln>0 && Math.floor(invuln/6)%2===0)return;
+  const x=bikeX,y=BIKE_Y;
+  // shadow
+  ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(x,y+22,16,6,0,0,7);ctx.fill();
+  // wheels
+  ctx.fillStyle='#1c1c22';ctx.beginPath();ctx.arc(x,y+16,7,0,7);ctx.fill();ctx.beginPath();ctx.arc(x,y-14,7,0,7);ctx.fill();
+  // frame
+  ctx.strokeStyle='#e8452f';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x,y+16);ctx.lineTo(x,y-14);ctx.stroke();
+  // rider
+  ctx.fillStyle='#3a6ea5';ctx.fillRect(x-7,y-10,14,16);
+  ctx.fillStyle='#ffd9a8';ctx.beginPath();ctx.arc(x,y-14,6,0,7);ctx.fill();
+  ctx.fillStyle='#e8452f';ctx.fillRect(x-6,y-20,12,5); // cap
+}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+reset();
+render();
+</script>
+</body>
+</html>

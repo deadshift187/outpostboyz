@@ -16,9 +16,19 @@
       "icon": "🟧",
       "color": "#ffb454",
       "controls": "DRAG PIECES",
+      "added": "2026-07-20"
+    },
+    {
+      "slug": "paper-route",
+      "title": "PAPER ROUTE '88",
+      "tagline": "Deliver the papers. Dodge cars and dogs. Don't run dry.",
+      "icon": "📰",
+      "color": "#4dd8ff",
+      "controls": "DRAG / THROW",
       "badge": "NEW",
       "added": "2026-07-20"
-    },    {
+    },
+    {
       "slug": "coming-soon-1",
       "title": "???",
       "tagline": "Next cartridge in production.",
