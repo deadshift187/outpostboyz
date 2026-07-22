@@ -71,6 +71,14 @@
       <p class="acct-msg hidden" id="tagMsg"></p>
     </div>
 
+    <div class="acct-card hidden" id="boxPitch">
+      <b style="font-weight:900; letter-spacing:1px;">PITCH THE LAB</b>
+      <p class="acct-sub">Got a game we should build? Pitch it. The crew reads every single one — the best ideas become real experiments in THE LAB.</p>
+      <textarea class="acct-input" id="ideaText" rows="4" maxlength="1000" placeholder="Your game idea — the weirder the better..." style="resize: vertical; font-family: var(--body);"></textarea>
+      <div style="margin-top:12px;"><button class="btn btn-solid btn-sm" id="btnIdea">SUBMIT TO THE LAB</button></div>
+      <p class="acct-msg hidden" id="ideaMsg"></p>
+    </div>
+
     <div class="acct-card hidden" id="boxAccount">
       <b style="font-weight:900; letter-spacing:1px;">OPERATIVE FILE</b>
       <div class="acct-row"><span>GAMERTAG</span><span class="gt" id="outTag"></span></div>
@@ -106,6 +114,7 @@
       ['boxLoading', 'boxSignin', 'boxTag', 'boxAccount'].forEach(function (b) {
         $(b).classList.toggle('hidden', b !== id);
       });
+      $('boxPitch').classList.toggle('hidden', id !== 'boxAccount');
     }
     function msg(id, text, ok) {
       var el = $(id);
@@ -228,6 +237,20 @@
     });
 
     $('btnOut').addEventListener('click', async function () { await OB.signOut(); refresh(); });
+
+    $('btnIdea').addEventListener('click', async function () {
+      var idea = $('ideaText').value.trim();
+      if (idea.length < 10) { msg('ideaMsg', 'Give us at least a sentence to work with.', false); return; }
+      this.disabled = true;
+      var s = await OB.session();
+      var r = s ? await OB.client.from('ideas').insert({ user_id: s.user.id, idea: idea }) : { error: { message: 'Sign in first' } };
+      this.disabled = false;
+      if (r.error) { msg('ideaMsg', r.error.message, false); }
+      else {
+        $('ideaText').value = '';
+        msg('ideaMsg', 'Received. The crew reads every pitch — if we build it, you called it.', true);
+      }
+    });
 
     if (window.OB) {
       OB.client.auth.onAuthStateChange(function () { refresh(); });
