@@ -64,7 +64,9 @@
       <b style="font-weight:900; letter-spacing:1px;">OPERATIVE FILE</b>
       <div class="acct-row"><span>GAMERTAG</span><span class="gt" id="outTag"></span></div>
       <div class="acct-row"><span>EMAIL</span><span id="outEmail"></span></div>
-      <div class="acct-row"><span>MY GAMES</span><span>$1 drops coming soon</span></div>
+      <div class="acct-row"><span>MY GAMES</span><span id="myGamesNote">Nothing yet — first drop soon</span></div>
+      <div id="myGamesList"></div>
+      <p class="acct-msg ok hidden" id="purchasedMsg">Payment received — your game shows up here within a minute. Refresh if it's shy.</p>
       <div style="margin-top:20px; display:flex; gap:12px; flex-wrap:wrap;">
         <a class="btn btn-line btn-sm" href="../leaderboard/">VIEW WORLD RANKS</a>
         <a class="btn btn-line btn-sm" href="../#arcade">PLAY THE LAB</a>
@@ -103,6 +105,29 @@
       $('outTag').textContent = p.gamertag;
       $('outEmail').textContent = s.user.email;
       show('boxAccount');
+      loadGames();
+    }
+
+    async function loadGames() {
+      var games = await OB.myGames();
+      var list = $('myGamesList');
+      var note = $('myGamesNote');
+      var justBought = new URLSearchParams(location.search).get('purchased');
+      if (justBought && !games.some(function (g) { return g.game_slug === justBought; })) {
+        $('purchasedMsg').classList.remove('hidden');
+      }
+      if (!games.length) { list.innerHTML = ''; return; }
+      note.textContent = games.length + ' owned';
+      var names = {};
+      try {
+        var st = await (await fetch('../games/store.json', { cache: 'no-cache' })).json();
+        (st.drops || []).forEach(function (d) { names[d.slug] = d.title; });
+      } catch (e) { }
+      list.innerHTML = games.map(function (g) {
+        var title = String(names[g.game_slug] || g.game_slug).replace(/[<>&]/g, '');
+        return '<div class="acct-row"><span>' + title + '</span>' +
+          '<button class="btn btn-sm" style="border: var(--bw) solid var(--ink); background: var(--paper);" onclick="OB.playGame(\'' + g.game_slug + '\')">PLAY</button></div>';
+      }).join('');
     }
 
     $('btnSend').addEventListener('click', async function () {

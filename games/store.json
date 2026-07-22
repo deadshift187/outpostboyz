@@ -1,0 +1,14 @@
+{
+  "tipUrl": "",
+  "drops": [
+    {
+      "slug": "lost-angeles",
+      "title": "LOST ANGELES",
+      "tagline": "Goofy 2D platformer through a city that lost its mind. Save the citizens. Dodge the chaos.",
+      "icon": "🌴",
+      "color": "#ff4d9d",
+      "price": "$1",
+      "available": false
+    }
+  ]
+}

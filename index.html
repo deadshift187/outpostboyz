@@ -60,9 +60,20 @@
       </div>
     </section>
 
-    <section class="section" id="steam">
+    <section class="section" id="drops">
       <div class="sec-head">
         <span class="sec-num">(02)</span>
+        <h2>DOPE DROPS</h2>
+        <p class="sec-sub">Premium lab experiments. One dollar. Yours forever on your account.</p>
+      </div>
+      <div class="game-grid" id="dropsGrid">
+        <p class="loading">CHECKING THE VAULT&#8230;</p>
+      </div>
+    </section>
+
+    <section class="section" id="steam">
+      <div class="sec-head">
+        <span class="sec-num">(03)</span>
         <h2>STEAM CO-OP</h2>
         <p class="sec-sub">Incubating for Steam. Squad up.</p>
       </div>
@@ -100,7 +111,7 @@
 
     <section class="section" id="solo">
       <div class="sec-head">
-        <span class="sec-num">(03)</span>
+        <span class="sec-num">(04)</span>
         <h2>STEAM SOLO</h2>
         <p class="sec-sub">Single-player. One pilot. No backup.</p>
       </div>
@@ -115,7 +126,7 @@
 
     <section class="section" id="clips">
       <div class="sec-head">
-        <span class="sec-num">(04)</span>
+        <span class="sec-num">(05)</span>
         <h2>THE FOOTAGE</h2>
         <p class="sec-sub">Actual footage of us losing containment online.</p>
       </div>
@@ -131,7 +142,7 @@
 
     <section class="section" id="crew">
       <div class="sec-head">
-        <span class="sec-num">(05)</span>
+        <span class="sec-num">(06)</span>
         <h2>THE CREW</h2>
         <p class="sec-sub">We game together. We build together.</p>
       </div>
@@ -149,6 +160,12 @@
         </ul>
         <p class="crew-copy">Four friends who turned late-night lobbies into a game studio. The arcade is our petri dish — the Steam co-op is the main outbreak.</p>
       </div>
+    </section>
+
+    <section class="signup" id="tips" style="background: var(--paper); border-top: none; display: none;">
+      <h2>FUEL THE LAB</h2>
+      <p>No pressure, ever. But if the free games made your day, the tip jar keeps the lights on.</p>
+      <a class="btn btn-red" id="tipBtn" href="#" target="_blank" rel="noopener">TIP THE CREW</a>
     </section>
 
     <section class="signup" id="signup">
@@ -229,5 +246,33 @@
     })();
   })();
   </script>
+  <script>
+  (async function () {
+    var grid = document.getElementById('dropsGrid');
+    try {
+      var res = await fetch('games/store.json', { cache: 'no-cache' });
+      var store = await res.json();
+      if (store.tipUrl) {
+        var t = document.getElementById('tips');
+        document.getElementById('tipBtn').href = store.tipUrl;
+        t.style.display = '';
+      }
+      var drops = store.drops || [];
+      if (!drops.length) { grid.innerHTML = '<p class="loading">FIRST DROP IN PRODUCTION.</p>'; return; }
+      grid.innerHTML = drops.map(function (g) {
+        var btn = g.available
+          ? '<a class="game-play" href="#" onclick="OB && OB.buy(\'' + g.slug + '\'); return false;">BUY ' + g.price + '</a>'
+          : '<span class="game-play dim">DROPPING SOON &#8212; ' + g.price + '</span>';
+        return '<article class="game-card" style="--gc:' + (g.color || '#000') + '">' +
+          '<span class="chip chip-hot game-badge">' + g.price + '</span>' +
+          '<div class="game-icon">' + (g.icon || '&#127918;') + '</div>' +
+          '<h3>' + g.title + '</h3><p>' + (g.tagline || '') + '</p>' + btn + '</article>';
+      }).join('');
+    } catch (e) {
+      grid.innerHTML = '<p class="loading">VAULT OFFLINE.</p>';
+    }
+  })();
+  </script>
 </body>
+
 </html>

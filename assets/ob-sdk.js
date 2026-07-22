@@ -5,6 +5,7 @@
   'use strict';
   var OB_URL = 'https://duogqviqgmbaynfrhrmq.supabase.co';
   var OB_KEY = 'sb_publishable_2BlS9dXgQdHF04kUtp-b9A_FbfqTzyh';
+  var OB_FN = OB_URL + '/functions/v1';
 
   if (!window.supabase || !window.supabase.createClient) {
     console.warn('OB SDK: supabase-js not loaded');
@@ -64,6 +65,40 @@
         .order('best_score', { ascending: false })
         .limit(limit || 25);
       return { data: r.data || [], error: r.error };
+    },
+
+    async buy(slug) {
+      var s = await this.session();
+      if (!s) { window.location.href = 'account/'; return; }
+      var r = await fetch(OB_FN + '/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + s.access_token
+        },
+        body: JSON.stringify({ slug: slug })
+      });
+      var d = await r.json();
+      if (d.url) { window.location.href = d.url; }
+      else { alert(d.error || 'Checkout unavailable right now'); }
+    },
+
+    async myGames() {
+      var s = await this.session();
+      if (!s) return [];
+      var r = await client.from('purchases').select('game_slug,created_at').order('created_at', { ascending: false });
+      return r.data || [];
+    },
+
+    async playGame(slug) {
+      var s = await this.session();
+      if (!s) return;
+      var r = await fetch(OB_FN + '/get-game?slug=' + encodeURIComponent(slug), {
+        headers: { 'Authorization': 'Bearer ' + s.access_token }
+      });
+      var d = await r.json();
+      if (d.url) { window.open(d.url, '_blank'); }
+      else { alert(d.error || 'Unavailable'); }
     }
   };
 })();
