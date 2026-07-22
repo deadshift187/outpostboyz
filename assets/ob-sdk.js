@@ -126,9 +126,8 @@
       return this.tipUrl;
     },
 
-    // Called by games when a run ends. Shows the $1 research-grant card,
-    // but only for players who are actually into it: first ask on run 3,
-    // then every 6th run, 24h snooze on dismiss, 7 days after funding.
+    // Called by games when a run ends. Shows the $1 research-grant card
+    // every 5th run-end; NOT NOW quiets it for 24h, funding for 7 days.
     async gameOver(slug) {
       try {
         var url = await this.loadTipUrl();
@@ -137,7 +136,7 @@
         localStorage.setItem('ob-runs', String(n));
         var snooze = parseInt(localStorage.getItem('ob-tip-snooze') || '0', 10) || 0;
         if (Date.now() < snooze) return;
-        if (n < 3 || (n - 3) % 6 !== 0) return;
+        if (n % 5 !== 0) return;
         this._showTip(url);
       } catch (e) { }
     },
