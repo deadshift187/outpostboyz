@@ -162,7 +162,7 @@
       </div>
     </section>
 
-    <section class="signup" id="tips" style="background: var(--paper); color: var(--ink); border-top: var(--bw) solid var(--ink); display: none;">
+    <section class="signup" id="tips" style="background: var(--paper); color: var(--ink); border-top: var(--bw) solid var(--ink);">
       <h2>THE $1 RESEARCH GRANT</h2>
       <p style="color: var(--grey); max-width: 520px; margin-left: auto; margin-right: auto;">Every game in THE LAB is free, forever. That's the deal.<br>But labs run on funding — and this one runs on one-dollar research grants from players.</p>
       <p style="font-weight: 900; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; margin: 18px 0 22px;">Grant allocation: 100% new experiments &nbsp;·&nbsp; 0% suits &nbsp;·&nbsp; 0% ads on your games</p>
@@ -254,10 +254,16 @@
     try {
       var res = await fetch('games/store.json', { cache: 'no-cache' });
       var store = await res.json();
+      var tipBtn = document.getElementById('tipBtn');
       if (store.tipUrl) {
-        var t = document.getElementById('tips');
-        document.getElementById('tipBtn').href = store.tipUrl;
-        t.style.display = '';
+        tipBtn.href = store.tipUrl;
+      } else {
+        tipBtn.textContent = 'GRANTS DESK OPENS SOON';
+        tipBtn.style.background = 'transparent';
+        tipBtn.style.color = 'var(--grey)';
+        tipBtn.style.borderStyle = 'dashed';
+        tipBtn.style.borderColor = 'var(--grey)';
+        tipBtn.style.pointerEvents = 'none';
       }
       var drops = store.drops || [];
       if (!drops.length) { grid.innerHTML = '<p class="loading">FIRST DROP IN PRODUCTION.</p>'; return; }
