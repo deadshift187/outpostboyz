@@ -17,6 +17,27 @@
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
+  <div id="loadup" aria-hidden="true">
+    <div class="lu-inner">
+      <div class="lu-kicker">INDEPENDENT GAME STUDIO</div>
+      <div class="lu-logo">OUTPOST<br><span>BOYZ</span></div>
+      <div class="lu-bar"><span></span></div>
+      <div class="lu-tag">GAMING BEYOND LIMITS</div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    var lu=document.getElementById('loadup');
+    if(!lu)return;
+    try{ if(sessionStorage.getItem('ob-splash')){ lu.parentNode.removeChild(lu); return; } sessionStorage.setItem('ob-splash','1'); }catch(e){}
+    var gone=false;
+    function done(){ if(gone)return; gone=true; lu.classList.add('lu-out'); setTimeout(function(){ if(lu.parentNode)lu.parentNode.removeChild(lu); },550); }
+    lu.addEventListener('click',done);
+    var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTimeout(done, rm?400:2300);
+  })();
+  </script>
+
   <nav class="nav">
     <a class="nav-logo" href="#top">OUTPOST&nbsp;BOYZ</a>
     <div class="nav-links">
