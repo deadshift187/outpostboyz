@@ -31,6 +31,28 @@
 
     async signOut() { return client.auth.signOut(); },
 
+    async signInPassword(email, password) {
+      return client.auth.signInWithPassword({ email: email, password: password });
+    },
+
+    async signUpPassword(email, password) {
+      return client.auth.signUp({
+        email: email,
+        password: password,
+        options: { emailRedirectTo: 'https://outpostboyz.com/account/' }
+      });
+    },
+
+    async resetPassword(email) {
+      return client.auth.resetPasswordForEmail(email, {
+        redirectTo: 'https://outpostboyz.com/account/'
+      });
+    },
+
+    async setPassword(newPassword) {
+      return client.auth.updateUser({ password: newPassword });
+    },
+
     async profile() {
       var s = await this.session();
       if (!s) return null;

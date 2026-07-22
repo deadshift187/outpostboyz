@@ -25,6 +25,8 @@
     .acct-row b { font-weight: 900; letter-spacing: 1px; }
     .hidden { display: none; }
     .gt { font-family: var(--disp); font-size: 28px; letter-spacing: 0; }
+    .authtab { font-family: var(--body); font-weight: 900; letter-spacing: 1px; font-size: 13px; padding: 12px; border: 0; background: var(--paper); color: var(--ink); cursor: pointer; text-transform: uppercase; }
+    .authtab.active { background: var(--ink); color: var(--paper); }
   </style>
 </head>
 <body>
@@ -43,11 +45,20 @@
     <div class="acct-card" id="boxLoading"><p>CHECKING CLEARANCE…</p></div>
 
     <div class="acct-card hidden" id="boxSignin">
-      <b style="font-weight:900; letter-spacing:1px;">SIGN IN / JOIN — NO PASSWORD NEEDED</b>
-      <p class="acct-sub">Enter your email and we send you a magic link. Click it, you're in. New here? Same box — it creates your account.</p>
+      <div style="display:flex; gap:0; border: var(--bw) solid var(--ink); margin-bottom:6px;">
+        <button id="tabIn" class="authtab" style="flex:1;">SIGN IN</button>
+        <button id="tabUp" class="authtab" style="flex:1;">CREATE ACCOUNT</button>
+      </div>
+      <p class="acct-sub" id="authBlurb">Welcome back, operative.</p>
       <label class="acct-label" for="email">EMAIL</label>
       <input class="acct-input" id="email" type="email" placeholder="you@email.com" autocomplete="email">
-      <div style="margin-top:16px;"><button class="btn btn-solid" id="btnSend">SEND MAGIC LINK</button></div>
+      <label class="acct-label" for="pw">PASSWORD</label>
+      <input class="acct-input" id="pw" type="password" placeholder="8+ characters" autocomplete="current-password">
+      <div style="margin-top:16px;"><button class="btn btn-solid" id="btnAuth">SIGN IN</button></div>
+      <p style="margin-top:14px; font-size:13px;">
+        <a href="#" id="lnkForgot" style="color:var(--grey);">Forgot password?</a> &nbsp;·&nbsp;
+        <a href="#" id="lnkMagic" style="color:var(--grey);">Email me a magic link instead</a>
+      </p>
       <p class="acct-msg hidden" id="signinMsg"></p>
     </div>
 
@@ -67,6 +78,12 @@
       <div class="acct-row"><span>MY GAMES</span><span id="myGamesNote">Nothing yet — first drop soon</span></div>
       <div id="myGamesList"></div>
       <p class="acct-msg ok hidden" id="purchasedMsg">Payment received — your game shows up here within a minute. Refresh if it's shy.</p>
+      <label class="acct-label" for="newpw">SET / CHANGE PASSWORD <span style="font-weight:400; text-transform:none; letter-spacing:0;">(lets you sign in on any device)</span></label>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <input class="acct-input" id="newpw" type="password" placeholder="new password (8+ chars)" style="flex:1; min-width:200px; width:auto;" autocomplete="new-password">
+        <button class="btn btn-solid btn-sm" id="btnSetPw">SAVE</button>
+      </div>
+      <p class="acct-msg hidden" id="pwMsg"></p>
       <div style="margin-top:20px; display:flex; gap:12px; flex-wrap:wrap;">
         <a class="btn btn-line btn-sm" href="../leaderboard/">VIEW WORLD RANKS</a>
         <a class="btn btn-line btn-sm" href="../#arcade">PLAY THE LAB</a>
@@ -130,14 +147,73 @@
       }).join('');
     }
 
-    $('btnSend').addEventListener('click', async function () {
+    var mode = 'in';
+    function setMode(m) {
+      mode = m;
+      $('tabIn').classList.toggle('active', m === 'in');
+      $('tabUp').classList.toggle('active', m === 'up');
+      $('btnAuth').textContent = m === 'in' ? 'SIGN IN' : 'CREATE ACCOUNT';
+      $('authBlurb').textContent = m === 'in'
+        ? 'Welcome back, operative.'
+        : 'New here? Email + password and you are in. One confirm email, click it, done.';
+    }
+    $('tabIn').addEventListener('click', function () { setMode('in'); });
+    $('tabUp').addEventListener('click', function () { setMode('up'); });
+    setMode('in');
+
+    function validEmail(e) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e); }
+
+    $('btnAuth').addEventListener('click', async function () {
       var email = $('email').value.trim();
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg('signinMsg', 'That email looks off — check it.', false); return; }
-      this.disabled = true; this.textContent = 'SENDING…';
+      var pw = $('pw').value;
+      if (!validEmail(email)) { msg('signinMsg', 'That email looks off — check it.', false); return; }
+      if (pw.length < 8) { msg('signinMsg', 'Password needs at least 8 characters.', false); return; }
+      this.disabled = true;
+      if (mode === 'in') {
+        var r = await OB.signInPassword(email, pw);
+        this.disabled = false;
+        if (r.error) {
+          var m = r.error.message === 'Invalid login credentials'
+            ? 'Wrong email or password. New here? Hit CREATE ACCOUNT. Made your account with a magic link? Use Forgot password to set one.'
+            : r.error.message;
+          msg('signinMsg', m, false);
+        }
+      } else {
+        var r2 = await OB.signUpPassword(email, pw);
+        this.disabled = false;
+        if (r2.error) { msg('signinMsg', r2.error.message, false); }
+        else if (r2.data && r2.data.user && r2.data.user.identities && r2.data.user.identities.length === 0) {
+          msg('signinMsg', 'That email already has an account — use SIGN IN, or Forgot password.', false);
+        } else {
+          msg('signinMsg', 'Account created. Check your email for the confirm link, then come back and SIGN IN.', true);
+        }
+      }
+    });
+
+    $('lnkForgot').addEventListener('click', async function (e) {
+      e.preventDefault();
+      var email = $('email').value.trim();
+      if (!validEmail(email)) { msg('signinMsg', 'Type your email above first, then hit Forgot password.', false); return; }
+      var r = await OB.resetPassword(email);
+      msg('signinMsg', r.error ? r.error.message : 'Reset link sent. Open it on THIS device, then set your new password here.', !r.error);
+    });
+
+    $('lnkMagic').addEventListener('click', async function (e) {
+      e.preventDefault();
+      var email = $('email').value.trim();
+      if (!validEmail(email)) { msg('signinMsg', 'Type your email above first.', false); return; }
       var r = await OB.signIn(email);
-      this.disabled = false; this.textContent = 'SEND MAGIC LINK';
-      if (r.error) { msg('signinMsg', r.error.message, false); }
-      else { msg('signinMsg', 'Link sent. Check your email (and junk) — click it and you land back here signed in.', true); }
+      msg('signinMsg', r.error ? r.error.message : 'Magic link sent. Heads up: it signs in whichever device you OPEN it on.', !r.error);
+    });
+
+    $('btnSetPw').addEventListener('click', async function () {
+      var pw = $('newpw').value;
+      if (pw.length < 8) { msg('pwMsg', 'At least 8 characters.', false); return; }
+      this.disabled = true;
+      var r = await OB.setPassword(pw);
+      this.disabled = false;
+      msg('pwMsg', r.error ? r.error.message : 'Password saved — you can now sign in with it on any device.', !r.error);
+      if (!r.error) $('newpw').value = '';
     });
 
     $('btnTag').addEventListener('click', async function () {
