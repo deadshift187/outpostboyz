@@ -36,6 +36,27 @@ Games are built in other chats and delivered as a single self-contained HTML fil
    git push
    ```
 
+## GAUNTLET games (paid $1, $100 bounty — tell the game-building chat)
+
+Gauntlet games are PAID and brutally hard (Cuphead-hard: fair but punishing,
+skill-based, no RNG deaths). Extra requirements on top of the standard ones:
+
+- File goes to the PRIVATE bucket, NOT the public repo: Claude uploads to
+  Supabase storage `paid-games/<slug>/index.html` (never commit it to git)
+- Progress metric: the game must have a measurable "farthest point"
+  (distance, stage, boss #, %) and submit it every run:
+  `if (window.OB) OB.submitScore('<slug>', progressNumber);`
+- Victory: on ACTUAL completion only, call ONCE:
+  `if (window.OB) OB.claimBounty('<slug>');`
+  (sdk shows the bounty-claim card; crew verifies first claim manually before paying)
+- Include the sdk tags at the end of the file:
+  `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>`
+  `<script src="/assets/ob-sdk.js"></script>` (absolute path — game is served from a signed URL)
+- Claude then: adds slug to `games/store.json` gauntlet[], adds slug+price to the
+  create-checkout CATALOG (edge function), done.
+- When someone verified-beats it: move entry from gauntlet[] to beatPile[]
+  with winner gamertag + date; game stays buyable, bounty chip goes away.
+
 ## Game requirements (tell the game-building chat)
 
 - Single `index.html`, everything inline

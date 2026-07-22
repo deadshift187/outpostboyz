@@ -183,6 +183,35 @@
       });
     },
 
+    // Gauntlet games call this ONCE when the player actually beats the game.
+    // Logs a bounty claim (first verified claim wins the $100).
+    async claimBounty(slug) {
+      try {
+        var s = await this.session();
+        if (!s) return { skipped: true };
+        var r = await this.client.from('bounty_wins').insert({ user_id: s.user.id, game_slug: slug });
+        var already = r.error && r.error.code === '23505';
+        if (!r.error || already) this._showBountyClaim(already);
+        return r;
+      } catch (e) { return { error: e }; }
+    },
+
+    _showBountyClaim(already) {
+      if (document.getElementById('obBountyCard')) return;
+      var d = document.createElement('div');
+      d.id = 'obBountyCard';
+      d.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9999;background:#0d160f;border:3px solid #ffb454;border-radius:12px;padding:24px;max-width:360px;width:calc(100vw - 32px);font-family:system-ui,sans-serif;color:#e8e2d4;box-shadow:0 8px 60px rgba(0,0,0,.8);text-align:center;';
+      d.innerHTML = '<div style="font-size:34px;">&#127942;</div>' +
+        '<div style="font-weight:800;letter-spacing:1px;font-size:17px;color:#ffb454;margin-top:6px;">' +
+        (already ? 'CLAIM ALREADY LOGGED' : 'VICTORY LOGGED') + '</div>' +
+        '<div style="font-size:13px;color:#9aa89b;margin:10px 0 16px;">' +
+        (already ? 'Your completion is already on file with the crew.'
+          : 'Your run is on file, timestamped. If you are the FIRST verified victor, the crew contacts you at your account email and the $100 bounty is yours.') +
+        '</div>' +
+        '<button onclick="this.parentNode.remove()" style="background:#ffb454;color:#241701;font-weight:800;font-size:13px;padding:10px 18px;border:0;border-radius:8px;cursor:pointer;letter-spacing:1px;">RESPECT</button>';
+      document.body.appendChild(d);
+    },
+
     async playGame(slug) {
       var s = await this.session();
       if (!s) return;

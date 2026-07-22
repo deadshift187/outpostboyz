@@ -72,9 +72,31 @@
       </div>
     </section>
 
-    <section class="section" id="services">
+    <section class="section" id="gauntlet">
       <div class="sec-head">
         <span class="sec-num">(03)</span>
+        <h2>THE GAUNTLET</h2>
+        <p class="sec-sub">Cuphead-hard. One dollar. Unlimited runs. First verified victor takes the $100 bounty.</p>
+      </div>
+
+      <div style="border: var(--bw) solid var(--ink); background: var(--ink); color: var(--paper); padding: 18px 22px; margin-bottom: 22px; font-size: 14px;">
+        <b style="letter-spacing: 2px;">THE RULES:</b>
+        $1 unlocks unlimited runs on your account &nbsp;·&nbsp; every run posts your farthest point to the <a href="leaderboard/" style="color:#39ff14;">world board</a> &nbsp;·&nbsp; first player to BEAT it — verified by the crew — takes the <b style="color:#39ff14;">$100 bounty</b> &nbsp;·&nbsp; conquered games retire to the BEAT PILE with the victor's name on them forever.
+      </div>
+
+      <div class="game-grid" id="gauntletGrid">
+        <p class="loading">MEASURING THE PAIN&#8230;</p>
+      </div>
+
+      <p style="font-weight:900; font-size:13px; letter-spacing:2px; text-transform:uppercase; margin:30px 0 12px;">The Beat Pile — conquered experiments</p>
+      <div id="beatPile" style="border: var(--bw) solid var(--ink);">
+        <p class="loading" style="padding: 18px;">NO SURVIVORS YET. THE PILE IS EMPTY.</p>
+      </div>
+    </section>
+
+    <section class="section" id="services">
+      <div class="sec-head">
+        <span class="sec-num">(04)</span>
         <h2>LAB SERVICES</h2>
         <p class="sec-sub">The lab works for hire. Real humans. Real builds. No agencies.</p>
       </div>
@@ -193,7 +215,7 @@
 
     <section class="section" id="steam">
       <div class="sec-head">
-        <span class="sec-num">(04)</span>
+        <span class="sec-num">(05)</span>
         <h2>STEAM CO-OP</h2>
         <p class="sec-sub">Incubating for Steam. Squad up.</p>
       </div>
@@ -231,7 +253,7 @@
 
     <section class="section" id="solo">
       <div class="sec-head">
-        <span class="sec-num">(05)</span>
+        <span class="sec-num">(06)</span>
         <h2>STEAM SOLO</h2>
         <p class="sec-sub">Single-player. One pilot. No backup.</p>
       </div>
@@ -246,7 +268,7 @@
 
     <section class="section" id="clips">
       <div class="sec-head">
-        <span class="sec-num">(06)</span>
+        <span class="sec-num">(07)</span>
         <h2>THE FOOTAGE</h2>
         <p class="sec-sub">Actual footage of us losing containment online.</p>
       </div>
@@ -262,7 +284,7 @@
 
     <section class="section" id="crew">
       <div class="sec-head">
-        <span class="sec-num">(07)</span>
+        <span class="sec-num">(08)</span>
         <h2>THE CREW</h2>
         <p class="sec-sub">We game together. We build together.</p>
       </div>
@@ -396,6 +418,31 @@
           '<div class="game-icon">' + (g.icon || '&#127918;') + '</div>' +
           '<h3>' + g.title + '</h3><p>' + (g.tagline || '') + '</p>' + btn + '</article>';
       }).join('');
+
+      var gg = document.getElementById('gauntletGrid');
+      var gauntlet = store.gauntlet || [];
+      if (!gauntlet.length) {
+        gg.innerHTML = '<p class="loading">FIRST GAUNTLET EXPERIMENT IN FABRICATION. BRING BANDAGES.</p>';
+      } else {
+        gg.innerHTML = gauntlet.map(function (g) {
+          var btn = g.available
+            ? '<a class="game-play" href="#" onclick="OB && OB.buy(\'' + g.slug + '\'); return false;">$1 — UNLIMITED RUNS</a>'
+            : '<span class="game-play dim">DROPPING SOON</span>';
+          return '<article class="game-card" style="--gc:' + (g.color || '#000') + '">' +
+            '<span class="chip chip-hot game-badge">$100 BOUNTY</span>' +
+            '<div class="game-icon">' + (g.icon || '&#128128;') + '</div>' +
+            '<h3>' + g.title + '</h3><p>' + (g.tagline || '') + '</p>' + btn + '</article>';
+        }).join('');
+      }
+      var bp = document.getElementById('beatPile');
+      var beat = store.beatPile || [];
+      if (beat.length) {
+        bp.innerHTML = beat.map(function (b) {
+          return '<div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:14px 18px; border-bottom:2px solid var(--ink); font-size:14px;">' +
+            '<span><b>' + b.title + '</b> — conquered by <b style="color:var(--red);">' + b.winner + '</b> on ' + b.beatenAt + '</span>' +
+            '<span style="font-weight:900;">$100 CLAIMED</span></div>';
+        }).join('');
+      }
     } catch (e) {
       grid.innerHTML = '<p class="loading">VAULT OFFLINE.</p>';
     }
