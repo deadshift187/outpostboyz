@@ -81,10 +81,26 @@
       return r.data || null;
     },
 
+    cleanTag(tag) {
+      var norm = String(tag || '').toLowerCase();
+      norm = norm.replace(/0/g, 'o').replace(/1/g, 'i').replace(/3/g, 'e')
+                 .replace(/4/g, 'a').replace(/5/g, 's').replace(/7/g, 't')
+                 .replace(/8/g, 'b').replace(/@/g, 'a').replace(/\$/g, 's');
+      norm = norm.replace(/[^a-z]/g, '');
+      var banned = ['nigger','nigga','niger','nigar','faggot','fagot','chink','spic','kike','wetback','coon','beaner','gook','tranny','dyke','retard','tard','fuck','fuk','fuq','phuck','shit','bitch','cunt','whore','slut','asshole','dumbass','jackass','bastard','pussy','cock','dick','dildo','boner','wank','jizz','cum','anus','clit','rape','rapist','molest','pedo','pedophile','kys','killyourself','suicide','nazi','hitler','kkk','klux','isis','terrorist','genocide','holocaust','admin','moderator','outpostofficial','staff','support'];
+      for (var i = 0; i < banned.length; i++) { if (norm.indexOf(banned[i]) !== -1) return false; }
+      return true;
+    },
+
     async setGamertag(tag) {
       var s = await this.session();
       if (!s) return { error: { message: 'Not signed in' } };
-      return client.from('profiles').insert({ id: s.user.id, gamertag: tag });
+      if (!this.cleanTag(tag)) return { error: { code: 'dirty', message: "That gamertag isn't allowed — keep it clean, champ." } };
+      var r = await client.from('profiles').insert({ id: s.user.id, gamertag: tag });
+      if (r.error && /gamertag_not_allowed/.test(r.error.message || '')) {
+        return { error: { code: 'dirty', message: "That gamertag isn't allowed — keep it clean, champ." } };
+      }
+      return r;
     },
 
     async submitScore(slug, score) {
