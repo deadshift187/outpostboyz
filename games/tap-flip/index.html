@@ -125,7 +125,7 @@
           state.mode = 'dead';
           state.best = Math.max(state.best, Math.floor(state.score));
           localStorage.setItem('ob-tapflip-best', state.best);
-          if (window.OB) OB.submitScore('tap-flip', Math.floor(state.score));
+          if (window.OB) { OB.submitScore('tap-flip', Math.floor(state.score)); OB.gameOver('tap-flip'); }
         }
       }
       state.obstacles = state.obstacles.filter(o => o.x + o.w > -10);

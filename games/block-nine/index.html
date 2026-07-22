@@ -361,7 +361,7 @@ function checkGameOver(){
     document.getElementById('finalScore').textContent=score;
     document.getElementById('finCode').textContent=encodeCode();
     document.getElementById('newbest').style.display=isBest?'block':'none';
-    overEl.classList.add('show');
+    overEl.classList.add('show'); if(window.OB){OB.submitScore('block-nine',score);OB.gameOver('block-nine');}
   }
 }
 function updateScore(){scoreEl.textContent=score;if(score>best){best=score;bestEl.textContent=best;saveBest();}}

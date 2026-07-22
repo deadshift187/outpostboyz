@@ -112,6 +112,57 @@
       return r.data || [];
     },
 
+    tipUrl: '',
+    _tipLoaded: false,
+
+    async loadTipUrl() {
+      if (this._tipLoaded) return this.tipUrl;
+      this._tipLoaded = true;
+      try {
+        var r = await fetch('/games/store.json', { cache: 'no-cache' });
+        var s = await r.json();
+        this.tipUrl = s.tipUrl || '';
+      } catch (e) { this.tipUrl = ''; }
+      return this.tipUrl;
+    },
+
+    // Called by games when a run ends. Shows the $1 research-grant card,
+    // but only for players who are actually into it: first ask on run 3,
+    // then every 6th run, 24h snooze on dismiss, 7 days after funding.
+    async gameOver(slug) {
+      try {
+        var url = await this.loadTipUrl();
+        if (!url) return;
+        var n = (parseInt(localStorage.getItem('ob-runs') || '0', 10) || 0) + 1;
+        localStorage.setItem('ob-runs', String(n));
+        var snooze = parseInt(localStorage.getItem('ob-tip-snooze') || '0', 10) || 0;
+        if (Date.now() < snooze) return;
+        if (n < 3 || (n - 3) % 6 !== 0) return;
+        this._showTip(url);
+      } catch (e) { }
+    },
+
+    _showTip(url) {
+      if (document.getElementById('obTipCard')) return;
+      var d = document.createElement('div');
+      d.id = 'obTipCard';
+      d.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9999;background:#0d160f;border:2px solid #39ff14;border-radius:12px 12px 22px 22px;padding:16px 18px;max-width:340px;width:calc(100vw - 32px);font-family:system-ui,sans-serif;color:#e8e2d4;box-shadow:0 8px 40px rgba(0,0,0,.6);text-align:center;';
+      d.innerHTML = '<div style="font-weight:800;letter-spacing:1px;font-size:14px;color:#39ff14;">ENJOYING THE EXPERIMENTS?</div>' +
+        '<div style="font-size:12px;color:#9aa89b;margin:6px 0 12px;">The lab runs on $1 research grants. Every grant funds the next free game.</div>' +
+        '<div style="display:flex;gap:8px;justify-content:center;">' +
+        '<a href="' + url + '" target="_blank" rel="noopener" style="background:#39ff14;color:#04140a;font-weight:800;font-size:13px;padding:10px 14px;border-radius:6px 6px 14px 14px;text-decoration:none;letter-spacing:1px;">FUND THE LAB &#8212; $1</a>' +
+        '<button id="obTipNo" style="background:transparent;color:#9aa89b;border:1px solid #2c3a2e;font-size:12px;padding:10px 12px;border-radius:6px;cursor:pointer;">NOT NOW</button></div>';
+      document.body.appendChild(d);
+      document.getElementById('obTipNo').addEventListener('click', function () {
+        localStorage.setItem('ob-tip-snooze', String(Date.now() + 24 * 3600 * 1000));
+        d.remove();
+      });
+      d.querySelector('a').addEventListener('click', function () {
+        localStorage.setItem('ob-tip-snooze', String(Date.now() + 7 * 24 * 3600 * 1000));
+        setTimeout(function () { d.remove(); }, 400);
+      });
+    },
+
     async playGame(slug) {
       var s = await this.session();
       if (!s) return;
