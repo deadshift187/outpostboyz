@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>World Ranks — Outpost Boyz</title>
+  <meta name="description" content="The Outpost Boyz world leaderboard — top scores across every free game in THE LAB. Make an account, submit yours.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white' font-family='Arial Black'>OB</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .lb-wrap { max-width: 1120px; margin: 0 auto; padding: 56px 24px 90px; }
+    .lb-h { font-family: var(--disp); font-size: clamp(38px, 9vw, 80px); letter-spacing: -2px; text-transform: uppercase; line-height: 0.95; }
+    .lb-sub { color: var(--grey); font-size: 15px; margin-top: 12px; max-width: 560px; }
+    .lb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; margin-top: 44px; }
+    .lb-board { border: var(--bw) solid var(--ink); }
+    .lb-board-head { border-bottom: var(--bw) solid var(--ink); padding: 16px 18px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; border-top: 6px solid var(--gc, var(--ink)); }
+    .lb-board-head h2 { font-family: var(--disp); font-size: 20px; letter-spacing: -0.5px; text-transform: uppercase; }
+    .lb-board-head a { font-size: 12px; font-weight: 900; letter-spacing: 1px; color: var(--red); text-decoration: none; text-transform: uppercase; }
+    .lb-rows { min-height: 220px; }
+    .lb-row { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; padding: 10px 18px; border-bottom: 1px solid #ddd; font-size: 15px; }
+    .lb-row:last-child { border-bottom: 0; }
+    .lb-rank { font-weight: 900; color: var(--grey); }
+    .lb-row.top .lb-rank { color: var(--red); }
+    .lb-tag { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lb-score { font-family: var(--disp); font-size: 17px; }
+    .lb-empty { padding: 40px 18px; color: var(--grey); font-size: 14px; text-align: center; }
+    .lb-cta { margin-top: 44px; border: var(--bw) solid var(--ink); background: var(--ink); color: var(--paper); padding: 30px; display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .lb-cta b { font-family: var(--disp); font-size: 22px; letter-spacing: 0; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="nav-logo" href="../">OUTPOST&nbsp;BOYZ</a>
+    <div class="nav-links">
+      <a href="../#arcade">Arcade</a>
+      <a href="../#steam">Steam</a>
+      <a href="../account/" id="navAccount">Sign In</a>
+    </div>
+  </nav>
+
+  <div class="lb-wrap">
+    <h1 class="lb-h">World Ranks</h1>
+    <p class="lb-sub">Top operatives across every game in THE LAB. Anyone can look. Only the signed-in can score. Updated live.</p>
+
+    <div class="lb-grid" id="boards"></div>
+
+    <div class="lb-cta">
+      <b>Think you can crack the board?</b>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a class="btn btn-solid btn-sm" href="../account/">MAKE AN ACCOUNT</a>
+        <a class="btn btn-sm" style="border:var(--bw) solid var(--paper); color:var(--paper); background:transparent;" href="../#arcade">ENTER THE LAB</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p class="footer-logo">OUTPOST&nbsp;BOYZ</p>
+    <p class="footer-fine">© 2026 OUTPOST BOYZ — GAMING BEYOND LIMITS.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/ob-sdk.js"></script>
+  <script>
+  (async function () {
+    var boardsEl = document.getElementById('boards');
+
+    var games = [];
+    try {
+      var res = await fetch('../games/games.json', { cache: 'no-cache' });
+      var data = await res.json();
+      games = (data.games || []).filter(function (g) { return !g.comingSoon; });
+    } catch (e) { games = []; }
+
+    boardsEl.innerHTML = games.map(function (g) {
+      return '<div class="lb-board" style="--gc:' + (g.color || '#000') + '">' +
+        '<div class="lb-board-head"><h2>' + g.title + '</h2><a href="../games/' + g.slug + '/">PLAY</a></div>' +
+        '<div class="lb-rows" id="rows-' + g.slug + '"><div class="lb-empty">LOADING…</div></div></div>';
+    }).join('');
+
+    if (!window.OB) return;
+
+    games.forEach(async function (g) {
+      var el = document.getElementById('rows-' + g.slug);
+      var r = await OB.leaderboard(g.slug, 25);
+      if (r.error || !r.data.length) {
+        el.innerHTML = '<div class="lb-empty">NO SCORES YET.<br>The board is wide open — first blood takes #1.</div>';
+        return;
+      }
+      el.innerHTML = r.data.map(function (row, i) {
+        return '<div class="lb-row' + (i === 0 ? ' top' : '') + '">' +
+          '<span class="lb-rank">' + (i + 1) + '</span>' +
+          '<span class="lb-tag">' + String(row.gamertag).replace(/[<>&]/g, '') + '</span>' +
+          '<span class="lb-score">' + Number(row.best_score).toLocaleString() + '</span></div>';
+      }).join('');
+    });
+
+    var s = await OB.session();
+    if (s) {
+      var p = await OB.profile();
+      document.getElementById('navAccount').textContent = p ? p.gamertag : 'Account';
+    }
+  })();
+  </script>
+</body>
+</html>

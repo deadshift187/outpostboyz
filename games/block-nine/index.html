@@ -367,7 +367,7 @@ function checkGameOver(){
 function updateScore(){scoreEl.textContent=score;if(score>best){best=score;bestEl.textContent=best;saveBest();}}
 function bestKey(){return 'blocknine_best_'+mode;}
 function loadBest(){best=parseInt(localStorage.getItem(bestKey())||'0',10)||0;bestEl.textContent=best;}
-function saveBest(){try{localStorage.setItem(bestKey(),String(best));}catch(e){}}
+function saveBest(){try{localStorage.setItem(bestKey(),String(best));}catch(e){} if(window.OB)OB.submitScore('block-nine',best);}
 
 function preseed(){ // Hard mode starts with scattered blocks
   if(mode!=='hard')return;
@@ -414,3 +414,6 @@ window.addEventListener('resize',()=>{sizePieces();renderTray();});
 mode='normal';
 newGame();
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../assets/ob-sdk.js"></script>

@@ -136,7 +136,7 @@ function clamp(v,a,b){return v<a?a:v>b?b:v;}
 function start(){ reset(); startEl.classList.add('hide'); overEl.classList.add('hide'); running=true; requestAnimationFrame(loop); }
 function gameOver(){
   running=false;
-  const isBest=score>best; if(isBest){best=score;localStorage.setItem('ob-paper-route-best',String(best));bestEl.textContent=best;}
+  const isBest=score>best; if(isBest){best=score;localStorage.setItem('ob-paper-route-best',String(best));bestEl.textContent=best;} if(window.OB)OB.submitScore('paper-route',score);
   document.getElementById('finalScore').textContent=score;
   document.getElementById('newbest').style.display=isBest?'block':'none';
   document.getElementById('finStats').textContent=Math.floor(dist)+' m delivered';
@@ -303,3 +303,6 @@ render();
 </script>
 </body>
 </html>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../assets/ob-sdk.js"></script>

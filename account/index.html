@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Your Account — Outpost Boyz</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white' font-family='Arial Black'>OB</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .acct-wrap { max-width: 560px; margin: 0 auto; padding: 60px 24px 90px; }
+    .acct-card { border: var(--bw) solid var(--ink); padding: 28px; margin-top: 26px; }
+    .acct-h { font-family: var(--disp); font-size: clamp(30px, 7vw, 52px); letter-spacing: -1px; text-transform: uppercase; line-height: 1; }
+    .acct-sub { color: var(--grey); font-size: 14px; margin-top: 10px; }
+    .acct-label { font-weight: 900; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; display: block; margin: 18px 0 8px; }
+    .acct-input { width: 100%; border: var(--bw) solid var(--ink); padding: 14px 16px; font-family: var(--body); font-size: 16px; border-radius: 0; }
+    .acct-input:focus { outline: 3px solid #39ff14; outline-offset: 2px; }
+    .acct-msg { margin-top: 14px; font-size: 14px; font-weight: 600; }
+    .acct-msg.ok { color: #1a7a0a; }
+    .acct-msg.err { color: var(--red); }
+    .acct-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; border-bottom: 2px solid var(--ink); padding: 12px 0; font-size: 15px; }
+    .acct-row b { font-weight: 900; letter-spacing: 1px; }
+    .hidden { display: none; }
+    .gt { font-family: var(--disp); font-size: 28px; letter-spacing: 0; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="nav-logo" href="../">OUTPOST&nbsp;BOYZ</a>
+    <div class="nav-links">
+      <a href="../#arcade">Arcade</a>
+      <a href="../leaderboard/">Ranks</a>
+    </div>
+  </nav>
+
+  <div class="acct-wrap">
+    <h1 class="acct-h">Your Account</h1>
+    <p class="acct-sub">One login for scores, the world ranks, and (soon) your $1 game library.</p>
+
+    <div class="acct-card" id="boxLoading"><p>CHECKING CLEARANCE…</p></div>
+
+    <div class="acct-card hidden" id="boxSignin">
+      <b style="font-weight:900; letter-spacing:1px;">SIGN IN / JOIN — NO PASSWORD NEEDED</b>
+      <p class="acct-sub">Enter your email and we send you a magic link. Click it, you're in. New here? Same box — it creates your account.</p>
+      <label class="acct-label" for="email">EMAIL</label>
+      <input class="acct-input" id="email" type="email" placeholder="you@email.com" autocomplete="email">
+      <div style="margin-top:16px;"><button class="btn btn-solid" id="btnSend">SEND MAGIC LINK</button></div>
+      <p class="acct-msg hidden" id="signinMsg"></p>
+    </div>
+
+    <div class="acct-card hidden" id="boxTag">
+      <b style="font-weight:900; letter-spacing:1px;">PICK YOUR GAMERTAG</b>
+      <p class="acct-sub">This is your public name on the world ranks. 3–16 characters, letters/numbers/underscore. Choose wisely — it's permanent (for now).</p>
+      <label class="acct-label" for="tag">GAMERTAG</label>
+      <input class="acct-input" id="tag" maxlength="16" placeholder="XxSquadBoss99xX" autocomplete="off">
+      <div style="margin-top:16px;"><button class="btn btn-solid" id="btnTag">LOCK IT IN</button></div>
+      <p class="acct-msg hidden" id="tagMsg"></p>
+    </div>
+
+    <div class="acct-card hidden" id="boxAccount">
+      <b style="font-weight:900; letter-spacing:1px;">OPERATIVE FILE</b>
+      <div class="acct-row"><span>GAMERTAG</span><span class="gt" id="outTag"></span></div>
+      <div class="acct-row"><span>EMAIL</span><span id="outEmail"></span></div>
+      <div class="acct-row"><span>MY GAMES</span><span>$1 drops coming soon</span></div>
+      <div style="margin-top:20px; display:flex; gap:12px; flex-wrap:wrap;">
+        <a class="btn btn-line btn-sm" href="../leaderboard/">VIEW WORLD RANKS</a>
+        <a class="btn btn-line btn-sm" href="../#arcade">PLAY THE LAB</a>
+        <button class="btn btn-sm" id="btnOut" style="border: var(--bw) solid var(--ink); background: var(--paper);">SIGN OUT</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p class="footer-logo">OUTPOST&nbsp;BOYZ</p>
+    <p class="footer-fine">© 2026 OUTPOST BOYZ — GAMING BEYOND LIMITS.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/ob-sdk.js"></script>
+  <script>
+  (function () {
+    var $ = function (id) { return document.getElementById(id); };
+    function show(id) {
+      ['boxLoading', 'boxSignin', 'boxTag', 'boxAccount'].forEach(function (b) {
+        $(b).classList.toggle('hidden', b !== id);
+      });
+    }
+    function msg(id, text, ok) {
+      var el = $(id);
+      el.textContent = text;
+      el.className = 'acct-msg ' + (ok ? 'ok' : 'err');
+    }
+
+    async function refresh() {
+      if (!window.OB) { show('boxSignin'); return; }
+      var s = await OB.session();
+      if (!s) { show('boxSignin'); return; }
+      var p = await OB.profile();
+      if (!p) { show('boxTag'); return; }
+      $('outTag').textContent = p.gamertag;
+      $('outEmail').textContent = s.user.email;
+      show('boxAccount');
+    }
+
+    $('btnSend').addEventListener('click', async function () {
+      var email = $('email').value.trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg('signinMsg', 'That email looks off — check it.', false); return; }
+      this.disabled = true; this.textContent = 'SENDING…';
+      var r = await OB.signIn(email);
+      this.disabled = false; this.textContent = 'SEND MAGIC LINK';
+      if (r.error) { msg('signinMsg', r.error.message, false); }
+      else { msg('signinMsg', 'Link sent. Check your email (and junk) — click it and you land back here signed in.', true); }
+    });
+
+    $('btnTag').addEventListener('click', async function () {
+      var tag = $('tag').value.trim();
+      if (!/^[A-Za-z0-9_]{3,16}$/.test(tag)) { msg('tagMsg', '3–16 characters, letters/numbers/underscore only.', false); return; }
+      this.disabled = true;
+      var r = await OB.setGamertag(tag);
+      this.disabled = false;
+      if (r.error) {
+        msg('tagMsg', (r.error.code === '23505') ? 'That tag is taken — try another.' : r.error.message, false);
+      } else { refresh(); }
+    });
+
+    $('btnOut').addEventListener('click', async function () { await OB.signOut(); refresh(); });
+
+    if (window.OB) {
+      OB.client.auth.onAuthStateChange(function () { refresh(); });
+    }
+    refresh();
+  })();
+  </script>
+</body>
+</html>
