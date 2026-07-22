@@ -75,8 +75,8 @@
     <section class="section" id="gauntlet">
       <div class="sec-head">
         <span class="sec-num">(03)</span>
-        <h2>THE GAUNTLET</h2>
-        <p class="sec-sub">Cuphead-hard. One dollar. Unlimited runs. First verified victor takes the $100 bounty.</p>
+        <h2>UNDEFEATED</h2>
+        <p class="sec-sub">These games have never been beaten. Think you'd win? $1. Unlimited runs. $100 bounty to the first victor.</p>
       </div>
 
       <div style="border: var(--bw) solid var(--ink); background: var(--ink); color: var(--paper); padding: 18px 22px; margin-bottom: 22px; font-size: 14px;">
@@ -422,7 +422,7 @@
       var gg = document.getElementById('gauntletGrid');
       var gauntlet = store.gauntlet || [];
       if (!gauntlet.length) {
-        gg.innerHTML = '<p class="loading">FIRST GAUNTLET EXPERIMENT IN FABRICATION. BRING BANDAGES.</p>';
+        gg.innerHTML = '<p class="loading">FIRST UNDEFEATED EXPERIMENT IN FABRICATION. BRING BANDAGES.</p>';
       } else {
         gg.innerHTML = gauntlet.map(function (g) {
           var btn = g.available

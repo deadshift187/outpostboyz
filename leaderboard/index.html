@@ -77,7 +77,7 @@
       var res2 = await fetch('../games/store.json', { cache: 'no-cache' });
       var st = await res2.json();
       (st.gauntlet || []).concat(st.beatPile || []).forEach(function (g) {
-        if (g.slug) games.push({ slug: g.slug, title: g.title + ' — GAUNTLET', color: g.color || '#ff5d2e' });
+        if (g.slug) games.push({ slug: g.slug, title: g.title + ' — UNDEFEATED', color: g.color || '#ff5d2e' });
       });
     } catch (e) { }
 
