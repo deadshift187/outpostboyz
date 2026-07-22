@@ -12,6 +12,22 @@
     navigator.serviceWorker.register('/sw.js').catch(function () { });
   }
 
+  // Lightweight private analytics: one row per page view, no cookies, no trackers.
+  try {
+    if (location.hostname === 'outpostboyz.com') {
+      var isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+      fetch(OB_URL + '/rest/v1/page_views', {
+        method: 'POST',
+        headers: { 'apikey': OB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({
+          path: location.pathname.slice(0, 200),
+          referrer: (document.referrer || '').slice(0, 300) || null,
+          device: isMobile ? 'mobile' : 'desktop'
+        })
+      }).catch(function () { });
+    }
+  } catch (e) { }
+
   if (!window.supabase || !window.supabase.createClient) {
     console.warn('OB SDK: supabase-js not loaded');
     window.OB = null;
