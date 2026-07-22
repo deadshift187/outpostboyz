@@ -7,6 +7,11 @@
   var OB_KEY = 'sb_publishable_2BlS9dXgQdHF04kUtp-b9A_FbfqTzyh';
   var OB_FN = OB_URL + '/functions/v1';
 
+  // Kill stale caches forever: network-first service worker.
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    navigator.serviceWorker.register('/sw.js').catch(function () { });
+  }
+
   if (!window.supabase || !window.supabase.createClient) {
     console.warn('OB SDK: supabase-js not loaded');
     window.OB = null;
