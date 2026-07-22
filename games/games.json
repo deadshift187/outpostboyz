@@ -29,6 +29,16 @@
       "added": "2026-07-20"
     },
     {
+      "slug": "good-question",
+      "title": "GOOD QUESTION",
+      "tagline": "Voice trivia. Answer out loud, in the form of a question. Normal to INSANE.",
+      "icon": "❓",
+      "color": "#ffcb3d",
+      "controls": "SPEAK / TYPE",
+      "badge": "NEW",
+      "added": "2026-07-22"
+    },
+    {
       "slug": "coming-soon-1",
       "title": "???",
       "tagline": "Next cartridge in production.",

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>GOOD QUESTION — Outpost Boyz</title>
+<meta name="description" content="A voice-interactive trivia game. Build your board or go random, then answer out loud.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❓</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0e14;--panel:#111a2b;--tile:#16305e;--tile2:#1b3a72;--ink:#eef2fb;--dim:#8ea3c7;--gold:#ffcb3d;--green:#39ff85;--red:#ff5470;--disp:'Anton',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:var(--body);overflow-x:hidden;overscroll-behavior:none}
+  .home{position:fixed;top:10px;left:10px;z-index:40;font-weight:800;font-size:11px;letter-spacing:1px;color:var(--dim);text-decoration:none;background:rgba(10,14,20,.8);border:1px solid #24344f;border-radius:8px;padding:8px 11px}
+  .wrap{max-width:960px;margin:0 auto;padding:16px}
+  .brand{font-family:var(--disp);font-size:clamp(30px,8vw,54px);letter-spacing:1px;line-height:1}
+  .brand b{color:var(--gold)}
+  .sub{color:var(--dim);font-size:13px;letter-spacing:1px;text-transform:uppercase;font-weight:800}
+  .score{font-family:var(--disp);color:var(--green)} .score.neg{color:var(--red)}
+
+  /* menu / board builder */
+  #menu{padding:26px 6px 60px;text-align:center}
+  .voicebox{display:inline-flex;align-items:center;gap:10px;background:var(--panel);border:1px solid #24344f;border-radius:999px;padding:9px 15px;margin:14px 0;font-size:14px}
+  .toggle{width:44px;height:24px;border-radius:999px;background:#24344f;position:relative;cursor:pointer;transition:background .15s}
+  .toggle.on{background:var(--green)} .toggle .dot{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s} .toggle.on .dot{left:22px}
+  .filters{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:10px 0 4px}
+  .filt{background:var(--panel);border:1px solid #24344f;border-radius:999px;padding:7px 13px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--dim);cursor:pointer}
+  .filt.on{background:var(--gold);color:#1a1400;border-color:var(--gold)}
+  .picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:14px 0}
+  .catchip{position:relative;background:var(--panel);border:2px solid #24344f;border-radius:10px;padding:12px 10px;cursor:pointer;text-align:left;transition:border-color .12s,transform .1s}
+  .catchip:hover{transform:translateY(-2px)}
+  .catchip.sel{border-color:var(--gold);background:#1a2740}
+  .catchip .cn{font-weight:800;font-size:13px;letter-spacing:.3px}
+  .catchip .cd{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+  .d-easy{color:var(--green)} .d-medium{color:#7cc6ff} .d-hard{color:var(--gold)} .d-insane{color:var(--red)}
+  .catchip.sel .checknum{position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#1a1400;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .barbtns{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 30%);padding:16px 0 8px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;z-index:5}
+  .btn{font-family:var(--disp);font-size:19px;letter-spacing:2px;background:var(--gold);color:#1a1400;border:none;border-radius:12px;padding:14px 26px;cursor:pointer;text-transform:uppercase}
+  .btn:disabled{opacity:.4;cursor:default} .btn:active{transform:scale(.97)}
+  .btn.ghost{background:transparent;color:var(--ink);border:2px solid #24344f}
+  .note{color:var(--dim);font-size:12px;margin-top:8px;max-width:520px;margin-left:auto;margin-right:auto}
+  .count{font-family:var(--disp);font-size:20px;color:var(--gold)}
+
+  /* board */
+  #board{display:none}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:36px 0 12px}
+  .grid{display:grid;grid-template-columns:repeat(var(--cols,6),1fr);gap:5px}
+  .cat{background:var(--panel);border-radius:8px 8px 0 0;padding:10px 4px;text-align:center;font-family:var(--disp);font-size:clamp(10px,2.1vw,15px);letter-spacing:.4px;text-transform:uppercase;min-height:58px;display:flex;align-items:center;justify-content:center}
+  .cell{background:var(--tile);border:none;border-radius:8px;aspect-ratio:5/4;color:var(--gold);font-family:var(--disp);font-size:clamp(14px,3.4vw,26px);cursor:pointer;transition:background .12s,transform .1s}
+  .cell:hover{background:var(--tile2);transform:scale(1.03)}
+  .cell.done{background:#0c1526;color:#0c1526;cursor:default} .cell.done:hover{transform:none}
+
+  /* clue */
+  #clue{display:none;position:fixed;inset:0;z-index:30;background:rgba(6,9,15,.97);flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+  #clue.show{display:flex}
+  .cluecat{color:var(--gold);font-weight:800;letter-spacing:2px;text-transform:uppercase;font-size:14px}
+  .cluetext{font-family:var(--disp);font-size:clamp(22px,5.5vw,46px);line-height:1.16;margin:16px 0;max-width:800px;text-transform:uppercase}
+  .answerline{font-size:16px;color:var(--dim);min-height:24px;margin-bottom:8px}
+  .mic{width:92px;height:92px;border-radius:50%;background:var(--tile);border:3px solid #2a4a80;color:var(--ink);font-size:36px;cursor:pointer;margin:8px;transition:transform .1s,background .15s}
+  .mic.live{background:#3a1020;border-color:var(--red);animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,84,112,.5)}50%{box-shadow:0 0 0 16px rgba(255,84,112,0)}}
+  .typerow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+  .typerow input{background:var(--panel);border:2px solid #24344f;border-radius:10px;padding:13px 15px;font-size:16px;color:var(--ink);font-family:var(--body);width:min(340px,80vw)}
+  .typerow input:focus{outline:none;border-color:var(--gold)}
+  .verdict{font-family:var(--disp);font-size:clamp(28px,8vw,56px);letter-spacing:2px;margin:8px 0}
+  .verdict.ok{color:var(--green)} .verdict.no{color:var(--red)}
+  .reveal{color:var(--gold);font-size:18px;font-weight:800;margin:6px 0 18px}
+  .hint{color:var(--dim);font-size:13px;margin-top:8px}
+
+  #final,#end{display:none;text-align:center;padding:40px 10px}
+  .wagerrow{display:flex;gap:8px;justify-content:center;align-items:center;margin:18px 0}
+  .wagerrow input{background:var(--panel);border:2px solid #24344f;border-radius:10px;padding:14px;font-size:18px;color:var(--ink);width:160px;text-align:center;font-family:var(--disp)}
+</style>
+</head>
+<body>
+  <a class="home" href="../../">◂ OUTPOST BOYZ</a>
+
+  <div class="wrap">
+    <div id="menu">
+      <div class="brand">GOOD <b>QUESTION</b></div>
+      <p class="sub" style="margin-top:8px">Build your board — or go random. Answer out loud.</p>
+      <div><span class="voicebox">🎙️ Voice mode <span class="toggle on" id="vtoggle"><span class="dot"></span></span></span></div>
+
+      <div style="margin-top:6px"><span class="sub">Pick up to 6 categories</span> &nbsp;<span class="count" id="count">0/6</span></div>
+      <div class="filters" id="filters"></div>
+      <div class="picker" id="picker"><p class="note">Loading categories…</p></div>
+
+      <div class="barbtns">
+        <button class="btn ghost" id="randomBtn">🎲 RANDOM BOARD</button>
+        <button class="btn" id="playBtn" disabled>PLAY →</button>
+      </div>
+      <p class="note" id="voicenote">Voice mode reads clues aloud and lets you answer by speaking (Chrome / Safari / Edge, needs mic). No mic? Flip it off and type.</p>
+    </div>
+
+    <div id="board">
+      <div class="top">
+        <div class="brand" style="font-size:clamp(22px,6vw,38px)">GOOD <b>QUESTION</b></div>
+        <div><div class="sub">Score</div><div class="score" id="scoreEl" style="font-size:clamp(24px,6vw,40px)">$0</div></div>
+      </div>
+      <div class="grid" id="cats"></div>
+      <div class="grid" id="cells" style="margin-top:5px"></div>
+    </div>
+  </div>
+
+  <div id="clue">
+    <div class="cluecat" id="clueCat"></div>
+    <div class="cluetext" id="clueText"></div>
+    <div id="answerStage">
+      <div class="answerline" id="heard"></div>
+      <button class="mic" id="micBtn">🎙️</button>
+      <div class="typerow"><input id="typeInput" placeholder="What is ..." autocomplete="off"><button class="btn" id="submitBtn" style="font-size:15px;padding:13px 18px">ANSWER</button></div>
+      <div class="hint" id="clueHint">Tap the mic and say your answer — or type it.</div>
+    </div>
+    <div id="verdictStage" style="display:none">
+      <div class="verdict" id="verdict"></div>
+      <div class="reveal" id="reveal"></div>
+      <button class="btn" id="nextBtn">NEXT</button>
+    </div>
+  </div>
+
+  <div class="wrap"><div id="final">
+    <div class="sub">Final Question</div>
+    <div class="brand" style="font-size:clamp(24px,6vw,40px);margin:6px 0">DOUBLE OR NOTHING</div>
+    <p style="color:var(--dim)">Category: <b id="finalCat" style="color:var(--gold)"></b></p>
+    <p style="margin-top:12px">Your score: <b id="finalScore" style="color:var(--green)"></b>. Wager up to that.</p>
+    <div class="wagerrow">$ <input id="wager" type="number" min="0" value="0"></div>
+    <button class="btn" id="wagerBtn">LOCK WAGER</button>
+  </div></div>
+
+  <div class="wrap"><div id="end">
+    <div class="sub">Game Over</div>
+    <div class="brand" id="endTitle" style="margin:10px 0">—</div>
+    <div class="score" id="endScore" style="font-size:clamp(40px,12vw,80px)">$0</div>
+    <p style="color:var(--dim);margin:10px 0 22px" id="endMsg"></p>
+    <button class="btn" id="againBtn">PLAY AGAIN</button>
+  </div></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const supportsSTT=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+let ALL=[],FINALS=[],selected=[],filter='all',voiceOn=true;
+let score=0,remaining=0,current=null,board=null,recog=null,listening=false;
+
+/* load bank */
+fetch('questions.json',{cache:'no-cache'}).then(r=>r.json()).then(d=>{
+  ALL=d.categories||[];FINALS=d.finals||[];renderFilters();renderPicker();
+}).catch(()=>{$('picker').innerHTML='<p class="note">Couldn\'t load categories — refresh.</p>';});
+
+function renderFilters(){
+  const diffs=['all','easy','medium','hard','insane'];
+  $('filters').innerHTML=diffs.map(d=>`<span class="filt${d==='all'?' on':''}" data-f="${d}">${d}</span>`).join('');
+  $('filters').onclick=e=>{const f=e.target.closest('.filt');if(!f)return;filter=f.dataset.f;document.querySelectorAll('.filt').forEach(x=>x.classList.toggle('on',x===f));renderPicker();};
+}
+function renderPicker(){
+  const list=ALL.filter(c=>filter==='all'||c.diff===filter);
+  $('picker').innerHTML=list.map(c=>{
+    const i=selected.indexOf(c.name);
+    return `<div class="catchip${i>=0?' sel':''}" data-n="${c.name}">
+      ${i>=0?`<span class="checknum">${i+1}</span>`:''}
+      <div class="cn">${c.name}</div><div class="cd d-${c.diff}">${c.diff}</div></div>`;
+  }).join('');
+  $('picker').onclick=e=>{const chip=e.target.closest('.catchip');if(!chip)return;toggle(chip.dataset.n);};
+}
+function toggle(name){
+  const i=selected.indexOf(name);
+  if(i>=0)selected.splice(i,1);
+  else{if(selected.length>=6)return;selected.push(name);}
+  $('count').textContent=selected.length+'/6';
+  $('playBtn').disabled=selected.length<1;
+  renderPicker();
+}
+$('randomBtn').onclick=()=>{
+  const pool=[...ALL].sort(()=>Math.random()-0.5).slice(0,6);
+  selected=pool.map(c=>c.name);start();
+};
+$('playBtn').onclick=start;
+$('vtoggle').onclick=()=>{voiceOn=!voiceOn;$('vtoggle').classList.toggle('on',voiceOn);};
+if(!supportsSTT)$('voicenote').textContent="Your browser doesn't support voice answers (try Chrome/Safari). Clues still read aloud; you'll type answers.";
+
+/* voice */
+function speak(t,cb){if(!voiceOn||!window.speechSynthesis){cb&&cb();return;}window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.03;u.onend=()=>cb&&cb();window.speechSynthesis.speak(u);}
+function startListen(){
+  if(!supportsSTT){$('clueHint').textContent="Voice input not supported — type your answer.";return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;recog=new SR();recog.lang='en-US';recog.interimResults=true;
+  listening=true;$('micBtn').classList.add('live');$('heard').textContent='Listening…';let ft='';
+  recog.onresult=e=>{let it='';for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)ft+=r[0].transcript;else it+=r[0].transcript;}$('heard').textContent=(ft||it||'…');};
+  recog.onerror=()=>{stopListen();$('clueHint').textContent="Didn't catch that — tap mic again or type.";};
+  recog.onend=()=>{if(listening){listening=false;$('micBtn').classList.remove('live');if(ft.trim())judge(ft);}};
+  try{recog.start();}catch(e){}
+}
+function stopListen(){listening=false;if(recog)try{recog.stop()}catch(e){};$('micBtn').classList.remove('live');}
+
+function normalize(s){return (s||'').toLowerCase().replace(/^(what|who|where|when|which|whats|what's|whos|who's)\s+(is|are|was|were)\s+/,'').replace(/^(is|are|the|a|an|it's|its)\s+/,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();}
+function judge(spoken){
+  stopListen();const g=normalize(spoken);
+  const accepts=[normalize(current.a)].concat((current.accept||[]).map(normalize));
+  let ok=false;for(const a of accepts){if(!a)continue;if(g===a){ok=true;break;}if(a.length>=4&&(g.includes(a)||(a.includes(g)&&g.length>=4))){ok=true;break;}}
+  showVerdict(ok);
+}
+
+/* flow */
+function start(){
+  board=selected.map(n=>ALL.find(c=>c.name===n)).filter(Boolean);
+  score=0;updateScore();
+  $('menu').style.display='none';$('board').style.display='block';
+  const cats=$('cats'),cells=$('cells');cats.innerHTML='';cells.innerHTML='';
+  const cols=board.length;cats.style.setProperty('--cols',cols);cells.style.setProperty('--cols',cols);
+  board.forEach(c=>{const d=document.createElement('div');d.className='cat';d.textContent=c.name;cats.appendChild(d);});
+  remaining=0;
+  for(let row=0;row<5;row++){board.forEach(c=>{const clue=c.clues[row];const b=document.createElement('button');b.className='cell';b.textContent='$'+clue.v;b.onclick=()=>openClue(b,c.name,clue);cells.appendChild(b);remaining++;});}
+  window.scrollTo(0,0);
+}
+function openClue(btn,catName,clue){
+  current={...clue,cat:catName,btn};
+  $('clueCat').textContent=catName;$('clueText').textContent=clue.c;
+  $('answerStage').style.display='';$('verdictStage').style.display='none';
+  $('heard').textContent='';$('typeInput').value='';
+  $('clueHint').textContent=supportsSTT?'Tap the mic and say your answer — or type it.':'Type your answer below.';
+  $('clue').classList.add('show');
+  speak(catName+', for $'+clue.v+'. '+clue.c);
+  setTimeout(()=>$('typeInput').focus(),300);
+}
+function showVerdict(ok){
+  if(window._final){
+    $('answerStage').style.display='none';$('verdictStage').style.display='';
+    const v=$('verdict');v.textContent=ok?'CORRECT':'NOPE';v.className='verdict '+(ok?'ok':'no');
+    const w=current.wager||0;$('reveal').textContent=ok?'+ $'+w:'Answer: '+current.a+'  (− $'+w+')';
+    score+=ok?w:-w;speak(ok?'Correct! You win it.':'Sorry. The answer was '+current.a+'.');return;
+  }
+  $('answerStage').style.display='none';$('verdictStage').style.display='';
+  const v=$('verdict');v.textContent=ok?'CORRECT':'NOPE';v.className='verdict '+(ok?'ok':'no');
+  $('reveal').textContent=ok?'+ $'+current.v:'Answer: '+current.a;
+  score+=ok?current.v:-current.v;updateScore();
+  speak(ok?'Correct.':'The answer was, '+current.a+'.');
+  current.btn.classList.add('done');current.btn.textContent='';remaining--;
+}
+function updateScore(){const s=$('scoreEl');if(s){s.textContent=(score<0?'-$':'$')+Math.abs(score);s.className='score'+(score<0?' neg':'');}}
+$('nextBtn').onclick=()=>{if(window._final){window._final=false;endGame();}else{$('clue').classList.remove('show');if(remaining<=0){$('board').style.display='none';startFinal();}}};
+function startFinal(){
+  const f=FINALS[Math.floor(Math.random()*FINALS.length)];window._finalData=f;
+  $('final').style.display='block';$('finalCat').textContent=f.cat;
+  $('finalScore').textContent=(score<0?'-$':'$')+Math.abs(score);
+  $('wager').max=Math.max(0,score);$('wager').value=Math.max(0,score);
+}
+$('wagerBtn').onclick=()=>{
+  const w=Math.max(0,Math.min(parseInt($('wager').value)||0,Math.max(0,score)));
+  $('final').style.display='none';const f=window._finalData;
+  current={...f,btn:{classList:{add(){}}},wager:w};window._final=true;
+  $('clueCat').textContent='FINAL — '+f.cat;$('clueText').textContent=f.c;
+  $('answerStage').style.display='';$('verdictStage').style.display='none';
+  $('heard').textContent='';$('typeInput').value='';$('clueHint').textContent='This one\'s for '+(w?'$'+w:'nothing')+'.';
+  $('clue').classList.add('show');speak('Final question. '+f.c);
+};
+function endGame(){
+  $('end').style.display='block';$('endScore').textContent=(score<0?'-$':'$')+Math.abs(score);
+  let t,m;if(score<=0){t='WIPED OUT';m='The board won. Run it back.';}else if(score<1800){t='NOT BAD';m='Respectable. Try a harder board.';}else if(score<4000){t='SHARP';m='You know things. Genuinely impressive.';}else{t='GENIUS';m='Absolutely cracked. Go flex on your friends.';}
+  $('endTitle').textContent=t;$('endMsg').textContent=m;if(window.OB)OB.submitScore('good-question',Math.max(0,score));
+}
+$('micBtn').onclick=()=>{if(listening)stopListen();else startListen();};
+$('submitBtn').onclick=()=>{const v=$('typeInput').value.trim();if(v)judge(v);};
+$('typeInput').onkeydown=e=>{if(e.key==='Enter'){const v=$('typeInput').value.trim();if(v)judge(v);}};
+$('againBtn').onclick=()=>location.reload();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../assets/ob-sdk.js"></script>
+</body>
+</html>
