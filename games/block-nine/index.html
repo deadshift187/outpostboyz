@@ -311,6 +311,7 @@ function onUp(){
     renderTray();
     updateScore();
     checkGameOver();
+    if(!overEl.classList.contains('show'))saveGame();
   }
   dragging=null;
 }
@@ -361,7 +362,7 @@ function checkGameOver(){
     document.getElementById('finalScore').textContent=score;
     document.getElementById('finCode').textContent=encodeCode();
     document.getElementById('newbest').style.display=isBest?'block':'none';
-    overEl.classList.add('show'); if(window.OB){OB.submitScore('block-nine',score);OB.gameOver('block-nine');}
+    overEl.classList.add('show'); clearSave(); if(window.OB){OB.submitScore('block-nine',score);OB.gameOver('block-nine');}
   }
 }
 function updateScore(){scoreEl.textContent=score;if(score>best){best=score;bestEl.textContent=best;saveBest();}}
@@ -390,7 +391,26 @@ function newGame(seed){
   overEl.classList.remove('show');
   sizePieces();renderTray();
   const ce=document.getElementById('code');if(ce)ce.textContent=encodeCode();
+  saveGame();
 }
+
+var SAVE_KEY='blocknine_save';
+function saveGame(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({v:1,board:board,score:score,combo:combo,mode:mode,curSeed:curSeed,pieces:pieces}));}catch(e){}}
+function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
+function restoreGame(){
+  try{
+    var s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
+    if(!s||s.v!==1||!Array.isArray(s.board)||!Array.isArray(s.pieces))return false;
+    mode=s.mode||'normal';curSeed=(s.curSeed>>>0);rng=mulberry32(curSeed);
+    board=s.board;score=s.score||0;combo=s.combo||0;pieces=s.pieces;
+    document.querySelectorAll('.mode').forEach(function(m){m.setAttribute('aria-pressed',m.dataset.mode===mode);});
+    buildBoardDOM();paintBoard();loadBest();updateScore();
+    overEl.classList.remove('show');sizePieces();renderTray();
+    var ce=document.getElementById('code');if(ce)ce.textContent=encodeCode();
+    return true;
+  }catch(e){return false;}
+}
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'&&!overEl.classList.contains('show'))saveGame();});
 
 document.getElementById('modes').addEventListener('click',e=>{
   const b=e.target.closest('.mode');if(!b)return;
@@ -412,7 +432,7 @@ document.getElementById('codeIn').addEventListener('keydown',e=>{if(e.key==='Ent
 window.addEventListener('resize',()=>{sizePieces();renderTray();});
 
 mode='normal';
-newGame();
+if(!restoreGame())newGame();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
