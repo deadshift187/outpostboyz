@@ -57,6 +57,26 @@ skill-based, no RNG deaths). Extra requirements on top of the standard ones:
 - When someone verified-beats it: move entry from gauntlet[] to beatPile[]
   with winner gamertag + date; game stays buyable, bounty chip goes away.
 
+## VERSUS games — live 2-player (beer pong, etc.)
+
+Turn-based real-time multiplayer runs on Supabase Realtime via the OB.mp SDK.
+Any 2-player game plugs in — the website provides all the plumbing.
+
+Flow the game implements:
+1. Menu offers: HOST GAME, JOIN (enter code), or PLAY SOLO (vs simple AI / practice, local only).
+2. Host: `const {data:m} = await OB.mp.create('beer-pong', initialState)` → show `m.join_code` (4 chars) to share.
+3. Guest: `const {data:m} = await OB.mp.join(code)` → status becomes 'active'.
+4. BOTH: `OB.mp.subscribe(m.id, row => render(row))` — fires on every change.
+   Also `const meId = await OB.mp.me()` to know which player you are (host_id vs guest_id).
+5. On YOUR turn only (row.turn === meId): take the shot, compute new state, then
+   `OB.mp.push(m.id, newState, otherPlayerId, 'active')`. When game ends push status 'done'.
+6. Render purely from the synced `row.state` — never trust local; the row is truth.
+- SAVE/RESUME is automatic: the match row persists. `OB.mp.mine()` lists your open
+  matches so a lobby can show "Resume vs <friend>". Players can leave and come back days later.
+- SOLO-WHILE-YOU-WAIT: while status==='waiting' (no guest yet), let the player practice
+  vs a local AI so they're not staring at a code. Swap to live play once guest joins.
+- Keep state small (positions, scores, whose cup, turn) — it's JSON in one row.
+
 ## Game requirements (tell the game-building chat)
 
 - Single `index.html`, everything inline

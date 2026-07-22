@@ -228,6 +228,56 @@
       document.body.appendChild(d);
     },
 
+    // ===== MULTIPLAYER =====
+    // Live 2-player match rooms. state = your whole game object (JSON).
+    // Flow: host create() -> shares code -> guest join(code) -> both subscribe()
+    // -> on your turn, push() the new state+turn. Row persists = resume anytime.
+    mp: {
+      async create(gameSlug, initialState) {
+        var s = await OB.session();
+        if (!s) return { error: { message: 'Sign in first' } };
+        var code = '';
+        var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        for (var i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
+        return client.from('matches').insert({
+          game_slug: gameSlug, join_code: code, host_id: s.user.id,
+          state: initialState || {}, status: 'waiting', turn: s.user.id
+        }).select().single();
+      },
+      async join(code) {
+        var r = await client.rpc('join_match', { p_code: String(code || '').toUpperCase() });
+        if (r.error) return r;
+        return { data: r.data, error: null };
+      },
+      async get(id) {
+        return client.from('matches').select('*').eq('id', id).maybeSingle();
+      },
+      // push new game state (and whose turn is next; null when done)
+      async push(id, state, nextTurn, status) {
+        var patch = { state: state, updated_at: new Date().toISOString() };
+        if (nextTurn !== undefined) patch.turn = nextTurn;
+        if (status) patch.status = status;
+        return client.from('matches').update(patch).eq('id', id);
+      },
+      // matches I'm currently in (waiting or active) — for a "resume" list
+      async mine() {
+        var r = await client.from('matches').select('*')
+          .neq('status', 'done').order('updated_at', { ascending: false });
+        return r.data || [];
+      },
+      // live updates: cb(matchRow) fires whenever the row changes
+      subscribe(id, cb) {
+        var ch = client.channel('match-' + id)
+          .on('postgres_changes',
+            { event: 'UPDATE', schema: 'public', table: 'matches', filter: 'id=eq.' + id },
+            function (p) { cb(p.new); })
+          .subscribe();
+        return ch;
+      },
+      unsubscribe(ch) { try { client.removeChannel(ch); } catch (e) {} },
+      async me() { var s = await OB.session(); return s ? s.user.id : null; }
+    },
+
     async playGame(slug) {
       var s = await this.session();
       if (!s) return;
