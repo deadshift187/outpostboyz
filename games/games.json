@@ -29,10 +29,10 @@
       "added": "2026-07-20"
     },
     {
-      "slug": "good-question",
-      "title": "GOOD QUESTION",
-      "tagline": "Voice trivia. Answer out loud, in the form of a question. Normal to INSANE.",
-      "icon": "❓",
+      "slug": "run-the-board",
+      "title": "RUN THE BOARD",
+      "tagline": "Voice trivia. Answer out loud. Clear the board — Normal to INSANE.",
+      "icon": "🎯",
       "color": "#ffcb3d",
       "controls": "SPEAK / TYPE",
       "badge": "NEW",

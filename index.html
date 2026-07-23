@@ -409,6 +409,7 @@
           <div class="game-icon">${g.icon || '🕹️'}</div>
           <h3>${g.title}</h3>
           <p>${g.tagline || ''}</p>
+          <div class="game-plays" data-plays="${g.slug}" style="font-size:11px;letter-spacing:1px;color:#8892a0;margin:2px 0 8px;font-weight:700;">▶ <span>—</span> PLAYS</div>
           <a class="game-play" href="games/${g.slug}/">PLAY</a>
         </article>`).join('') +
         `<article class="game-card coming">
@@ -427,6 +428,19 @@
   <script>
   (function () {
     if (!window.OB) return;
+
+    // Fill the public play-count tickers on the arcade cards.
+    (async function fillPlays(tries) {
+      var els = document.querySelectorAll('.game-plays[data-plays]');
+      if (!els.length && tries < 30) { return setTimeout(function () { fillPlays(tries + 1); }, 120); }
+      var counts = await OB.getPlayCounts();
+      els.forEach(function (el) {
+        var n = counts[el.getAttribute('data-plays')] || 0;
+        var span = el.querySelector('span');
+        if (span) span.textContent = Number(n).toLocaleString();
+      });
+    })(0);
+
     var f = document.querySelector('.signup-form');
     if (f) {
       f.addEventListener('submit', async function (e) {

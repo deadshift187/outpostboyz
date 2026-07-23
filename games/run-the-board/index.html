@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>GOOD QUESTION — Outpost Boyz</title>
-<meta name="description" content="A voice-interactive trivia game. Build your board or go random, then answer out loud.">
+<title>RUN THE BOARD — Outpost Boyz</title>
+<meta name="description" content="A voice-interactive trivia game. Build your board or go random, then answer out loud. Run the board.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❓</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,7 +49,7 @@
   .top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:36px 0 12px}
   .grid{display:grid;grid-template-columns:repeat(var(--cols,6),1fr);gap:5px}
   .cat{background:var(--panel);border-radius:8px 8px 0 0;padding:10px 4px;text-align:center;font-family:var(--disp);font-size:clamp(10px,2.1vw,15px);letter-spacing:.4px;text-transform:uppercase;min-height:58px;display:flex;align-items:center;justify-content:center}
-  .cell{background:var(--tile);border:none;border-radius:8px;aspect-ratio:5/4;color:var(--gold);font-family:var(--disp);font-size:clamp(14px,3.4vw,26px);cursor:pointer;transition:background .12s,transform .1s}
+  .cell{background:var(--tile);border:none;border-radius:8px;height:clamp(44px,11.5vh,104px);color:var(--gold);font-family:var(--disp);font-size:clamp(14px,3.4vw,26px);cursor:pointer;transition:background .12s,transform .1s}
   .cell:hover{background:var(--tile2);transform:scale(1.03)}
   .cell.done{background:#0c1526;color:#0c1526;cursor:default} .cell.done:hover{transform:none}
 
@@ -80,11 +80,11 @@
 
   <div class="wrap">
     <div id="menu">
-      <div class="brand">GOOD <b>QUESTION</b></div>
+      <div class="brand">RUN THE <b>BOARD</b></div>
       <p class="sub" style="margin-top:8px">Build your board — or go random. Answer out loud.</p>
       <div><span class="voicebox">🎙️ Voice mode <span class="toggle on" id="vtoggle"><span class="dot"></span></span></span></div>
 
-      <div style="margin-top:6px"><span class="sub">Pick up to 6 categories</span> &nbsp;<span class="count" id="count">0/6</span></div>
+      <div style="margin-top:6px"><span class="sub">Pick your categories — we fill the rest</span> &nbsp;<span class="count" id="count">0/6</span></div>
       <div class="filters" id="filters"></div>
       <div class="picker" id="picker"><p class="note">Loading categories…</p></div>
 
@@ -97,7 +97,7 @@
 
     <div id="board">
       <div class="top">
-        <div class="brand" style="font-size:clamp(22px,6vw,38px)">GOOD <b>QUESTION</b></div>
+        <div class="brand" style="font-size:clamp(22px,6vw,38px)">RUN THE <b>BOARD</b></div>
         <div><div class="sub">Score</div><div class="score" id="scoreEl" style="font-size:clamp(24px,6vw,40px)">$0</div></div>
       </div>
       <div class="grid" id="cats"></div>
@@ -149,6 +149,12 @@ fetch('questions.json',{cache:'no-cache'}).then(r=>r.json()).then(d=>{
   ALL=d.categories||[];FINALS=d.finals||[];renderFilters();renderPicker();
 }).catch(()=>{$('picker').innerHTML='<p class="note">Couldn\'t load categories — refresh.</p>';});
 
+// Which categories have real host audio recorded. Random boards & auto-fill
+// prefer these so the game sounds fully-voiced with whatever's done so far.
+let VOICED=new Set();
+fetch('audio/manifest.json',{cache:'no-cache'}).then(r=>r.json()).then(m=>{VOICED=new Set(m.voiced||[]);}).catch(()=>{});
+function voicedFirst(list){return [...list].sort(()=>Math.random()-0.5).sort((a,b)=>(VOICED.has(b.name)?1:0)-(VOICED.has(a.name)?1:0));}
+
 function renderFilters(){
   const diffs=['all','easy','medium','hard','insane'];
   $('filters').innerHTML=diffs.map(d=>`<span class="filt${d==='all'?' on':''}" data-f="${d}">${d}</span>`).join('');
@@ -173,7 +179,7 @@ function toggle(name){
   renderPicker();
 }
 $('randomBtn').onclick=()=>{
-  const pool=[...ALL].sort(()=>Math.random()-0.5).slice(0,6);
+  const pool=voicedFirst(ALL).slice(0,6);
   selected=pool.map(c=>c.name);start();
 };
 $('playBtn').onclick=start;
@@ -182,6 +188,22 @@ if(!supportsSTT)$('voicenote').textContent="Your browser doesn't support voice a
 
 /* voice */
 function speak(t,cb){if(!voiceOn||!window.speechSynthesis){cb&&cb();return;}window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.03;u.onend=()=>cb&&cb();window.speechSynthesis.speak(u);}
+function slugify(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+let clueAudio=null;
+function stopClueAudio(){try{if(clueAudio){clueAudio.pause();clueAudio.src='';clueAudio=null;}}catch(e){}}
+// Play the pre-recorded host reading of a clue (Alistair/Isabella). Falls back to
+// browser TTS if that clip hasn't been generated yet, so the game never breaks.
+function playClue(catName,v,fallbackText,cb){
+  stopClueAudio();
+  if(!voiceOn){cb&&cb();return;}
+  try{window.speechSynthesis&&window.speechSynthesis.cancel();}catch(e){}
+  const a=new Audio('audio/'+slugify(catName)+'-'+v+'.wav');
+  clueAudio=a;let done=false;
+  const finish=fn=>{if(done)return;done=true;fn&&fn();};
+  a.onended=()=>finish(cb);
+  a.onerror=()=>finish(()=>speak(fallbackText,cb));
+  a.play().catch(()=>finish(()=>speak(fallbackText,cb)));
+}
 function startListen(){
   if(!supportsSTT){$('clueHint').textContent="Voice input not supported — type your answer.";return;}
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;recog=new SR();recog.lang='en-US';recog.interimResults=true;
@@ -204,6 +226,12 @@ function judge(spoken){
 /* flow */
 function start(){
   board=selected.map(n=>ALL.find(c=>c.name===n)).filter(Boolean);
+  // Always run a FULL 6-category board like real Jeopardy. Whatever the player
+  // picked, fill the remaining columns with random categories they didn't choose.
+  if(board.length<6){
+    const pool=voicedFirst(ALL.filter(c=>board.indexOf(c)<0));
+    while(board.length<6&&pool.length)board.push(pool.shift());
+  }
   score=0;updateScore();
   $('menu').style.display='none';$('board').style.display='block';
   const cats=$('cats'),cells=$('cells');cats.innerHTML='';cells.innerHTML='';
@@ -220,8 +248,10 @@ function openClue(btn,catName,clue){
   $('heard').textContent='';$('typeInput').value='';
   $('clueHint').textContent=supportsSTT?'Tap the mic and say your answer — or type it.':'Type your answer below.';
   $('clue').classList.add('show');
-  speak(catName+', for $'+clue.v+'. '+clue.c);
-  setTimeout(()=>$('typeInput').focus(),300);
+  playClue(catName,clue.v,catName+', for $'+clue.v+'. '+clue.c);
+  // Only summon the keyboard in type mode. In voice mode, auto-focus yanks up
+  // the mobile keyboard and makes the screen jump/zoom — so don't.
+  if(!voiceOn)setTimeout(()=>$('typeInput').focus(),300);
 }
 function showVerdict(ok){
   if(window._final){
@@ -238,7 +268,7 @@ function showVerdict(ok){
   current.btn.classList.add('done');current.btn.textContent='';remaining--;
 }
 function updateScore(){const s=$('scoreEl');if(s){s.textContent=(score<0?'-$':'$')+Math.abs(score);s.className='score'+(score<0?' neg':'');}}
-$('nextBtn').onclick=()=>{if(window._final){window._final=false;endGame();}else{$('clue').classList.remove('show');if(remaining<=0){$('board').style.display='none';startFinal();}}};
+$('nextBtn').onclick=()=>{stopClueAudio();if(window._final){window._final=false;endGame();}else{$('clue').classList.remove('show');if(remaining<=0){$('board').style.display='none';startFinal();}}};
 function startFinal(){
   const f=FINALS[Math.floor(Math.random()*FINALS.length)];window._finalData=f;
   $('final').style.display='block';$('finalCat').textContent=f.cat;
@@ -257,7 +287,7 @@ $('wagerBtn').onclick=()=>{
 function endGame(){
   $('end').style.display='block';$('endScore').textContent=(score<0?'-$':'$')+Math.abs(score);
   let t,m;if(score<=0){t='WIPED OUT';m='The board won. Run it back.';}else if(score<1800){t='NOT BAD';m='Respectable. Try a harder board.';}else if(score<4000){t='SHARP';m='You know things. Genuinely impressive.';}else{t='GENIUS';m='Absolutely cracked. Go flex on your friends.';}
-  $('endTitle').textContent=t;$('endMsg').textContent=m;if(window.OB)OB.submitScore('good-question',Math.max(0,score));
+  $('endTitle').textContent=t;$('endMsg').textContent=m;if(window.OB)OB.submitScore('run-the-board',Math.max(0,score));
 }
 $('micBtn').onclick=()=>{if(listening)stopListen();else startListen();};
 $('submitBtn').onclick=()=>{const v=$('typeInput').value.trim();if(v)judge(v);};

@@ -117,6 +117,28 @@
       return client.from('subscribers').insert({ email: String(email || '').trim().toLowerCase(), source: 'site-form' });
     },
 
+    // ===== PUBLIC PLAY COUNTER =====
+    // Games call trackPlay(slug) once when a run actually starts.
+    // Counted at most once per page load per game (anti-spam).
+    _played: {},
+    async trackPlay(slug) {
+      try {
+        if (!slug || this._played[slug]) return;
+        this._played[slug] = true;
+        await client.rpc('increment_play', { game_slug: slug });
+      } catch (e) { }
+    },
+
+    // Returns { slug: plays, ... } for showing tickers on the arcade.
+    async getPlayCounts() {
+      try {
+        var r = await client.from('game_plays').select('slug,plays');
+        var out = {};
+        (r.data || []).forEach(function (row) { out[row.slug] = row.plays; });
+        return out;
+      } catch (e) { return {}; }
+    },
+
     async leaderboard(slug, limit) {
       var r = await client.from('leaderboard')
         .select('gamertag,best_score,last_played')
@@ -289,4 +311,11 @@
       else { alert(d.error || 'Unavailable'); }
     }
   };
+
+  // Auto-count a play whenever a game page loads: /games/<slug>/ (or .../index.html).
+  // Future games are counted automatically — no per-game wiring needed.
+  try {
+    var pm = location.pathname.match(/\/games\/([^\/]+)\/(?:index\.html)?$/);
+    if (pm && pm[1] && pm[1] !== 'games') { window.OB.trackPlay(pm[1]); }
+  } catch (e) { }
 })();
