@@ -1,16 +1,16 @@
 {
   "tipUrl": "https://buy.stripe.com/aFacN63qF9VlaILdPPaAw00",
-  "gauntlet": [],
-  "beatPile": [],
-  "drops": [
+  "gauntlet": [
     {
       "slug": "lost-angeles",
       "title": "LOST ANGELES",
-      "tagline": "Goofy 2D platformer through a city that lost its mind. Save the citizens. Dodge the chaos.",
+      "tagline": "Goofy 2D platformer through a city that lost its mind. Save the citizens. Dodge the chaos. Brutal to the end.",
       "icon": "🌴",
       "color": "#ff4d9d",
       "price": "$1",
       "available": false
     }
-  ]
+  ],
+  "beatPile": [],
+  "drops": []
 }
