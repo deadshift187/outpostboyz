@@ -1,0 +1,746 @@
+<meta charset="utf-8">
+<title>SNOWLINE</title>
+<link rel="manifest" href="../../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Snowline">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<style>
+:root{
+  --sky:#dbe7f0; --sky2:#b9cfe0; --ink:#1d2733; --slate:#5b6b7d;
+  --line:#2b3a4a; --rock:#7d8794; --accent:#ff6b35; --accent2:#ffd166;
+  --good:#2fb673; --panel:#f3f7fa; --edge:#c3d2de; --shadow:rgba(10,20,35,.16);
+  --mono:ui-monospace,"Cascadia Code",Consolas,monospace;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --pad-b:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root{
+  --sky:#141d29; --sky2:#0b1017; --ink:#dfe8f2; --slate:#8ea3b8; --line:#9dc0dd;
+  --rock:#5a6675; --panel:#182231; --edge:#2b3a4c; --shadow:rgba(0,0,0,.5);}}
+:root[data-theme="dark"]{--sky:#141d29;--sky2:#0b1017;--ink:#dfe8f2;--slate:#8ea3b8;--line:#9dc0dd;--rock:#5a6675;--panel:#182231;--edge:#2b3a4c;--shadow:rgba(0,0,0,.5);}
+:root[data-theme="light"]{--sky:#dbe7f0;--sky2:#b9cfe0;--ink:#1d2733;--slate:#5b6b7d;--line:#2b3a4a;--rock:#7d8794;--panel:#f3f7fa;--edge:#c3d2de;--shadow:rgba(10,20,35,.16);}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--sky);color:var(--ink);
+  font-family:var(--body);user-select:none;-webkit-user-select:none;touch-action:none;overscroll-behavior:none}
+#cv{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+
+.panel{background:var(--panel);border:1px solid var(--edge);border-radius:14px;box-shadow:0 8px 28px var(--shadow)}
+button{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  border:0;background:transparent;color:var(--slate);border-radius:10px;cursor:pointer;
+  padding:0;transition:background .13s,color .13s}
+button:active{transform:translateY(1px)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---- top strip: level name + ink ---- */
+.top{position:fixed;left:10px;right:10px;top:10px;display:flex;gap:8px;align-items:stretch;z-index:10;pointer-events:none}
+.top>*{pointer-events:auto}
+.lvl{flex:1;min-width:0;padding:9px 13px;display:flex;flex-direction:column;justify-content:center}
+.lvl .n{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--slate);text-transform:uppercase}
+.lvl .t{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ink{width:150px;padding:9px 13px;display:flex;flex-direction:column;justify-content:center;gap:5px}
+.ink .n{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--slate);text-transform:uppercase;
+  display:flex;justify-content:space-between}
+.ink .bar{height:7px;border-radius:4px;background:var(--edge);overflow:hidden}
+.ink .fill{height:100%;background:var(--accent);width:100%;transition:width .12s}
+.ink.low .fill{background:#e2483c}
+/* Outpost Boyz home link (hidden on the arcade cabinet via ?arcade) */
+.home-btn{display:flex;align-items:center;padding:0 12px;font-family:var(--mono);font-size:10px;letter-spacing:.15em;
+  color:var(--slate);text-decoration:none;white-space:nowrap}
+.home-btn:hover,.home-btn:focus-visible{color:var(--accent);outline:none}
+.home-btn .hb-short{display:none}
+@media (max-width:560px){ .home-btn{padding:0 10px} .home-btn .hb-full{display:none} .home-btn .hb-short{display:inline} }
+.iconbtn{width:46px;display:grid;place-items:center;font-size:17px;letter-spacing:0}
+.iconbtn:hover{background:rgba(120,150,180,.16);color:var(--ink)}
+
+/* ---- bottom dock ---- */
+.dock{position:fixed;left:10px;right:10px;bottom:calc(10px + var(--pad-b));z-index:10;
+  display:flex;gap:8px;align-items:stretch;pointer-events:none}
+.dock>*{pointer-events:auto}
+.tools{display:flex;gap:4px;padding:6px}
+.tools button{width:54px;height:50px;display:grid;place-items:center;gap:2px;font-size:9px;line-height:1}
+.tools button span{font-size:19px;line-height:1}
+.tools button:hover{background:rgba(120,150,180,.16);color:var(--ink)}
+.tools button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+.ride{flex:1;height:62px;background:var(--accent);color:#fff;font-weight:800;font-size:15px;
+  border-radius:14px;box-shadow:0 8px 28px var(--shadow)}
+.ride[data-run="1"]{background:var(--slate)}
+.ride:disabled{opacity:.45}
+
+/* ---- overlays ---- */
+.veil{position:fixed;inset:0;background:rgba(12,20,30,.62);z-index:30;display:none;
+  align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(3px)}
+.veil.on{display:flex}
+.card{max-width:480px;width:100%;max-height:86vh;overflow:auto;padding:22px}
+.card h2{margin:0 0 4px;font-size:26px}
+.card p{margin:0 0 16px;color:var(--slate);font-size:14px;line-height:1.55}
+.card .row{display:flex;gap:8px;flex-wrap:wrap}
+.card .row button{flex:1;min-width:120px;height:50px;background:var(--ink);color:var(--panel);font-weight:700}
+.card .row button.alt{background:transparent;color:var(--slate);border:1px solid var(--edge)}
+.stat{display:flex;gap:18px;margin:0 0 16px;font-family:var(--mono);font-size:12px;color:var(--slate)}
+.stat b{display:block;font-size:24px;color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:6px}
+.lv{aspect-ratio:1;border:1px solid var(--edge);border-radius:12px;display:grid;place-items:center;
+  gap:3px;background:transparent;color:var(--ink);font-family:var(--mono)}
+.lv .num{font-size:22px;font-weight:700}
+.lv .st{font-size:11px;color:var(--accent2);letter-spacing:.1em}
+.lv[disabled]{opacity:.32}
+.lv.done{border-color:var(--good)}
+.lv:hover:not([disabled]){background:rgba(120,150,180,.14)}
+
+.toast{position:fixed;left:50%;top:22%;transform:translateX(-50%);font-family:var(--mono);
+  font-size:clamp(22px,7vw,38px);letter-spacing:.2em;color:var(--accent);z-index:12;
+  pointer-events:none;opacity:0;transition:opacity .16s;text-shadow:0 2px 18px var(--shadow)}
+.toast.on{opacity:1}
+.hint{position:fixed;left:50%;bottom:calc(84px + var(--pad-b));transform:translateX(-50%);
+  font-family:var(--mono);font-size:11px;color:var(--slate);z-index:9;white-space:nowrap;
+  background:var(--panel);border:1px solid var(--edge);border-radius:9px;padding:7px 13px;opacity:.95}
+@media (max-width:560px){
+  .ink{width:112px}
+  .tools button{width:48px;height:48px}
+  .hint{display:none}
+  .card{padding:18px}
+}
+</style>
+
+<canvas id="cv"></canvas>
+
+<div class="top">
+  <a class="home-btn panel" id="homeBtn" href="../../">&#9666;&nbsp;<span class="hb-full">OUTPOST BOYZ</span><span class="hb-short">OB</span></a>
+  <div class="lvl panel"><div class="n" id="lvNum">Level 1</div><div class="t" id="lvName">&mdash;</div></div>
+  <div class="ink panel" id="inkBox">
+    <div class="n"><span>Ink</span><span id="inkPct">100%</span></div>
+    <div class="bar"><div class="fill" id="inkFill"></div></div>
+  </div>
+  <button class="iconbtn panel" id="btnFit" title="Fit view">&#9974;</button>
+  <button class="iconbtn panel" id="btnMenu" title="Levels">&#9776;</button>
+</div>
+
+<div class="dock">
+  <div class="tools panel">
+    <button id="tPen"   aria-pressed="true"><span>&#9998;</span>Draw</button>
+    <button id="tErase" aria-pressed="false"><span>&#9003;</span>Erase</button>
+    <button id="tPan"   aria-pressed="false"><span>&#10021;</span>Pan</button>
+    <button id="btnUndo"><span>&#8630;</span>Undo</button>
+  </div>
+  <button class="ride" id="btnRide" data-run="0">Ride</button>
+</div>
+
+<div class="hint" id="hint">Draw a path from the flag to the finish &middot; pinch or wheel to zoom</div>
+<div class="toast" id="toast"></div>
+
+<div class="veil" id="veil"><div class="card panel" id="card"></div></div>
+
+<script>
+'use strict';
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=0,H=0,DPR=1;
+function resize(){ DPR=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=cv.clientHeight; cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR); }
+addEventListener('resize',resize); resize();
+
+/* ============================ LEVELS ============================
+   Each level hands you a start, a finish, optional checkpoints, some fixed rock you cannot
+   erase, and a fixed amount of ink. The puzzle is the path you draw, not the track we drew.   */
+// Every level begins on a short rock launch ramp that ENDS exactly at the start flag, so the
+// rider always has ground under it and the line you draw continues naturally from the flag.
+function launch(){ const a=[]; let x=-190,y=-84;
+  for(let i=0;i<5;i++){ const nx=x+38, ny=y+16.8; a.push([x,y,nx,ny]); x=nx; y=ny; } return a; }
+const LEVELS=[
+ {name:'First Tracks', ink:1200, start:[0,0], finish:[620,240], cps:[],
+  rock:[...launch()],
+  tip:'Draw a line from the flag down to the finish.'},
+
+ {name:'Mind the Gap', ink:1500, start:[0,0], finish:[900,300], cps:[],
+  rock:[...launch(), [300,300,470,300], [700,300,900,300]],
+  tip:'Grey rock is solid and cannot be erased. Bridge the hole.'},
+
+ {name:'Over the Wall', ink:1700, start:[0,0], finish:[880,300], cps:[],
+  rock:[...launch(), [430,120,430,360], [470,120,470,360], [430,360,470,360]],
+  tip:'Build a ramp and clear the wall.'},
+
+ {name:'Thread the Ring', ink:1900, start:[0,0], finish:[980,420], cps:[[520,60]],
+  rock:[...launch()],
+  tip:'The ring sits high. Keep the first half shallow, then drop.'},
+
+ {name:'Long Haul', ink:2600, start:[0,0], finish:[1500,420], cps:[[520,90],[1030,230]],
+  rock:[...launch()],
+  tip:'Two rings, in order or not, then the finish.'},
+
+ {name:'Tight Budget', ink:1500, start:[0,0], finish:[1150,460], cps:[],
+  rock:[...launch(), [560,180,560,540], [660,180,660,540], [560,540,660,540]],
+  tip:'Just enough ink. Long straight lines are cheaper than fussy curves.'},
+
+ {name:'The Notch', ink:2400, start:[0,0], finish:[1180,300], cps:[[620,140]],
+  rock:[...launch(), [880,-40,880,200], [880,200,1010,200]],
+  tip:'A rock spur juts down. Go under it, or over the top.'},
+
+ {name:'Whiteout', ink:3400, start:[0,0], finish:[1800,560], cps:[[480,120],[1020,190],[1480,330]],
+  rock:[...launch(), [700,300,700,660], [1250,-60,1250,160]],
+  tip:'Everything at once. Take your time.'},
+];
+
+/* ---- levels 9..300: seeded generator, deterministic, harder the deeper you go ----
+   Each run is a chain of downhill legs. Some legs end on an amber PLATFORM ledge the rider
+   must physically ride (it lights up green); the player draws the connecting lines. Every
+   generated level also carries its own naive solution path (bot) so the test harness can
+   prove all 300 are solvable within their ink budget — never above the start, rider can't climb. */
+function mulberry(seed){ let t=seed>>>0;
+  return function(){ t+=0x6D2B79F5; let r=Math.imul(t^t>>>15,1|t);
+    r^=r+Math.imul(r^r>>>7,61|r); return ((r^r>>>14)>>>0)/4294967296; }; }
+const NAME_A=['Frozen','Quiet','Broken','High','Long','Pale','Iron','Hidden','Thin','Last','Blue','Wild'];
+const NAME_B=['Traverse','Couloir','Cornice','Ridge','Chute','Bowl','Serac','Spine','Col','Face','Gully','Field'];
+function genLevel(i){
+  const r=mulberry(i*2654435761+1), t=(i-8)/291;          // 0 = gentle, 1 = cruel
+  const legs=2+Math.floor(t*3.2+r()*1.8);
+  const nPlat=Math.min(legs, 1+Math.floor(t*3.5+r()*0.8));
+  const nCp = t<0.2? 0 : Math.min(3, Math.floor(r()*2+t*2));
+  const idx=[...Array(legs).keys()];
+  for(let k=idx.length-1;k>0;k--){ const j=Math.floor(r()*(k+1)); [idx[k],idx[j]]=[idx[j],idx[k]]; }
+  const platOn=new Set(idx.slice(0,nPlat)), cpOn=new Set(idx.slice(nPlat,nPlat+nCp));
+  const rock=[...launch()], plats=[], cps=[], bot=[];
+  // keep every drawn slope inside a narrow band: kinks between legs stay gentle, because a
+  // steep-to-shallow valley kink at speed is a faceplant no landing physics can save. The band
+  // sits at 0.55+ because friction makes anything shallower a crawl — the rider needs 3-4
+  // px/step at a lip to actually carry a hop onto a ledge.
+  const slope=0.55+t*0.1;
+  let x=0,y=0, inkLen=0;
+  for(let j=0;j<legs;j++){
+    const dx=300+r()*220+t*260;
+    const dy=dx*(slope+(r()-0.5)*0.1);
+    const ax=x+dx, ay=y+dy;
+    if(platOn.has(j)){
+      // the way onto a ledge is a HOP: the lead-in ends above it and the rider drops on.
+      // Convex exits are safe; drop height grows with difficulty.
+      // ledge slope sits just under the level's band: the lead-in meets it at a ~7° kink the
+      // rider soaks up at speed. Steeper-than-flat ledges also keep momentum for the next leg.
+      const pl=120+r()*60+t*40, ps=Math.max(0.2,slope-0.15), px0=ax-pl, py0=ay-pl*ps;
+      plats.push([[px0,py0,ax,ay]]);
+      const ex=px0+10, ey=py0+10*ps;   // a point ON the ledge, just inside the tip
+      bot.push([x,y,ex,ey]); inkLen+=Math.hypot(ex-x,ey-y);
+    } else {
+      if(cpOn.has(j)) cps.push([(x+ax)/2,(y+ay)/2]);
+      bot.push([x,y,ax,ay]); inkLen+=Math.hypot(dx,dy);
+    }
+    x=ax; y=ay;
+  }
+  const ink=Math.max(900, Math.round(inkLen*(1.55-0.4*t)));
+  return {name:NAME_A[Math.floor(r()*NAME_A.length)]+' '+NAME_B[Math.floor(r()*NAME_B.length)],
+    ink, start:[0,0], finish:[x,y], cps, rock, plats, bot,
+    tip: plats.length? 'Amber ledges must be ridden — they turn green. Light them all, then finish.'
+                     : 'Down and to the right. Watch the ink.'};
+}
+for(let i=8;i<300;i++) LEVELS.push(genLevel(i));
+
+/* ============================ WORLD ============================ */
+let lines=[];        // player ink   {x1,y1,x2,y2}
+let rock=[];         // fixed level geometry, not erasable
+let strokes=[];
+let cam={x:0,y:0,z:1};
+const ZMIN=0.08, ZMAX=4;
+let tool='pen', running=false;
+let lvIndex=0, level=null, inkUsed=0, cpHit=[], platHit=[], won=false;
+
+const CELL=90; let grid=new Map();
+const key=(a,b)=>a+','+b;
+function addSeg(arr,i,tag){
+  const L=arr[i];
+  const x0=Math.min(L.x1,L.x2), x1=Math.max(L.x1,L.x2);
+  const y0=Math.min(L.y1,L.y2), y1=Math.max(L.y1,L.y2);
+  for(let cx=Math.floor(x0/CELL);cx<=Math.floor(x1/CELL);cx++)
+    for(let cy=Math.floor(y0/CELL);cy<=Math.floor(y1/CELL);cy++){
+      const k=key(cx,cy); let a=grid.get(k); if(!a){a=[];grid.set(k,a);} a.push(L); }
+}
+function reindex(){ grid=new Map();
+  for(let i=0;i<rock.length;i++) addSeg(rock,i);
+  for(let i=0;i<lines.length;i++) addSeg(lines,i); }
+function near(x,y,r){
+  const out=new Set();
+  for(let cx=Math.floor((x-r)/CELL);cx<=Math.floor((x+r)/CELL);cx++)
+    for(let cy=Math.floor((y-r)/CELL);cy<=Math.floor((y+r)/CELL);cy++){
+      const a=grid.get(key(cx,cy)); if(a) for(const L of a) out.add(L); }
+  return out;
+}
+
+/* ============================ RIDER ============================ */
+const GRAV=0.42, DAMP=0.999, FRICTION=0.035, ITER=8, RADIUS=1.6;
+const AIR_TURN=0.05, AIR_DELAY=3, LAND_DAMP=0.55, AIR_SPIN=0.28, START_PUSH=3;
+let P=[], C=[], crashed=false, flips=0, spin=0, lastAng=0, bestFlips=0;
+let touched=false, airTime=0;
+
+function makeRider(x,y){
+  P=[{x:x-13,y:y,px:x-13,py:y},
+     {x:x+13,y:y,px:x+13,py:y},
+     {x:x,y:y-14,px:x,py:y-14},
+     {x:x,y:y-30,px:x,py:y-30,head:1}];
+  const d=(a,b)=>({a,b,len:Math.hypot(P[a].x-P[b].x,P[a].y-P[b].y)});
+  C=[d(0,1),d(0,2),d(1,2),d(2,3),d(0,3),d(1,3)];
+  crashed=false; flips=0; spin=0; won=false; airTime=0; touched=false;
+  cpHit=level? level.cps.map(()=>false) : [];
+  platHit=level? (level.plats||[]).map(()=>false) : [];
+  lastAng=Math.atan2(P[1].y-P[0].y,P[1].x-P[0].x);
+}
+function solve(){
+  for(let k=0;k<ITER;k++) for(const c of C){
+    const a=P[c.a], b=P[c.b];
+    let dx=b.x-a.x, dy=b.y-a.y, d=Math.hypot(dx,dy)||1e-6;
+    const f=(d-c.len)/d*0.5; dx*=f; dy*=f;
+    a.x+=dx; a.y+=dy; b.x-=dx; b.y-=dy;
+  }
+}
+function crossAt(px,py,x,y,ax,ay,bx,by){
+  const rx=x-px, ry=y-py, sx=bx-ax, sy=by-ay;
+  const den=rx*sy-ry*sx; if(Math.abs(den)<1e-9) return -1;
+  const t=((ax-px)*sy-(ay-py)*sx)/den, u=((ax-px)*ry-(ay-py)*rx)/den;
+  return (t>=0&&t<=1&&u>=0&&u<=1)? t : -1;
+}
+function contact(p,nx,ny,L){
+  if(p.head){ crashed=true; return; }
+  touched=true;
+  // board on an amber platform ledge: light it up
+  if(L&&L.pi!==undefined&&!platHit[L.pi]){
+    platHit[L.pi]=true;
+    const lit=platHit.filter(Boolean).length;
+    flash(lit===platHit.length? 'ALL LIT' : 'LIT '+lit+'/'+platHit.length);
+  }
+  let vx=p.x-p.px, vy=p.y-p.py;
+  const vn=vx*nx+vy*ny;
+  p.px=p.x-(vx-vn*nx)*(1-FRICTION); p.py=p.y-(vy-vn*ny)*(1-FRICTION);
+}
+function collide(p){
+  const mx=(p.x+p.px)/2, my=(p.y+p.py)/2;
+  const reach=Math.hypot(p.x-p.px,p.y-p.py)/2 + RADIUS + 6;
+  let bestT=2, bestL=null;
+  for(const L of near(mx,my,reach)){
+    const t=crossAt(p.px,p.py,p.x,p.y,L.x1,L.y1,L.x2,L.y2);
+    if(t>=0 && t<bestT){ bestT=t; bestL=L; }
+  }
+  if(bestL){
+    const sx=bestL.x2-bestL.x1, sy=bestL.y2-bestL.y1, sl=Math.hypot(sx,sy)||1e-6;
+    let nx=-sy/sl, ny=sx/sl;
+    if((p.px-bestL.x1)*nx+(p.py-bestL.y1)*ny < 0){ nx=-nx; ny=-ny; }
+    p.x=p.px+(p.x-p.px)*bestT+nx*RADIUS; p.y=p.py+(p.y-p.py)*bestT+ny*RADIUS;
+    contact(p,nx,ny,bestL); if(crashed) return;
+  }
+  for(const L of near(p.x,p.y,RADIUS+6)){
+    const ax=L.x1, ay=L.y1, bx=L.x2-L.x1, by=L.y2-L.y1;
+    const len2=bx*bx+by*by; if(len2<1e-9) continue;
+    let t=((p.x-ax)*bx+(p.y-ay)*by)/len2; t=t<0?0:t>1?1:t;
+    const dx=p.x-(ax+bx*t), dy=p.y-(ay+by*t), dist=Math.hypot(dx,dy);
+    if(dist>RADIUS||dist<1e-9) continue;
+    const nx=dx/dist, ny=dy/dist;
+    p.x+=nx*(RADIUS-dist); p.y+=ny*(RADIUS-dist);
+    contact(p,nx,ny,L); if(crashed) return;
+  }
+}
+// Level the board out while airborne. Raw velocity is the wrong target — a steep fall points
+// 70° into the snow and chasing it nose-plants the rider — so aim along the direction of travel
+// with the pitch clamped to the band the drop test says is survivable: a touch of nose-down is
+// fine, tail-first is the back-slap that puts his head in the snow. Fades to nothing as the
+// mismatch nears 90° so a deliberate flip is never fought — past that you're committed.
+function airTurn(){
+  let cx=0,cy=0,vx=0,vy=0,pcx=0,pcy=0;
+  for(const p of P){ cx+=p.x; cy+=p.y; vx+=p.x-p.px; vy+=p.y-p.py; pcx+=p.px; pcy+=p.py; }
+  cx/=4; cy/=4; vx/=4; vy/=4; pcx/=4; pcy/=4;
+  // leaving a lip whips the body into a tumble (nose clears the edge first, gravity pivots the
+  // rest over it). Bleed that spin off a few percent per frame — rotational air drag — or no
+  // amount of orientation steering can save the landing.
+  {
+    const a1=Math.atan2(P[1].y-P[0].y,P[1].x-P[0].x);
+    const a0=Math.atan2(P[1].py-P[0].py,P[1].px-P[0].px);
+    let w=a1-a0;
+    while(w>Math.PI)w-=Math.PI*2; while(w<-Math.PI)w+=Math.PI*2;
+    if(Math.abs(w)>1e-4){
+      const r=w*AIR_SPIN, s=Math.sin(r), c=Math.cos(r);
+      for(const p of P){
+        const qx=p.px-pcx, qy=p.py-pcy;
+        p.px=pcx+qx*c-qy*s; p.py=pcy+qx*s+qy*c;
+      }
+    }
+  }
+  if(vx*vx+vy*vy<1.5) return;
+  const fwd=vx<0?Math.PI:0, sgn=vx<0?-1:1;
+  let pitch=Math.atan2(vy,vx)-fwd;
+  while(pitch>Math.PI)pitch-=Math.PI*2; while(pitch<-Math.PI)pitch+=Math.PI*2;
+  pitch*=sgn;
+  const tgt=fwd+sgn*Math.max(-0.12,Math.min(0.3,pitch));
+  const ang=Math.atan2(P[1].y-P[0].y,P[1].x-P[0].x);
+  let d=tgt-ang;
+  while(d>Math.PI)d-=Math.PI*2; while(d<-Math.PI)d+=Math.PI*2;
+  const fade=1-Math.abs(d)/(Math.PI/2);
+  if(fade<=0) return;
+  const r=d*AIR_TURN*fade, s=Math.sin(r), c=Math.cos(r);
+  // rotate prev positions too: steer the orientation without pumping in spin velocity,
+  // otherwise this is an undamped controller and the rider arrives at the snow mid-wobble
+  for(const p of P){
+    const ox=p.x-cx, oy=p.y-cy;
+    p.x=cx+ox*c-oy*s; p.y=cy+ox*s+oy*c;
+    const qx=p.px-cx, qy=p.py-cy;
+    p.px=cx+qx*c-qy*s; p.py=cy+qx*s+qy*c;
+  }
+}
+// First touchdown after real air: bleed off rotational velocity so a clean landing does not
+// whip the body over its own nose a frame later.
+function landDamp(){
+  let vx=0,vy=0;
+  for(const p of P){ vx+=p.x-p.px; vy+=p.y-p.py; }
+  vx/=4; vy/=4;
+  for(const p of P){
+    p.px=p.x-vx-((p.x-p.px)-vx)*(1-LAND_DAMP);
+    p.py=p.y-vy-((p.y-p.py)-vy)*(1-LAND_DAMP);
+  }
+}
+function step(){
+  for(const p of P){
+    const vx=(p.x-p.px)*DAMP, vy=(p.y-p.py)*DAMP;
+    p.px=p.x; p.py=p.y; p.x+=vx; p.y+=vy+GRAV;
+  }
+  touched=false;
+  // contacts get the last word each round or the constraints push the board through the snow
+  for(let k=0;k<4;k++){ solve(); for(const p of P){ collide(p); if(crashed) break; } if(crashed) break; }
+  if(!crashed){
+    if(touched){
+      if(airTime>AIR_DELAY) landDamp();
+      airTime=0;
+    } else { airTime++; if(airTime>AIR_DELAY) airTurn(); }
+  }
+  const ang=Math.atan2(P[1].y-P[0].y,P[1].x-P[0].x);
+  let d=ang-lastAng;
+  while(d>Math.PI)d-=Math.PI*2; while(d<-Math.PI)d+=Math.PI*2;
+  spin+=d; lastAng=ang;
+  if(Math.abs(spin)>Math.PI*2){ flips+=1; spin-=Math.sign(spin)*Math.PI*2;
+    if(flips>bestFlips) bestFlips=flips; }
+  checkGoals();
+}
+function checkGoals(){
+  if(won||crashed||!level) return;
+  const bx=(P[0].x+P[1].x)/2, by=(P[0].y+P[1].y)/2;
+  level.cps.forEach((c,i)=>{ if(!cpHit[i] && Math.hypot(bx-c[0],by-c[1])<34){
+    cpHit[i]=true; flash('CHECKPOINT'); } });
+  if(Math.hypot(bx-level.finish[0],by-level.finish[1])<38 && cpHit.every(Boolean) && platHit.every(Boolean)){
+    won=true; running=false; finish(); }
+}
+
+/* ============================ INPUT ============================ */
+let drawing=false, last=null, strokeStart=0, panFrom=null, spaceDown=false;
+const toWorld=(sx,sy)=>({x:sx/cam.z+cam.x, y:sy/cam.z+cam.y});
+const pt=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};};
+function zoomAt(sx,sy,f){
+  const b=toWorld(sx,sy);
+  cam.z=Math.max(ZMIN,Math.min(ZMAX,cam.z*f));
+  const a=toWorld(sx,sy);
+  cam.x+=b.x-a.x; cam.y+=b.y-a.y;
+}
+const live=new Map(); let pinch=null;
+
+cv.addEventListener('pointerdown',e=>{
+  cv.setPointerCapture(e.pointerId);
+  const s=pt(e); live.set(e.pointerId,s);
+  if(live.size===2){ const [a,b]=[...live.values()];
+    pinch={d:Math.hypot(a.x-b.x,a.y-b.y),cx:(a.x+b.x)/2,cy:(a.y+b.y)/2};
+    drawing=false; panFrom=null; return; }
+  if(tool==='pan'||e.button===1||e.button===2||spaceDown||running){
+    panFrom={sx:s.x,sy:s.y,cx:cam.x,cy:cam.y}; return; }
+  const w=toWorld(s.x,s.y);
+  if(tool==='erase'){ erase(w); drawing=true; return; }
+  drawing=true; last=w; strokeStart=lines.length;
+});
+cv.addEventListener('pointermove',e=>{
+  const s=pt(e);
+  if(live.has(e.pointerId)) live.set(e.pointerId,s);
+  if(pinch&&live.size>=2){
+    const [a,b]=[...live.values()];
+    const d=Math.hypot(a.x-b.x,a.y-b.y), cx=(a.x+b.x)/2, cy=(a.y+b.y)/2;
+    if(pinch.d>4) zoomAt(cx,cy,d/pinch.d);
+    cam.x-=(cx-pinch.cx)/cam.z; cam.y-=(cy-pinch.cy)/cam.z;
+    pinch={d,cx,cy}; return;
+  }
+  if(panFrom){ cam.x=panFrom.cx-(s.x-panFrom.sx)/cam.z; cam.y=panFrom.cy-(s.y-panFrom.sy)/cam.z; return; }
+  if(!drawing) return;
+  const w=toWorld(s.x,s.y);
+  if(tool==='erase'){ erase(w); return; }
+  const dx=w.x-last.x, dy=w.y-last.y, min=5/cam.z;
+  if(dx*dx+dy*dy<min*min) return;
+  const len=Math.hypot(dx,dy);
+  if(inkUsed+len>level.ink){ flash('OUT OF INK'); drawing=false; return; }
+  const L={x1:last.x,y1:last.y,x2:w.x,y2:w.y};
+  lines.push(L); addSeg(lines,lines.length-1); inkUsed+=len;
+  last=w; hud();
+});
+function endPtr(e){
+  if(e) live.delete(e.pointerId);
+  if(live.size<2) pinch=null;
+  if(drawing&&tool==='pen'&&lines.length>strokeStart) strokes.push(strokeStart);
+  drawing=false; panFrom=null; last=null;
+}
+addEventListener('pointerup',endPtr); addEventListener('pointercancel',endPtr);
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+cv.addEventListener('wheel',e=>{e.preventDefault();const s=pt(e);
+  zoomAt(s.x,s.y,e.deltaY<0?1.12:1/1.12);},{passive:false});
+
+function segLen(L){return Math.hypot(L.x2-L.x1,L.y2-L.y1);}
+function erase(w){
+  const r=15/cam.z, kill=new Set();
+  for(const L of near(w.x,w.y,r+4)){
+    if(!lines.includes(L)) continue;           // rock is permanent
+    const bx=L.x2-L.x1, by=L.y2-L.y1, len2=bx*bx+by*by||1e-9;
+    let t=((w.x-L.x1)*bx+(w.y-L.y1)*by)/len2; t=t<0?0:t>1?1:t;
+    if(Math.hypot(w.x-(L.x1+bx*t),w.y-(L.y1+by*t))<r) kill.add(L);
+  }
+  if(!kill.size) return;
+  for(const L of kill) inkUsed-=segLen(L);
+  lines=lines.filter(L=>!kill.has(L));
+  strokes=[]; reindex(); hud();
+}
+function undo(){
+  if(!strokes.length) return;
+  const a=strokes.pop();
+  for(let i=a;i<lines.length;i++) inkUsed-=segLen(lines[i]);
+  lines.length=a; reindex(); hud();
+}
+
+/* ============================ VIEW ============================ */
+function fit(){
+  const pts=[level.start,level.finish,...level.cps];
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  const eat=(x,y)=>{x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);};
+  for(const p of pts) eat(p[0],p[1]);
+  for(const L of rock.concat(lines)){ eat(L.x1,L.y1); eat(L.x2,L.y2); }
+  const pad=150;
+  cam.z=Math.max(ZMIN,Math.min(ZMAX,Math.min(W/(x1-x0+pad*2),H/(y1-y0+pad*2))));
+  cam.x=(x0+x1)/2-W/(2*cam.z); cam.y=(y0+y1)/2-H/(2*cam.z);
+}
+function follow(){
+  if(!running) return;
+  const cx=(P[0].x+P[1].x)/2, cy=(P[0].y+P[1].y)/2;
+  const tx=cx-(W/cam.z)*0.36, ty=cy-(H/cam.z)*0.46;
+  cam.x+=(tx-cam.x)*0.09; cam.y+=(ty-cam.y)*0.09;
+}
+
+/* ============================ RENDER ============================ */
+const cssCache={};
+const CSS=v=>{ if(!(v in cssCache)) cssCache[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim(); return cssCache[v]; };
+new MutationObserver(()=>{for(const k in cssCache) delete cssCache[k];})
+  .observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+function flag(x,y,col,label){
+  const px=1/cam.z;
+  ctx.strokeStyle=CSS('--ink'); ctx.lineWidth=2.4*px;
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y-46); ctx.stroke();
+  ctx.fillStyle=col;
+  ctx.beginPath(); ctx.moveTo(x,y-46); ctx.lineTo(x+30,y-38); ctx.lineTo(x,y-28); ctx.closePath(); ctx.fill();
+  ctx.fillStyle=CSS('--slate'); ctx.font=(11*px)+'px '+CSS('--mono');
+  ctx.textAlign='center'; ctx.fillText(label,x+6,y+16);
+}
+function draw(){
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,CSS('--sky')); g.addColorStop(1,CSS('--sky2'));
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  const z=cam.z, px=1/z;
+  ctx.setTransform(DPR*z,0,0,DPR*z,-cam.x*z*DPR,-cam.y*z*DPR);
+  const vx0=cam.x-60*px, vy0=cam.y-60*px, vx1=cam.x+W/z+60*px, vy1=cam.y+H/z+60*px;
+
+  let G=120; while(G*z<48) G*=4; while(G*z>360) G/=4;
+  ctx.strokeStyle='rgba(128,150,175,.16)'; ctx.lineWidth=px;
+  ctx.beginPath();
+  for(let x=Math.floor(vx0/G)*G;x<vx1;x+=G){ ctx.moveTo(x,vy0); ctx.lineTo(x,vy1); }
+  for(let y=Math.floor(vy0/G)*G;y<vy1;y+=G){ ctx.moveTo(vx0,y); ctx.lineTo(vx1,y); }
+  ctx.stroke();
+
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  const vis=L=>!(Math.max(L.x1,L.x2)<vx0||Math.min(L.x1,L.x2)>vx1||Math.max(L.y1,L.y2)<vy0||Math.min(L.y1,L.y2)>vy1);
+  // rock first, heavier and colder so it reads as "you cannot change this"
+  ctx.strokeStyle=CSS('--rock'); ctx.lineWidth=7*px;
+  ctx.beginPath(); for(const L of rock) if(L.pi===undefined&&vis(L)){ctx.moveTo(L.x1,L.y1);ctx.lineTo(L.x2,L.y2);} ctx.stroke();
+  // platform ledges: amber until ridden, green once lit — a soft halo so they read as targets
+  for(const lit of [false,true]){
+    const col=lit?CSS('--good'):CSS('--accent2');
+    let any=false;
+    ctx.beginPath();
+    for(const L of rock) if(L.pi!==undefined && !!platHit[L.pi]===lit && vis(L)){
+      ctx.moveTo(L.x1,L.y1); ctx.lineTo(L.x2,L.y2); any=true; }
+    if(!any) continue;
+    ctx.strokeStyle=col; ctx.globalAlpha=.28; ctx.lineWidth=16*px; ctx.stroke();
+    ctx.globalAlpha=1; ctx.lineWidth=8*px; ctx.stroke();
+  }
+  // player ink
+  ctx.strokeStyle=CSS('--line'); ctx.lineWidth=3.2*px;
+  ctx.beginPath(); for(const L of lines) if(vis(L)){ctx.moveTo(L.x1,L.y1);ctx.lineTo(L.x2,L.y2);} ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.lineWidth=1.5*px;
+  ctx.beginPath(); for(const L of lines) if(vis(L)){ctx.moveTo(L.x1,L.y1-2.2*px);ctx.lineTo(L.x2,L.y2-2.2*px);} ctx.stroke();
+
+  // checkpoints
+  level.cps.forEach((c,i)=>{
+    ctx.lineWidth=3.4*px;
+    ctx.strokeStyle=cpHit[i]?CSS('--good'):CSS('--accent2');
+    ctx.beginPath(); ctx.arc(c[0],c[1],26,0,7); ctx.stroke();
+    if(!cpHit[i]){ ctx.globalAlpha=.25; ctx.fillStyle=CSS('--accent2');
+      ctx.beginPath(); ctx.arc(c[0],c[1],26,0,7); ctx.fill(); ctx.globalAlpha=1; }
+  });
+  flag(level.start[0],level.start[1],CSS('--accent'),'START');
+  const ready=cpHit.every(Boolean)&&platHit.every(Boolean);
+  flag(level.finish[0],level.finish[1],ready?CSS('--good'):CSS('--rock'),'FINISH');
+
+  drawRider(px);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+function drawRider(px){
+  if(!P.length) return;
+  const T=P[0],N=P[1],Hp=P[2],K=P[3];
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.strokeStyle=CSS('--accent'); ctx.lineWidth=6*px;
+  ctx.beginPath(); ctx.moveTo(T.x,T.y); ctx.lineTo(N.x,N.y); ctx.stroke();
+  ctx.strokeStyle=CSS('--accent2'); ctx.lineWidth=2*px;
+  ctx.beginPath(); ctx.moveTo(T.x,T.y); ctx.lineTo(N.x,N.y); ctx.stroke();
+  ctx.strokeStyle=CSS('--ink'); ctx.lineWidth=3.4*px;
+  ctx.beginPath();
+  ctx.moveTo(Hp.x,Hp.y); ctx.lineTo(T.x+(N.x-T.x)*.28,T.y+(N.y-T.y)*.28);
+  ctx.moveTo(Hp.x,Hp.y); ctx.lineTo(T.x+(N.x-T.x)*.72,T.y+(N.y-T.y)*.72);
+  ctx.moveTo(Hp.x,Hp.y); ctx.lineTo(K.x,K.y);
+  ctx.stroke();
+  const ax=K.x-Hp.x, ay=K.y-Hp.y;
+  ctx.lineWidth=2.8*px;
+  ctx.beginPath();
+  ctx.moveTo(Hp.x+ax*.55,Hp.y+ay*.55); ctx.lineTo(Hp.x+ax*.55-ay*.75,Hp.y+ay*.55+ax*.75);
+  ctx.moveTo(Hp.x+ax*.55,Hp.y+ay*.55); ctx.lineTo(Hp.x+ax*.55+ay*.75,Hp.y+ay*.55-ax*.75);
+  ctx.stroke();
+  ctx.fillStyle=crashed?'#e2483c':CSS('--ink');
+  ctx.beginPath(); ctx.arc(K.x,K.y,5.4*px,0,7); ctx.fill();
+}
+
+/* ============================ UI ============================ */
+const el=id=>document.getElementById(id);
+const toastEl=el('toast'); let toastT=0;
+function flash(msg){ toastEl.textContent=msg; toastEl.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('on'),900); }
+function hud(){
+  const left=Math.max(0,1-inkUsed/level.ink);
+  el('inkFill').style.width=(left*100)+'%';
+  el('inkPct').textContent=Math.round(left*100)+'%';
+  el('inkBox').classList.toggle('low',left<0.18);
+}
+function setTool(t){ tool=t;
+  for(const [id,n] of [['tPen','pen'],['tErase','erase'],['tPan','pan']])
+    el(id).setAttribute('aria-pressed',String(n===t));
+  cv.style.cursor = t==='pan'?'grab' : t==='erase'?'cell' : 'crosshair';
+}
+
+/* --- progress --- */
+const SAVE='snowline_progress_v1';
+let prog=JSON.parse(localStorage.getItem(SAVE)||'{"done":[],"flips":{}}');
+const saveProg=()=>localStorage.setItem(SAVE,JSON.stringify(prog));
+
+function loadLevel(i){
+  lvIndex=Math.max(0,Math.min(LEVELS.length-1,i));
+  const D=LEVELS[lvIndex];
+  level={...D, cps:D.cps.map(c=>c.slice()), plats:D.plats||[]};
+  rock=D.rock.map(r=>({x1:r[0],y1:r[1],x2:r[2],y2:r[3]}));
+  level.plats.forEach((segs,pi)=>{ for(const s of segs) rock.push({x1:s[0],y1:s[1],x2:s[2],y2:s[3],pi}); });
+  lines=[]; strokes=[]; inkUsed=0; bestFlips=0;
+  reindex();
+  el('lvNum').textContent='Level '+(lvIndex+1)+' of '+LEVELS.length;
+  el('lvName').textContent=D.name;
+  el('hint').textContent=D.tip;
+  el('hint').style.display='';
+  makeRider(D.start[0]-16,D.start[1]-24);   // sit the board back onto the launch ramp
+  stopRide(); fit(); hud(); setTool('pen');
+}
+function startRide(){
+  if(!lines.length){ flash('DRAW SOMETHING FIRST'); return; }
+  running=true; el('btnRide').textContent='Stop'; el('btnRide').dataset.run='1';
+  el('hint').style.display='none';
+  makeRider(level.start[0]-16,level.start[1]-24);
+  // kick off down the launch ramp — friction nearly cancels gravity on the ramp slope, and
+  // with no throttle a standing start crawls. Direction matches launch() geometry (38,16.8).
+  const rl=Math.hypot(38,16.8), kx=38/rl*START_PUSH, ky=16.8/rl*START_PUSH;
+  for(const p of P){ p.px-=kx; p.py-=ky; }
+}
+function stopRide(){
+  running=false; el('btnRide').textContent='Ride'; el('btnRide').dataset.run='0';
+  makeRider(level.start[0]-16,level.start[1]-24);
+}
+function finish(){
+  if(!prog.done.includes(lvIndex)) prog.done.push(lvIndex);
+  const prev=prog.flips[lvIndex]||0;
+  if(bestFlips>prev) prog.flips[lvIndex]=bestFlips;
+  saveProg();
+  try{ if(window.OB){ OB.submitScore('snowline',prog.done.length); OB.gameOver('snowline'); } }catch(e){}
+  const inkPct=Math.round((1-inkUsed/level.ink)*100);
+  const last=lvIndex===LEVELS.length-1;
+  showCard(
+    '<h2>'+(last?'Mountain cleared':'Nice line')+'</h2>'+
+    '<p>'+(last?'That is every level. Free ride is next on the list.':'Snowdude made it in one piece.')+'</p>'+
+    '<div class="stat"><div>flips<b>'+bestFlips+'</b></div><div>ink left<b>'+inkPct+'%</b></div>'+
+    '<div>lines<b>'+lines.length+'</b></div></div>'+
+    '<div class="row">'+
+      (last?'':'<button id="cNext">Next level</button>')+
+      '<button class="alt" id="cRetry">Try again</button>'+
+      '<button class="alt" id="cMenu">Levels</button>'+
+    '</div>');
+  el('cNext')&&(el('cNext').onclick=()=>{hideCard(); loadLevel(lvIndex+1);});
+  el('cRetry').onclick=()=>{hideCard(); loadLevel(lvIndex);};
+  el('cMenu').onclick=()=>{hideCard(); menu();};
+}
+function showCard(html){ el('card').innerHTML=html; el('veil').classList.add('on'); }
+function hideCard(){ el('veil').classList.remove('on'); }
+function menu(){
+  let g='<h2>Levels</h2><p>Draw a path from the start flag to the finish. Amber ledges must be ridden — light them all to open the finish. Land it without putting Snowdude on his head.</p><div class="grid">';
+  LEVELS.forEach((L,i)=>{
+    const open = i===0 || prog.done.includes(i-1) || prog.done.includes(i);
+    const done = prog.done.includes(i);
+    const f = prog.flips[i]||0;
+    g+='<button class="lv'+(done?' done':'')+'" data-i="'+i+'"'+(open?'':' disabled')+'>'+
+       '<span class="num">'+(i+1)+'</span>'+
+       '<span class="st">'+(done? (f? '&#10003; '+f+'&#8635;' : '&#10003;') : (open?'&mdash;':'&#128274;'))+'</span></button>';
+  });
+  g+='</div><div class="row" style="margin-top:14px"><button class="alt" id="cClose">Close</button></div>';
+  showCard(g);
+  el('card').querySelectorAll('.lv').forEach(b=>b.onclick=()=>{hideCard(); loadLevel(+b.dataset.i);});
+  el('cClose').onclick=hideCard;
+}
+
+el('tPen').onclick=()=>setTool('pen');
+el('tErase').onclick=()=>setTool('erase');
+el('tPan').onclick=()=>setTool('pan');
+el('btnUndo').onclick=undo;
+el('btnFit').onclick=fit;
+el('btnMenu').onclick=menu;
+el('btnRide').onclick=()=>running?stopRide():startRide();
+
+addEventListener('keyup',e=>{ if(e.code==='Space'){spaceDown=false;setTool(tool);} });
+addEventListener('keydown',e=>{
+  if(e.code==='Space'&&!e.repeat){ spaceDown=true; cv.style.cursor='grab'; }
+  if(e.key==='Enter'){ e.preventDefault(); running?stopRide():startRide(); }
+  if(e.key==='r'||e.key==='R') loadLevel(lvIndex);
+  if(e.key==='f'||e.key==='F') fit();
+  if(e.key==='Escape') el('veil').classList.contains('on')?hideCard():menu();
+  if(e.key==='1') setTool('pen');
+  if(e.key==='2') setTool('erase');
+  if(e.key==='3') setTool('pan');
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'){ e.preventDefault(); undo(); }
+});
+
+/* ============================ LOOP ============================ */
+let crashHold=0;
+function frame(){
+  if(running){
+    for(let i=0;i<2&&!crashed&&!won;i++) step();
+    follow();
+    if(crashed){
+      if(!crashHold){ crashHold=1; flash('WIPEOUT');
+        setTimeout(()=>{ crashHold=0; stopRide(); },1100); }
+    }
+  }
+  draw();
+  requestAnimationFrame(frame);
+}
+loadLevel(prog.done.length ? Math.min(prog.done.length,LEVELS.length-1) : 0);
+frame();
+if(/arcade/.test(location.search)){ const hb=el('homeBtn'); if(hb) hb.remove(); }
+</script>
+<!-- Outpost Boyz SDK: scores + play tracking (optional; game runs fine offline without it) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
+<script src="../../assets/ob-sdk.js"></script>

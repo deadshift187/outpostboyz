@@ -48,14 +48,30 @@
   #board{display:none}
   .top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:36px 0 12px}
   .grid{display:grid;grid-template-columns:repeat(var(--cols,6),1fr);gap:5px}
-  .cat{background:var(--panel);border-radius:8px 8px 0 0;padding:10px 4px;text-align:center;font-family:var(--disp);font-size:clamp(10px,2.1vw,15px);letter-spacing:.4px;text-transform:uppercase;min-height:58px;display:flex;align-items:center;justify-content:center}
+  .cat{background:var(--panel);border-radius:8px 8px 0 0;padding:10px 4px;text-align:center;font-family:var(--disp);font-size:clamp(10px,2.1vw,15px);letter-spacing:.4px;text-transform:uppercase;min-height:58px;display:flex;align-items:center;justify-content:center;line-height:1.12;overflow-wrap:anywhere;word-break:break-word;-webkit-hyphens:auto;hyphens:auto}
+  .cat span{min-width:0;max-width:100%}
+  .cat.fitting{-webkit-hyphens:manual;hyphens:manual;overflow-wrap:normal;word-break:normal}
   .cell{background:var(--tile);border:none;border-radius:8px;height:clamp(44px,11.5vh,104px);color:var(--gold);font-family:var(--disp);font-size:clamp(14px,3.4vw,26px);cursor:pointer;transition:background .12s,transform .1s}
   .cell:hover{background:var(--tile2);transform:scale(1.03)}
+  .cell:disabled{cursor:default}
   .cell.done{background:#0c1526;color:#0c1526;cursor:default} .cell.done:hover{transform:none}
+  .quit{display:none;position:fixed;top:10px;right:10px;z-index:20;font-weight:800;font-size:11px;letter-spacing:1px;color:var(--dim);background:rgba(10,14,20,.8);border:1px solid #24344f;border-radius:8px;padding:8px 11px;cursor:pointer;font-family:var(--body)}
+  /* phones: tighter gutters so 6 columns keep readable headers */
+  @media (max-width:480px){
+    #board{margin:0 -8px}
+    .grid{gap:3px}
+    #cells{margin-top:3px!important}
+    .cat{padding:6px 2px;letter-spacing:0;min-height:64px;font-size:10px}
+  }
 
   /* clue */
-  #clue{display:none;position:fixed;inset:0;z-index:30;background:rgba(6,9,15,.97);flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+  #clue{display:none;position:fixed;inset:0;z-index:30;background:rgba(6,9,15,.97);flex-direction:column;align-items:center;justify-content:flex-start;padding:24px;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch}
   #clue.show{display:flex}
+  /* auto margins = centered when it fits, scrollable (not clipped at the top) when it doesn't */
+  #clueCat{margin-top:auto} #answerStage,#verdictStage{margin-bottom:auto}
+  .passbtn{display:inline-block;background:none;border:none;color:var(--dim);font-family:var(--body);font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:14px;padding:8px 12px;text-decoration:underline;text-underline-offset:3px}
+  .passbtn:hover{color:var(--ink)}
+  .verdict.pass{color:var(--dim)}
   .cluecat{color:var(--gold);font-weight:800;letter-spacing:2px;text-transform:uppercase;font-size:14px}
   .cluetext{font-family:var(--disp);font-size:clamp(22px,5.5vw,46px);line-height:1.16;margin:16px 0;max-width:800px;text-transform:uppercase}
   .answerline{font-size:16px;color:var(--dim);min-height:24px;margin-bottom:8px}
@@ -77,6 +93,7 @@
 </head>
 <body>
   <a class="home" href="../../">◂ OUTPOST BOYZ</a>
+  <button class="quit" id="quitBtn">✕ MENU</button>
 
   <div class="wrap">
     <div id="menu">
@@ -89,7 +106,7 @@
       <div class="picker" id="picker"><p class="note">Loading categories…</p></div>
 
       <div class="barbtns">
-        <button class="btn ghost" id="randomBtn">🎲 RANDOM BOARD</button>
+        <button class="btn ghost" id="randomBtn" disabled>🎲 RANDOM BOARD</button>
         <button class="btn" id="playBtn" disabled>PLAY →</button>
       </div>
       <p class="note" id="voicenote">Voice mode reads clues aloud and lets you answer by speaking (Chrome / Safari / Edge, needs mic). No mic? Flip it off and type.</p>
@@ -113,6 +130,7 @@
       <button class="mic" id="micBtn">🎙️</button>
       <div class="typerow"><input id="typeInput" placeholder="What is ..." autocomplete="off"><button class="btn" id="submitBtn" style="font-size:15px;padding:13px 18px">ANSWER</button></div>
       <div class="hint" id="clueHint">Tap the mic and say your answer — or type it.</div>
+      <button class="passbtn" id="passBtn">PASS — SHOW ANSWER</button>
     </div>
     <div id="verdictStage" style="display:none">
       <div class="verdict" id="verdict"></div>
@@ -125,8 +143,8 @@
     <div class="sub">Final Question</div>
     <div class="brand" style="font-size:clamp(24px,6vw,40px);margin:6px 0">DOUBLE OR NOTHING</div>
     <p style="color:var(--dim)">Category: <b id="finalCat" style="color:var(--gold)"></b></p>
-    <p style="margin-top:12px">Your score: <b id="finalScore" style="color:var(--green)"></b>. Wager up to that.</p>
-    <div class="wagerrow">$ <input id="wager" type="number" min="0" value="0"></div>
+    <p style="margin-top:12px">Your score: <b id="finalScore" style="color:var(--green)"></b>. Wager up to <b id="wagerMax"></b>.</p>
+    <div class="wagerrow">$ <input id="wager" type="number" min="0" step="1" inputmode="numeric" value="0"></div>
     <button class="btn" id="wagerBtn">LOCK WAGER</button>
   </div></div>
 
@@ -140,91 +158,344 @@
 
 <script>
 const $=id=>document.getElementById(id);
-const supportsSTT=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
-let ALL=[],FINALS=[],selected=[],filter='all',voiceOn=true;
-let score=0,remaining=0,current=null,board=null,recog=null,listening=false;
+const SLUG='run-the-board';
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition||null;
+const TTS=(window.speechSynthesis&&typeof SpeechSynthesisUtterance!=='undefined')?window.speechSynthesis:null;
+let supportsSTT=!!SR;            // flips to false for the session if the mic is denied/unavailable
+let ALL=[],FINALS=[],selected=[],filter='all',voiceOn=true,loaded=false;
+let score=0,remaining=0,current=null,board=null,finalData=null;
+let recog=null,listening=false,nextReadyAt=0;
+// phase: menu | board | clue | verdict | wager | final | finalVerdict | end
+// Every handler checks the phase, so nothing can double-fire or run out of order.
+let phase='menu';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>(n<0?'-$':'$')+Math.abs(n).toLocaleString('en-US');
 
 /* load bank */
-fetch('questions.json',{cache:'no-cache'}).then(r=>r.json()).then(d=>{
-  ALL=d.categories||[];FINALS=d.finals||[];renderFilters();renderPicker();
-}).catch(()=>{$('picker').innerHTML='<p class="note">Couldn\'t load categories — refresh.</p>';});
+function loadBank(){
+  $('picker').innerHTML='<p class="note">Loading categories…</p>';
+  fetch('questions.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(d=>{
+    ALL=((d&&d.categories)||[]).filter(c=>c&&c.name&&Array.isArray(c.clues)&&c.clues.some(q=>q&&q.c&&q.a));
+    FINALS=((d&&d.finals)||[]).filter(f=>f&&f.c&&f.a);
+    if(!ALL.length)throw new Error('no categories');
+    loaded=true;$('randomBtn').disabled=false;renderFilters();renderPicker();
+  }).catch(()=>{
+    $('picker').innerHTML='<p class="note">Couldn\'t load the categories — check your connection. <button class="filt" id="retryBtn" style="margin-left:6px">RETRY</button></p>';
+    const rb=$('retryBtn');if(rb)rb.onclick=loadBank;
+  });
+}
+loadBank();
 
 // Which categories have real host audio recorded. Random boards & auto-fill
 // prefer these so the game sounds fully-voiced with whatever's done so far.
-let VOICED=new Set();
-fetch('audio/manifest.json',{cache:'no-cache'}).then(r=>r.json()).then(m=>{VOICED=new Set(m.voiced||[]);}).catch(()=>{});
-function voicedFirst(list){return [...list].sort(()=>Math.random()-0.5).sort((a,b)=>(VOICED.has(b.name)?1:0)-(VOICED.has(a.name)?1:0));}
+// VOICED stays null if the manifest can't load -> we just try the .wav and fall back to TTS.
+let VOICED=null;
+fetch('audio/manifest.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw 0;return r.json();}).then(m=>{VOICED=new Set((m&&m.voiced)||[]);}).catch(()=>{});
+function shuffle(list){const a=[...list];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function isVoiced(name){return !!(VOICED&&VOICED.has(name));}
+function voicedFirst(list){return shuffle(list).sort((a,b)=>(isVoiced(b.name)?1:0)-(isVoiced(a.name)?1:0));}
 
 function renderFilters(){
   const diffs=['all','easy','medium','hard','insane'];
-  $('filters').innerHTML=diffs.map(d=>`<span class="filt${d==='all'?' on':''}" data-f="${d}">${d}</span>`).join('');
-  $('filters').onclick=e=>{const f=e.target.closest('.filt');if(!f)return;filter=f.dataset.f;document.querySelectorAll('.filt').forEach(x=>x.classList.toggle('on',x===f));renderPicker();};
+  $('filters').innerHTML=diffs.map(d=>`<span class="filt${d===filter?' on':''}" data-f="${d}">${d}</span>`).join('');
+  $('filters').onclick=e=>{const f=e.target.closest('.filt');if(!f)return;filter=f.dataset.f;document.querySelectorAll('#filters .filt').forEach(x=>x.classList.toggle('on',x===f));renderPicker();};
 }
 function renderPicker(){
+  if(!loaded)return;
   const list=ALL.filter(c=>filter==='all'||c.diff===filter);
   $('picker').innerHTML=list.map(c=>{
     const i=selected.indexOf(c.name);
-    return `<div class="catchip${i>=0?' sel':''}" data-n="${c.name}">
+    return `<div class="catchip${i>=0?' sel':''}" data-n="${esc(c.name)}">
       ${i>=0?`<span class="checknum">${i+1}</span>`:''}
-      <div class="cn">${c.name}</div><div class="cd d-${c.diff}">${c.diff}</div></div>`;
+      <div class="cn">${esc(c.name)}</div><div class="cd d-${esc(c.diff||'')}">${esc(c.diff||'')}</div></div>`;
   }).join('');
   $('picker').onclick=e=>{const chip=e.target.closest('.catchip');if(!chip)return;toggle(chip.dataset.n);};
 }
+function updateCount(){$('count').textContent=selected.length+'/6';$('playBtn').disabled=!loaded||selected.length<1;}
 function toggle(name){
   const i=selected.indexOf(name);
   if(i>=0)selected.splice(i,1);
   else{if(selected.length>=6)return;selected.push(name);}
-  $('count').textContent=selected.length+'/6';
-  $('playBtn').disabled=selected.length<1;
-  renderPicker();
+  updateCount();renderPicker();
 }
 $('randomBtn').onclick=()=>{
-  const pool=voicedFirst(ALL).slice(0,6);
-  selected=pool.map(c=>c.name);start();
+  if(!loaded||phase!=='menu')return;
+  selected=voicedFirst(ALL).slice(0,6).map(c=>c.name);start();
 };
-$('playBtn').onclick=start;
-$('vtoggle').onclick=()=>{voiceOn=!voiceOn;$('vtoggle').classList.toggle('on',voiceOn);};
+$('playBtn').onclick=()=>start();
+function setVoice(on){voiceOn=on;$('vtoggle').classList.toggle('on',on);if(!on)stopAllAudio();}
+$('vtoggle').onclick=()=>setVoice(!voiceOn);
+$('vtoggle').setAttribute('role','switch');$('vtoggle').tabIndex=0;
+$('vtoggle').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setVoice(!voiceOn);}};
 if(!supportsSTT)$('voicenote').textContent="Your browser doesn't support voice answers (try Chrome/Safari). Clues still read aloud; you'll type answers.";
 
-/* voice */
-function speak(t,cb){if(!voiceOn||!window.speechSynthesis){cb&&cb();return;}window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.03;u.onend=()=>cb&&cb();window.speechSynthesis.speak(u);}
-function slugify(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+/* ---------- audio: one recorded clip OR one TTS line at a time, never both ---------- */
 let clueAudio=null;
-function stopClueAudio(){try{if(clueAudio){clueAudio.pause();clueAudio.src='';clueAudio=null;}}catch(e){}}
-// Play the pre-recorded host reading of a clue (Alistair/Isabella). Falls back to
-// browser TTS if that clip hasn't been generated yet, so the game never breaks.
-function playClue(catName,v,fallbackText,cb){
-  stopClueAudio();
-  if(!voiceOn){cb&&cb();return;}
-  try{window.speechSynthesis&&window.speechSynthesis.cancel();}catch(e){}
-  const a=new Audio('audio/'+slugify(catName)+'-'+v+'.wav');
-  clueAudio=a;let done=false;
-  const finish=fn=>{if(done)return;done=true;fn&&fn();};
-  a.onended=()=>finish(cb);
-  a.onerror=()=>finish(()=>speak(fallbackText,cb));
-  a.play().catch(()=>finish(()=>speak(fallbackText,cb)));
+function killAudio(a){if(!a)return;a.onended=a.onerror=null;try{a.pause();a.removeAttribute('src');a.load();}catch(e){}}
+// NOTE: never set src='' — that fires 'error', which used to trigger the TTS fallback and read the OLD clue aloud.
+function stopClueAudio(){const a=clueAudio;clueAudio=null;killAudio(a);}
+function stopSpeech(){try{TTS&&TTS.cancel();}catch(e){}}
+function stopAllAudio(){stopClueAudio();stopSpeech();}
+function speak(t){
+  if(!voiceOn||!TTS||!t)return;
+  try{TTS.cancel();if(TTS.resume)TTS.resume();const u=new SpeechSynthesisUtterance(t);u.rate=1.03;u.lang='en-US';TTS.speak(u);}catch(e){}
+}
+// iOS only lets speechSynthesis talk after a speak() inside a user gesture. Prime it once
+// on the PLAY/RANDOM click so later async lines (verdict after a spoken answer) are audible.
+let speechPrimed=false;
+function primeSpeech(){
+  if(speechPrimed||!voiceOn||!TTS)return;speechPrimed=true;
+  try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;TTS.speak(u);}catch(e){}
+}
+function slugify(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+// Play the pre-recorded host reading of a clue. Called synchronously from the tile
+// click so play() stays inside the user gesture (iOS autoplay). Categories the manifest
+// says aren't recorded go straight to TTS (also inside the gesture); a missing/failed
+// clip falls back to TTS, but only if that clue is still on screen and the mic is off.
+function playClue(catName,v,fallbackText){
+  stopAllAudio();
+  if(!voiceOn)return;
+  if(VOICED&&!isVoiced(catName)){speak(fallbackText);return;}
+  const owner=current;
+  const a=new Audio();a.preload='auto';a.src='audio/'+slugify(catName)+'-'+v+'.wav';
+  clueAudio=a;
+  const fallback=()=>{
+    if(clueAudio!==a)return;          // already stopped/replaced
+    clueAudio=null;killAudio(a);
+    if(current===owner&&phase==='clue'&&!listening)speak(fallbackText);
+  };
+  a.onended=()=>{if(clueAudio===a)clueAudio=null;};
+  a.onerror=fallback;
+  try{const p=a.play();if(p&&p.catch)p.catch(err=>{if(err&&err.name==='AbortError')return;fallback();});}catch(e){fallback();}
+}
+
+/* ---------- mic ---------- */
+function answerable(){return !!current&&!current.judged&&(phase==='clue'||phase==='final');}
+function setHint(t){$('clueHint').textContent=t;}
+function micUnavailable(msg){
+  supportsSTT=false;cancelListen();
+  $('micBtn').style.display='none';
+  setHint(msg||'Mic unavailable — type your answer below.');
 }
 function startListen(){
-  if(!supportsSTT){$('clueHint').textContent="Voice input not supported — type your answer.";return;}
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;recog=new SR();recog.lang='en-US';recog.interimResults=true;
-  listening=true;$('micBtn').classList.add('live');$('heard').textContent='Listening…';let ft='';
-  recog.onresult=e=>{let it='';for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)ft+=r[0].transcript;else it+=r[0].transcript;}$('heard').textContent=(ft||it||'…');};
-  recog.onerror=()=>{stopListen();$('clueHint').textContent="Didn't catch that — tap mic again or type.";};
-  recog.onend=()=>{if(listening){listening=false;$('micBtn').classList.remove('live');if(ft.trim())judge(ft);}};
-  try{recog.start();}catch(e){}
+  if(!supportsSTT||listening||!answerable())return;
+  stopAllAudio(); // don't let the mic hear the host reading the clue
+  let r;try{r=new SR();}catch(e){micUnavailable();return;}
+  recog=r;r.lang='en-US';r.interimResults=true;r.continuous=false;r.maxAlternatives=3;
+  listening=true;$('micBtn').classList.add('live');$('heard').textContent='Listening…';
+  let finalText='',alts=[],interim='',errored=false,ended=false;
+  r.onresult=e=>{
+    if(recog!==r)return;
+    finalText='';interim='';alts=[];
+    for(let i=0;i<e.results.length;i++){const res=e.results[i];if(res.isFinal)finalText+=res[0].transcript;else interim+=res[0].transcript;}
+    // When the whole answer is a single final result, judge every alternative the engine offers.
+    const finals=Array.prototype.filter.call(e.results,x=>x.isFinal);
+    if(finals.length===1){for(let k=0;k<finals[0].length;k++)alts.push(finals[0][k].transcript);}
+    $('heard').textContent=(finalText||interim||'…');
+  };
+  r.onerror=e=>{
+    if(recog!==r)return;errored=true;
+    const code=e&&e.error;
+    if(code==='not-allowed'||code==='service-not-allowed'||code==='audio-capture'){micUnavailable('Mic is blocked or unavailable — type your answer below.');return;}
+    if(code==='aborted')return;
+    setHint(code==='no-speech'?'Didn\'t hear anything — tap the mic again or type.':'Didn\'t catch that — tap the mic again or type.');
+  };
+  const done=()=>{
+    if(ended)return;ended=true;
+    if(recog!==r)return;
+    recog=null;listening=false;$('micBtn').classList.remove('live');
+    if(!answerable())return;
+    const heard=(finalText||interim).trim();
+    if(heard){judge(alts.length?[finalText,...alts]:[heard]);return;}
+    if($('heard').textContent==='Listening…'||$('heard').textContent==='…')$('heard').textContent='';
+    if(!errored)setHint('Didn\'t catch that — tap the mic again or type.');
+  };
+  r.onend=done;
+  r._done=done;
+  try{r.start();}catch(e){recog=null;listening=false;$('micBtn').classList.remove('live');$('heard').textContent='';setHint('Mic didn\'t start — tap it again or type.');}
 }
-function stopListen(){listening=false;if(recog)try{recog.stop()}catch(e){};$('micBtn').classList.remove('live');}
+// Graceful stop (player tapped the mic again): the engine delivers what it heard, then onend judges it.
+function finishListen(){
+  const r=recog;if(!r)return;
+  $('micBtn').classList.remove('live');
+  try{r.stop();}catch(e){}
+  setTimeout(()=>{if(recog===r&&r._done)r._done();},2500); // some engines never fire onend
+}
+// Hard stop: discard anything heard (answer already judged, clue closed, quitting…).
+function cancelListen(){
+  const r=recog;recog=null;listening=false;
+  $('micBtn').classList.remove('live');
+  if(r){r.onresult=r.onerror=r.onend=null;try{r.abort();}catch(e){try{r.stop();}catch(_){}}}
+  if($('heard').textContent==='Listening…')$('heard').textContent='';
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelListen();});
 
-function normalize(s){return (s||'').toLowerCase().replace(/^(what|who|where|when|which|whats|what's|whos|who's)\s+(is|are|was|were)\s+/,'').replace(/^(is|are|the|a|an|it's|its)\s+/,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();}
-function judge(spoken){
-  stopListen();const g=normalize(spoken);
-  const accepts=[normalize(current.a)].concat((current.accept||[]).map(normalize));
-  let ok=false;for(const a of accepts){if(!a)continue;if(g===a){ok=true;break;}if(a.length>=4&&(g.includes(a)||(a.includes(g)&&g.length>=4))){ok=true;break;}}
-  showVerdict(ok);
+/* ---------- answer judging (pure functions; unit-tested in a node harness) ---------- */
+/*JUDGE-START*/
+const NUMW={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
+// "two hundred and six"->206, "one hundred eighteen"->118, "nineteen eighty four"->1984, "apollo eleven"->"apollo 11"
+function wordsToDigits(ws){
+  const out=[];let i=0;
+  while(i<ws.length){
+    if(!(ws[i] in NUMW)){out.push(ws[i]);i++;continue;}
+    const parts=[];let total=0,cur=0,lastUnit=false,j=i;
+    while(j<ws.length){
+      const w=ws[j];
+      if(w in NUMW){
+        const n=NUMW[w];
+        if(lastUnit){
+          const t=cur%100;
+          if(t>=20&&t%10===0&&n<10){cur+=n;j++;lastUnit=true;continue;}
+          parts.push(total+cur);total=0;cur=0;   // "nineteen" | "eighty four"
+        }
+        cur+=n;lastUnit=true;j++;
+      }else if(w==='hundred'){cur=(cur||1)*100;lastUnit=false;j++;}
+      else if(w==='thousand'){total+=(cur||1)*1000;cur=0;lastUnit=false;j++;}
+      else if(w==='and'&&!lastUnit&&j+1<ws.length&&(ws[j+1] in NUMW)){j++;}
+      else break;
+    }
+    parts.push(total+cur);out.push(parts.join(''));i=j;
+  }
+  return out;
+}
+const ABBR={mt:'mount',st:'saint',dr:'doctor'};
+const IWORDS=/^(think|guess|believe|bet|know|mean|reckon|would|say|am|m|dunno)$/;
+const ORD=['','first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth','eleventh','twelfth','thirteenth','fourteenth','fifteenth','sixteenth','seventeenth','eighteenth','nineteenth','twentieth'];
+const ordWord=x=>{const m=/^(\d+)(?:st|nd|rd|th)$/.exec(x);return m&&ORD[+m[1]]?ORD[+m[1]]:x;}; // "5th"->"fifth"
+function normalize(s){
+  s=String(s==null?'':s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  s=s.replace(/π/g,' pi ').replace(/&/g,' and ').replace(/['’‘`]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  if(!s)return '';
+  let w=s.split(' ');
+  // glue runs of single letters: "j k rowling"->"jk rowling", "a u"->"au", "f d r"->"fdr"
+  // (but not the "i" of a trailing "i think": "e i think" stays "e i think")
+  const m=[];
+  for(let i=0;i<w.length;){
+    if(w[i].length===1&&w[i+1]&&w[i+1].length===1){
+      let k=i;while(k<w.length&&w[k].length===1)k++;
+      if(w[k-1]==='i'&&k<w.length&&IWORDS.test(w[k]))k--;
+      if(k-i>=2){m.push(w.slice(i,k).join(''));i=k;}else m.push(w[i++]);
+    }else m.push(w[i++]);
+  }
+  w=wordsToDigits(m).map(x=>ABBR[x]||ordWord(x));
+  // "elizabeth the first" -> "elizabeth i", "charles the third" -> "charles iii"
+  return w.join(' ').replace(/(\S) the (first|second|third)\b/g,(_,p,o)=>p+' '+({first:'i',second:'ii',third:'iii'})[o]);
+}
+const LEAD=/^(?:(?:um+|uh+|uhm+|er+|erm+|hmm+|ah+|oh+|ok|okay|so|well|yeah|like|i think|i believe|i guess|i bet|i know|i would say|id say|i say|im pretty sure|im sure|pretty sure|maybe|probably|perhaps|definitely|my answer is|the answer is|answer|is it|was it|is that|could it be|it could be|would it be|it must be|must be|its gotta be|gotta be|it has to be|has to be|its|it is|it was|thats|that is|that would be|what is|whats|what are|whatre|what was|what were|who is|whos|who are|who was|who were|where is|wheres|where are|where was|when is|which is|how about|the letter|letter|the number|number)\s+)+/;
+const TRAIL=/(?:\s+(?:right|i think|i guess|i believe|maybe|please|question mark|or something|probably|yeah|final answer))+$/;
+function stripFill(s){return s.replace(LEAD,'').replace(TRAIL,'').trim();}
+function dearticle(s){return s.replace(/^(?:the|a|an)\s+/,'');}
+function singular(s){return s.split(' ').map(w=>w.length>=4&&/s$/.test(w)&&!/ss$/.test(w)?w.slice(0,-1):w).join(' ');}
+const collapse=s=>s.replace(/ /g,'');
+function lev(a,b){if(a===b)return 0;let p=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){const c=[i];for(let j=1;j<=b.length;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c;}return p[b.length];}
+// Speech engines spell some very short answers differently.
+const SPOKEN={pi:['pie','pye'],e:['ee'],'2':['to','too'],x:['ex'],au:['ay you','a you']};
+// Last-name-only answers ("jordan" for Michael Jordan) are OK when the clue is about a person.
+const PERSON=/\b(who|he|she|his|her|him|king of pop|president|singer|rapper|superstar|pop star|painter|composer|scientist|physicist|explorer|inventor|emperor|this (?:[\w'-]+ ){0,2}(man|woman|guy|lady|person|singer|rapper|artist|actor|actress|president|leader|scientist|physicist|chemist|biologist|author|writer|poet|playwright|novelist|designer|explorer|inventor|founder|composer|philosopher|painter|sculptor|star|superstar|icon|legend|boxer|athlete|player|musician|model|director|queen|king|prince|princess|emperor|pharaoh|dictator|general|astronaut|comedian|host|mathematician|economist|activist|mogul|chef|entrepreneur))\b/i;
+// Generic words allowed around a correct answer (see rule 3 in matchOne).
+const SOFT=new Set(('the a an of city country state river ocean sea mountain mountains mount planet island islands desert '+
+  'band group movie film book novel show series tv game company brand bones elements element degrees years year days percent '+
+  'amendment number letter animal bird fish language dance drink cocktail pasta sauce dish gas metal coin dollars cents '+
+  'president saint sir lord lady doctor mr mrs ms general emperor pope empire dynasty tree flower plant '+
+  'fruit spice herb gem gemstone stone disease chemical drug instrument sport team monster').split(' ')); // never put a word here that is itself an answer in questions.json
+const JOINERS=new Set(['or','and','nor','but','not','no','versus','vs']);
+// Words of the clue text + category ("france's" -> "frances" + "france"), minus joiners.
+function clueWords(clue){
+  const s=new Set();
+  // (skip the word after "not"/"no": "...and no, it's not Sydney" must not make "canberra sydney" right)
+  let prev='';
+  normalize(String((clue&&clue.c)||'')+' '+String((clue&&clue.cat)||'')).split(' ').forEach(w=>{
+    const skip=JOINERS.has(prev)&&prev!=='and'&&prev!=='or';prev=w;
+    if(!w||w.length<3||JOINERS.has(w)||skip)return;s.add(w);s.add(singular(w));
+  });
+  return s;
+}
+function acceptForms(clue){
+  const raw=[clue.a].concat(Array.isArray(clue.accept)?clue.accept:[]).filter(x=>x!=null&&String(x).trim());
+  const out=new Set();
+  raw.forEach(x=>{const n=normalize(x);if(!n)return;const d=dearticle(n);[n,d,singular(d)].forEach(f=>f&&out.add(f));});
+  return [...out];
+}
+function matchOne(guess,A,clue){
+  const n=normalize(guess);if(!n)return false;
+  const core=dearticle(stripFill(n));
+  const G=[...new Set([n,stripFill(n),dearticle(n),core,singular(core)])].filter(Boolean);
+  // 1) exact (spaces ignored: "a u"="au", "berners lee"="bernerslee")
+  for(const a of A){const ca=collapse(a);for(const x of G){if(x===a||collapse(x)===ca)return true;}}
+  if(!core)return false;
+  const cg=collapse(core);
+  // 2) speech spellings of tiny answers
+  for(const a of A){const al=SPOKEN[collapse(a)];if(al&&(al.includes(core)||al.includes(cg)))return true;}
+  // 3) answer plus generic filler nouns ("the nile river", "206 bones", "president lincoln", "fifth amendment").
+  //    Any other extra word rejects it: "brown bear"!="bear", "bose einstein condensate"!="einstein", "paris or rome".
+  //    Words from the clue's own text / category may also FOLLOW the answer ("paris france" for "...is France's
+  //    capital", "everest mountain"). Lists and hedges stay wrong: "paris or london", "paris and rome", "sydney canberra".
+  const cw=core.split(' ');
+  const ctx=clueWords(clue);
+  for(const a of A){
+    const ca=collapse(a),aw=a.split(' ');
+    if(!(/^\d+$/.test(ca)||ca.length>=3))continue;       // tiny answers ("e","au","x") must match exactly
+    if(cw.length<=aw.length||cw.length-aw.length>3)continue;
+    for(let i=0;i+aw.length<=cw.length;i++){
+      if(cw.slice(i,i+aw.length).join(' ')!==a)continue;
+      const before=cw.slice(0,i),after=cw.slice(i+aw.length);
+      if(before.concat(after).some(x=>JOINERS.has(x)))continue;
+      if(!before.every(x=>SOFT.has(x)))continue;
+      if(after.every(x=>SOFT.has(x)||ctx.has(x)||ctx.has(singular(x))))return true;
+    }
+  }
+  // 4) surname only, for people
+  if(cw.length===1&&core.length>=4&&PERSON.test(String(clue.c||''))){
+    const main=dearticle(normalize(clue.a)).split(' ');
+    if(main.length>=2&&main.length<=4&&main[main.length-1]===core&&/^[a-z ]+$/.test(main.join(' ')))return true;
+  }
+  // 5) small typos / mis-hearings on longer words (never on numbers; first letter must match)
+  for(const a of A){
+    const ca=collapse(a);
+    if(cw.length!==1||a.includes(' '))continue;           // single words only ("canberra e" is not a typo); phrases use rule 6
+    if(/\d/.test(ca)||/\d/.test(cg)||ca[0]!==cg[0])continue;
+    const L=ca.length,tol=L>=10?2:L>=6?1:0;
+    if(!tol||Math.abs(L-cg.length)>tol)continue;
+    if(lev(ca,cg)<=tol)return true;
+  }
+  // 6) word-by-word typos in phrases ("glp 1 agonsts", "tim bernerslee"): digits exact, words of 4+ letters may be 1 off
+  //    Total edits capped like rule 5 (6+ letters: 1, 10+ letters: 2); an extra/missing word is never a typo.
+  for(const a of A){
+    const aw=a.split(' ');if(aw.length!==cw.length||aw.length<2)continue;
+    const L=collapse(a).length,tol=L>=10?2:L>=6?1:0;if(!tol)continue;
+    let fuzzed=0,ok=true;
+    for(let i=0;i<aw.length&&ok;i++){
+      const x=cw[i],y=aw[i];if(x===y)continue;
+      if(/\d/.test(x)||/\d/.test(y)||y.length<4||lev(x,y)>1||++fuzzed>tol)ok=false;
+    }
+    if(ok&&fuzzed)return true;
+  }
+  return false;
+}
+// input: a string, or an array of alternative transcripts (any correct one counts)
+function isCorrect(input,clue){
+  if(!clue||clue.a==null)return false;
+  const A=acceptForms(clue);if(!A.length)return false;
+  const guesses=(Array.isArray(input)?input:[input]).filter(g=>g!=null&&String(g).trim());
+  return guesses.some(g=>matchOne(String(g),A,clue));
+}
+/*JUDGE-END*/
+
+function judge(input){
+  if(!answerable())return;
+  current.judged=true;cancelListen();
+  showVerdict(isCorrect(input,current)?'ok':'no');
+}
+function passClue(){
+  if(!answerable())return;
+  current.judged=true;cancelListen();
+  showVerdict('pass');
 }
 
-/* flow */
+/* ---------- flow ---------- */
+function showQuit(on){$('quitBtn').style.display=on?'block':'none';}
 function start(){
+  if(!loaded||phase!=='menu')return;
   board=selected.map(n=>ALL.find(c=>c.name===n)).filter(Boolean);
   // Always run a FULL 6-category board like real Jeopardy. Whatever the player
   // picked, fill the remaining columns with random categories they didn't choose.
@@ -232,67 +503,155 @@ function start(){
     const pool=voicedFirst(ALL.filter(c=>board.indexOf(c)<0));
     while(board.length<6&&pool.length)board.push(pool.shift());
   }
-  score=0;updateScore();
-  $('menu').style.display='none';$('board').style.display='block';
+  if(!board.length)return;
+  primeSpeech();
+  stopAllAudio();
+  score=0;current=null;finalData=null;updateScore();
+  $('menu').style.display='none';$('end').style.display='none';$('final').style.display='none';$('board').style.display='block';
   const cats=$('cats'),cells=$('cells');cats.innerHTML='';cells.innerHTML='';
   const cols=board.length;cats.style.setProperty('--cols',cols);cells.style.setProperty('--cols',cols);
-  board.forEach(c=>{const d=document.createElement('div');d.className='cat';d.textContent=c.name;cats.appendChild(d);});
+  board.forEach(c=>{const d=document.createElement('div');d.className='cat';const s=document.createElement('span');s.textContent=c.name;d.appendChild(s);cats.appendChild(d);});
   remaining=0;
-  for(let row=0;row<5;row++){board.forEach(c=>{const clue=c.clues[row];const b=document.createElement('button');b.className='cell';b.textContent='$'+clue.v;b.onclick=()=>openClue(b,c.name,clue);cells.appendChild(b);remaining++;});}
+  for(let row=0;row<5;row++){board.forEach(c=>{
+    const clue=c.clues[row];const b=document.createElement('button');b.className='cell';
+    if(!clue||!clue.c||!clue.a){b.className='cell done';b.disabled=true;cells.appendChild(b);return;} // bad data never blocks the board
+    const v=Number(clue.v)||(row+1)*200;
+    b.textContent='$'+v;b.onclick=()=>openClue(b,c.name,{...clue,v});cells.appendChild(b);remaining++;
+  });}
+  phase='board';showQuit(true);
   window.scrollTo(0,0);
+  fitHeaders();
+  if(remaining<=0){$('board').style.display='none';startFinal();}
 }
-function openClue(btn,catName,clue){
-  current={...clue,cat:catName,btn};
-  $('clueCat').textContent=catName;$('clueText').textContent=clue.c;
+// Shrink a category header only as far as needed for its longest word; hyphenate as a last resort.
+function fitHeaders(){
+  document.querySelectorAll('#cats .cat').forEach(el=>{
+    el.style.fontSize='';el.classList.add('fitting');
+    let fs=parseFloat(getComputedStyle(el).fontSize)||12,guard=0;
+    while(el.scrollWidth>el.clientWidth+1&&fs>9&&guard++<16){fs-=.5;el.style.fontSize=fs+'px';}
+    el.classList.remove('fitting');
+  });
+}
+let fitT=0;window.addEventListener('resize',()=>{clearTimeout(fitT);fitT=setTimeout(()=>{if(phase!=='menu'&&phase!=='end')fitHeaders();},120);});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(phase!=='menu'&&phase!=='end')fitHeaders();});
+
+function setupAnswerStage(hint,passLabel){
   $('answerStage').style.display='';$('verdictStage').style.display='none';
   $('heard').textContent='';$('typeInput').value='';
-  $('clueHint').textContent=supportsSTT?'Tap the mic and say your answer — or type it.':'Type your answer below.';
-  $('clue').classList.add('show');
-  playClue(catName,clue.v,catName+', for $'+clue.v+'. '+clue.c);
-  // Only summon the keyboard in type mode. In voice mode, auto-focus yanks up
-  // the mobile keyboard and makes the screen jump/zoom — so don't.
-  if(!voiceOn)setTimeout(()=>$('typeInput').focus(),300);
+  const mic=voiceOn&&supportsSTT;
+  $('micBtn').style.display=mic?'':'none';$('micBtn').classList.remove('live');
+  setHint(hint||(mic?'Tap the mic and say your answer — or type it.':'Type your answer below.'));
+  $('passBtn').textContent=passLabel||'PASS — SHOW ANSWER';
+  const cl=$('clue');cl.classList.add('show');cl.scrollTop=0;
+  // Only summon the keyboard when typing is the way to answer. In voice mode, auto-focus
+  // yanks up the mobile keyboard and makes the screen jump/zoom — so don't.
+  if(!mic)setTimeout(()=>{if(answerable())try{$('typeInput').focus({preventScroll:true});}catch(e){}},300);
 }
-function showVerdict(ok){
-  if(window._final){
-    $('answerStage').style.display='none';$('verdictStage').style.display='';
-    const v=$('verdict');v.textContent=ok?'CORRECT':'NOPE';v.className='verdict '+(ok?'ok':'no');
-    const w=current.wager||0;$('reveal').textContent=ok?'+ $'+w:'Answer: '+current.a+'  (− $'+w+')';
-    score+=ok?w:-w;speak(ok?'Correct! You win it.':'Sorry. The answer was '+current.a+'.');return;
-  }
+function openClue(btn,catName,clue){
+  if(phase!=='board'||btn.disabled||btn.classList.contains('done'))return;
+  phase='clue';btn.disabled=true;
+  current={...clue,cat:catName,btn,judged:false};
+  $('clueCat').textContent=catName;$('clueText').textContent=clue.c;
+  setupAnswerStage();
+  playClue(catName,clue.v,catName+', for $'+clue.v+'. '+clue.c); // same click = inside the user gesture
+}
+function showVerdict(kind){
+  stopClueAudio(); // the recorded clue never talks over the verdict
+  const fin=phase==='final';
+  phase=fin?'finalVerdict':'verdict';
+  try{$('typeInput').blur();}catch(e){}
   $('answerStage').style.display='none';$('verdictStage').style.display='';
-  const v=$('verdict');v.textContent=ok?'CORRECT':'NOPE';v.className='verdict '+(ok?'ok':'no');
-  $('reveal').textContent=ok?'+ $'+current.v:'Answer: '+current.a;
-  score+=ok?current.v:-current.v;updateScore();
-  speak(ok?'Correct.':'The answer was, '+current.a+'.');
-  current.btn.classList.add('done');current.btn.textContent='';remaining--;
+  const v=$('verdict');v.textContent=kind==='ok'?'CORRECT':kind==='pass'?'PASS':'NOPE';v.className='verdict '+(kind==='ok'?'ok':kind==='pass'?'pass':'no');
+  const ans=String(current.a);
+  if(fin){
+    const w=current.wager||0,delta=kind==='ok'?w:-w;
+    score+=delta;
+    $('reveal').textContent=kind==='ok'?'+ '+money(w):'Answer: '+ans+(w?'  (− '+money(w)+')':'');
+    speak(kind==='ok'?'Correct! You win it.':'Sorry. The answer was '+ans+'.');
+    $('nextBtn').textContent='SEE RESULTS';
+  }else{
+    const val=current.v;
+    if(kind==='ok')score+=val;else if(kind==='no')score-=val; // PASS costs nothing
+    $('reveal').textContent=kind==='ok'?'+ '+money(val):'Answer: '+ans+(kind==='no'?'  (− '+money(val)+')':'');
+    speak(kind==='ok'?'Correct.':'The answer was, '+ans+'.');
+    const b=current.btn;b.classList.add('done');b.textContent='';b.disabled=true;
+    remaining=$('cells').querySelectorAll('.cell:not(.done)').length;
+    $('nextBtn').textContent=remaining<=0?'FINAL QUESTION →':'NEXT';
+  }
+  updateScore();
+  nextReadyAt=performance.now()+450; // a double-tap / double-Enter can't skip the reveal
+  setTimeout(()=>{try{$('nextBtn').focus({preventScroll:true});}catch(e){}},0);
 }
-function updateScore(){const s=$('scoreEl');if(s){s.textContent=(score<0?'-$':'$')+Math.abs(score);s.className='score'+(score<0?' neg':'');}}
-$('nextBtn').onclick=()=>{stopClueAudio();if(window._final){window._final=false;endGame();}else{$('clue').classList.remove('show');if(remaining<=0){$('board').style.display='none';startFinal();}}};
-function startFinal(){
-  const f=FINALS[Math.floor(Math.random()*FINALS.length)];window._finalData=f;
-  $('final').style.display='block';$('finalCat').textContent=f.cat;
-  $('finalScore').textContent=(score<0?'-$':'$')+Math.abs(score);
-  $('wager').max=Math.max(0,score);$('wager').value=Math.max(0,score);
-}
-$('wagerBtn').onclick=()=>{
-  const w=Math.max(0,Math.min(parseInt($('wager').value)||0,Math.max(0,score)));
-  $('final').style.display='none';const f=window._finalData;
-  current={...f,btn:{classList:{add(){}}},wager:w};window._final=true;
-  $('clueCat').textContent='FINAL — '+f.cat;$('clueText').textContent=f.c;
-  $('answerStage').style.display='';$('verdictStage').style.display='none';
-  $('heard').textContent='';$('typeInput').value='';$('clueHint').textContent='This one\'s for '+(w?'$'+w:'nothing')+'.';
-  $('clue').classList.add('show');speak('Final question. '+f.c);
+function updateScore(){const s=$('scoreEl');if(s){s.textContent=money(score);s.className='score'+(score<0?' neg':'');}}
+function closeClue(){stopAllAudio();cancelListen();$('clue').classList.remove('show');current=null;}
+$('nextBtn').onclick=()=>{
+  if(performance.now()<nextReadyAt)return;
+  if(phase==='finalVerdict'){closeClue();endGame();return;}
+  if(phase!=='verdict')return;
+  closeClue();
+  if(remaining<=0){$('board').style.display='none';startFinal();}
+  else phase='board';
 };
-function endGame(){
-  $('end').style.display='block';$('endScore').textContent=(score<0?'-$':'$')+Math.abs(score);
-  let t,m;if(score<=0){t='WIPED OUT';m='The board won. Run it back.';}else if(score<1800){t='NOT BAD';m='Respectable. Try a harder board.';}else if(score<4000){t='SHARP';m='You know things. Genuinely impressive.';}else{t='GENIUS';m='Absolutely cracked. Go flex on your friends.';}
-  $('endTitle').textContent=t;$('endMsg').textContent=m;if(window.OB)OB.submitScore('run-the-board',Math.max(0,score));
+const maxWager=()=>Math.max(score,1000); // Jeopardy rule: at or below $1,000 you may still wager up to $1,000
+function startFinal(){
+  if(!FINALS.length){endGame();return;}
+  phase='wager';
+  finalData=FINALS[Math.floor(Math.random()*FINALS.length)];
+  $('final').style.display='block';$('finalCat').textContent=finalData.cat||'MIXED BAG';
+  const fs=$('finalScore');fs.textContent=money(score);fs.style.color=score<0?'var(--red)':'var(--green)';
+  const max=maxWager();$('wagerMax').textContent=money(max);
+  $('wager').max=max;$('wager').value=Math.min(max,Math.max(0,score));
+  window.scrollTo(0,0);
 }
-$('micBtn').onclick=()=>{if(listening)stopListen();else startListen();};
-$('submitBtn').onclick=()=>{const v=$('typeInput').value.trim();if(v)judge(v);};
-$('typeInput').onkeydown=e=>{if(e.key==='Enter'){const v=$('typeInput').value.trim();if(v)judge(v);}};
-$('againBtn').onclick=()=>location.reload();
+function lockWager(){
+  if(phase!=='wager'||!finalData)return;
+  const max=maxWager();let w=Math.floor(Number($('wager').value));
+  if(!isFinite(w)||w<0)w=0;w=Math.min(w,max);
+  phase='final';$('final').style.display='none';
+  try{$('wager').blur();}catch(e){}
+  current={...finalData,wager:w,judged:false};
+  $('clueCat').textContent='FINAL — '+(finalData.cat||'');$('clueText').textContent=finalData.c;
+  setupAnswerStage('This one\'s for '+(w?money(w):'nothing')+'.',w?'PASS (− '+money(w)+')':'PASS — SHOW ANSWER');
+  stopAllAudio();speak('Final question. '+finalData.c); // inside the LOCK WAGER click
+}
+$('wagerBtn').onclick=lockWager;
+$('wager').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();lockWager();}};
+let endSent=false;
+function endGame(){
+  if(phase==='end')return;
+  phase='end';stopAllAudio();cancelListen();showQuit(false);
+  $('clue').classList.remove('show');$('board').style.display='none';$('final').style.display='none';
+  $('end').style.display='block';$('endScore').textContent=money(score);$('endScore').className='score'+(score<0?' neg':'');
+  let t,m;if(score<=0){t='WIPED OUT';m='The board won. Run it back.';}else if(score<1800){t='NOT BAD';m='Respectable. Try a harder board.';}else if(score<4000){t='SHARP';m='You know things. Genuinely impressive.';}else{t='GENIUS';m='Absolutely cracked. Go flex on your friends.';}
+  $('endTitle').textContent=t;$('endMsg').textContent=m;
+  window.scrollTo(0,0);
+  const ob=window.OB;
+  if(!endSent&&ob){endSent=true;
+    try{const p=ob.submitScore(SLUG,Math.max(0,score));if(p&&p.catch)p.catch(()=>{});}catch(e){}
+    try{if(typeof ob.gameOver==='function'){const q=ob.gameOver(SLUG);if(q&&q.catch)q.catch(()=>{});}}catch(e){}
+  }
+}
+// Back to the menu with a completely clean slate (no Final state can leak into the next game).
+function resetToMenu(){
+  stopAllAudio();cancelListen();
+  $('clue').classList.remove('show');
+  phase='menu';current=null;finalData=null;board=null;score=0;remaining=0;selected=[];endSent=false;nextReadyAt=0;
+  $('cats').innerHTML='';$('cells').innerHTML='';
+  $('board').style.display='none';$('final').style.display='none';$('end').style.display='none';$('menu').style.display='';
+  showQuit(false);updateScore();updateCount();renderPicker();window.scrollTo(0,0);
+}
+$('quitBtn').onclick=()=>{
+  if(phase!=='board'&&phase!=='wager')return;
+  const played=$('cells').querySelectorAll('.cell.done').length>0;
+  if(played&&!confirm('Quit this board and go back to the menu? Your score will be lost.'))return;
+  resetToMenu();
+};
+$('micBtn').onclick=()=>{if(listening)finishListen();else startListen();};
+$('passBtn').onclick=passClue;
+function submitTyped(){const v=$('typeInput').value.trim();if(v)judge(v);}
+$('submitBtn').onclick=submitTyped;
+$('typeInput').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();submitTyped();}};
+$('againBtn').onclick=resetToMenu;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../../assets/ob-sdk.js"></script>

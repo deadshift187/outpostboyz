@@ -1,6 +1,6 @@
 /* Outpost Boyz SDK — accounts, scores, subscribers.
    Requires supabase-js v2 loaded first:
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> */
+   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script> */
 (function () {
   'use strict';
   var OB_URL = 'https://duogqviqgmbaynfrhrmq.supabase.co';
@@ -60,7 +60,7 @@
       return client.auth.signUp({
         email: email,
         password: password,
-        options: { emailRedirectTo: 'https://outpostboyz.com/account/' }
+        options: { emailRedirectTo: 'https://outpostboyz.com/account/', data: { has_password: true } }
       });
     },
 
@@ -71,7 +71,7 @@
     },
 
     async setPassword(newPassword) {
-      return client.auth.updateUser({ password: newPassword });
+      return client.auth.updateUser({ password: newPassword, data: { has_password: true } });
     },
 
     async profile() {
@@ -87,6 +87,13 @@
                  .replace(/4/g, 'a').replace(/5/g, 's').replace(/7/g, 't')
                  .replace(/8/g, 'b').replace(/@/g, 'a').replace(/\$/g, 's');
       norm = norm.replace(/[^a-z]/g, '');
+      // Safe words that merely CONTAIN a banned string (mirrors the DB function).
+      // Longest first so e.g. "spicy" is stripped before "spice".
+      var safe = ['encyclopedia','circumstance','shuttlecock','accumulate','scunthorpe','therapist',
+        'pedometer','manuscript','woodcock','document','cucumber','stardust','cocktail','cockatoo',
+        'pedicure','shiitake','peacock','cockpit','hancock','raccoon','torpedo','cumulus','dickens',
+        'scrape','tycoon','cocoon','crisis','uranus','grape','drape','spicy','spice','janus'];
+      for (var j = 0; j < safe.length; j++) { norm = norm.split(safe[j]).join(''); }
       var banned = ['nigger','nigga','niger','nigar','faggot','fagot','chink','spic','kike','wetback','coon','beaner','gook','tranny','dyke','retard','tard','fuck','fuk','fuq','phuck','shit','bitch','cunt','whore','slut','asshole','dumbass','jackass','bastard','pussy','cock','dick','dildo','boner','wank','jizz','cum','anus','clit','rape','rapist','molest','pedo','pedophile','kys','killyourself','suicide','nazi','hitler','kkk','klux','isis','terrorist','genocide','holocaust','admin','moderator','outpostofficial','staff','support'];
       for (var i = 0; i < banned.length; i++) { if (norm.indexOf(banned[i]) !== -1) return false; }
       return true;
@@ -150,18 +157,29 @@
 
     async buy(slug) {
       var s = await this.session();
-      if (!s) { window.location.href = 'account/'; return; }
-      var r = await fetch(OB_FN + '/create-checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + s.access_token
-        },
-        body: JSON.stringify({ slug: slug })
-      });
-      var d = await r.json();
-      if (d.url) { window.location.href = d.url; }
-      else { alert(d.error || 'Checkout unavailable right now'); }
+      if (!s) {
+        // Remember what they wanted; the account page resumes checkout after sign-in.
+        try { localStorage.setItem('ob-pending-buy', JSON.stringify({ slug: String(slug || ''), t: Date.now() })); } catch (e) { }
+        window.location.href = '/account/';
+        return;
+      }
+      var d;
+      try {
+        var r = await fetch(OB_FN + '/create-checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + s.access_token
+          },
+          body: JSON.stringify({ slug: slug })
+        });
+        d = await r.json();
+      } catch (e) {
+        alert("Checkout couldn't load right now. Check your connection and try again in a minute.");
+        return;
+      }
+      if (d && d.url) { window.location.href = d.url; }
+      else { alert((d && d.error) || 'Checkout unavailable right now — try again in a minute.'); }
     },
 
     async myGames() {
@@ -303,12 +321,19 @@
     async playGame(slug) {
       var s = await this.session();
       if (!s) return;
-      var r = await fetch(OB_FN + '/get-game?slug=' + encodeURIComponent(slug), {
-        headers: { 'Authorization': 'Bearer ' + s.access_token }
-      });
-      var d = await r.json();
-      if (d.url) { window.open(d.url, '_blank'); }
-      else { alert(d.error || 'Unavailable'); }
+      var d;
+      try {
+        var r = await fetch(OB_FN + '/get-game?slug=' + encodeURIComponent(slug), {
+          headers: { 'Authorization': 'Bearer ' + s.access_token }
+        });
+        d = await r.json();
+      } catch (e) {
+        alert("Couldn't open that game right now. Check your connection and try again.");
+        return;
+      }
+      // Same-tab navigation: window.open after an await gets eaten by popup blockers.
+      if (d && d.url) { window.location.href = d.url; }
+      else { alert((d && d.error) || 'That game is unavailable right now — try again soon.'); }
     }
   };
 

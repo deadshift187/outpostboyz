@@ -20,7 +20,7 @@
     .acct-input:focus { outline: 3px solid #39ff14; outline-offset: 2px; }
     .acct-msg { margin-top: 14px; font-size: 14px; font-weight: 600; }
     .acct-msg.ok { color: #1a7a0a; }
-    .acct-msg.err { color: var(--red); }
+    .acct-msg.err { color: var(--red-text); }
     .acct-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; border-bottom: 2px solid var(--ink); padding: 12px 0; font-size: 15px; }
     .acct-row b { font-weight: 900; letter-spacing: 1px; }
     .hidden { display: none; }
@@ -38,6 +38,7 @@
     </div>
   </nav>
 
+
   <div class="acct-wrap">
     <h1 class="acct-h">Your Account</h1>
     <p class="acct-sub">One login for scores, the world ranks, and (soon) your $1 game library.</p>
@@ -46,37 +47,54 @@
 
     <div class="acct-card hidden" id="boxSignin">
       <div style="display:flex; gap:0; border: var(--bw) solid var(--ink); margin-bottom:6px;">
-        <button id="tabIn" class="authtab" style="flex:1;">SIGN IN</button>
-        <button id="tabUp" class="authtab" style="flex:1;">CREATE ACCOUNT</button>
+        <button type="button" id="tabIn" class="authtab" style="flex:1;">SIGN IN</button>
+        <button type="button" id="tabUp" class="authtab" style="flex:1;">CREATE ACCOUNT</button>
       </div>
       <p class="acct-sub" id="authBlurb">Welcome back, operative.</p>
-      <label class="acct-label" for="email">EMAIL</label>
-      <input class="acct-input" id="email" type="email" placeholder="you@email.com" autocomplete="email">
-      <label class="acct-label" for="pw">PASSWORD</label>
-      <input class="acct-input" id="pw" type="password" placeholder="8+ characters" autocomplete="current-password">
-      <div style="margin-top:16px;"><button class="btn btn-solid" id="btnAuth">SIGN IN</button></div>
+      <form id="authForm" novalidate>
+        <label class="acct-label" for="email">EMAIL</label>
+        <input class="acct-input" id="email" name="email" type="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="you@email.com" autocomplete="email" required>
+        <label class="acct-label" for="pw">PASSWORD</label>
+        <input class="acct-input" id="pw" name="password" type="password" placeholder="8+ characters" autocomplete="current-password" required minlength="8">
+        <div style="margin-top:16px;"><button type="submit" class="btn btn-solid" id="btnAuth">SIGN IN</button></div>
+      </form>
       <p style="margin-top:14px; font-size:13px;">
         <a href="#" id="lnkForgot" style="color:var(--grey);">Forgot password?</a> &nbsp;·&nbsp;
         <a href="#" id="lnkMagic" style="color:var(--grey);">Email me a magic link instead</a>
       </p>
-      <p class="acct-msg hidden" id="signinMsg"></p>
+      <p class="acct-msg hidden" id="signinMsg" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="acct-card hidden" id="boxRecover">
+      <b style="font-weight:900; letter-spacing:1px;">SET A NEW PASSWORD</b>
+      <p class="acct-sub">Your reset link worked. Pick a new password (8+ characters) and you're back in.</p>
+      <form id="recoverForm" novalidate>
+        <input type="text" id="recUser" name="username" autocomplete="username" hidden>
+        <label class="acct-label" for="recPw">NEW PASSWORD</label>
+        <input class="acct-input" id="recPw" name="new-password" type="password" placeholder="8+ characters" autocomplete="new-password" required minlength="8">
+        <div style="margin-top:16px;"><button type="submit" class="btn btn-solid" id="btnRecover">SAVE NEW PASSWORD</button></div>
+      </form>
+      <p class="acct-msg hidden" id="recMsg" role="status" aria-live="polite"></p>
     </div>
 
     <div class="acct-card hidden" id="boxTag">
       <b style="font-weight:900; letter-spacing:1px;">PICK YOUR GAMERTAG</b>
       <p class="acct-sub">This is your public name on the world ranks. 3–16 characters, letters/numbers/underscore. Choose wisely — it's permanent (for now).</p>
-      <label class="acct-label" for="tag">GAMERTAG</label>
-      <input class="acct-input" id="tag" maxlength="16" placeholder="XxSquadBoss99xX" autocomplete="off">
-      <div style="margin-top:16px;"><button class="btn btn-solid" id="btnTag">LOCK IT IN</button></div>
-      <p class="acct-msg hidden" id="tagMsg"></p>
+      <form id="tagForm" novalidate>
+        <label class="acct-label" for="tag">GAMERTAG</label>
+        <input class="acct-input" id="tag" maxlength="16" placeholder="XxSquadBoss99xX" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <div style="margin-top:16px;"><button type="submit" class="btn btn-solid" id="btnTag">LOCK IT IN</button></div>
+      </form>
+      <p class="acct-msg hidden" id="tagMsg" role="status" aria-live="polite"></p>
     </div>
 
     <div class="acct-card hidden" id="boxPitch">
       <b style="font-weight:900; letter-spacing:1px;">PITCH THE LAB</b>
       <p class="acct-sub">Got a game we should build? Pitch it. The crew reads every single one — the best ideas become real experiments in THE LAB.</p>
+      <label class="sr-only" for="ideaText">Your game idea</label>
       <textarea class="acct-input" id="ideaText" rows="4" maxlength="1000" placeholder="Your game idea — the weirder the better..." style="resize: vertical; font-family: var(--body);"></textarea>
-      <div style="margin-top:12px;"><button class="btn btn-solid btn-sm" id="btnIdea">SUBMIT TO THE LAB</button></div>
-      <p class="acct-msg hidden" id="ideaMsg"></p>
+      <div style="margin-top:12px;"><button type="button" class="btn btn-solid btn-sm" id="btnIdea">SUBMIT TO THE LAB</button></div>
+      <p class="acct-msg hidden" id="ideaMsg" role="status" aria-live="polite"></p>
     </div>
 
     <div class="acct-card hidden" id="boxAccount">
@@ -86,34 +104,38 @@
       <div class="acct-row"><span>MY GAMES</span><span id="myGamesNote">Nothing yet — first drop soon</span></div>
       <div id="myGamesList"></div>
       <p class="acct-msg ok hidden" id="purchasedMsg">Payment received — your game shows up here within a minute. Refresh if it's shy.</p>
-      <label class="acct-label" for="newpw">SET / CHANGE PASSWORD <span style="font-weight:400; text-transform:none; letter-spacing:0;">(lets you sign in on any device)</span></label>
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <input class="acct-input" id="newpw" type="password" placeholder="new password (8+ chars)" style="flex:1; min-width:200px; width:auto;" autocomplete="new-password">
-        <button class="btn btn-solid btn-sm" id="btnSetPw">SAVE</button>
-      </div>
-      <p class="acct-msg hidden" id="pwMsg"></p>
+      <form id="pwForm" novalidate>
+        <input type="text" id="pwUser" name="username" autocomplete="username" hidden>
+        <label class="acct-label" for="newpw"><span id="pwLabel">SET / CHANGE PASSWORD</span> <span style="font-weight:400; text-transform:none; letter-spacing:0;">(lets you sign in on any device)</span></label>
+        <p class="acct-sub hidden" id="pwNote" style="margin:0 0 10px;">Signed in with a magic link? Set a password here so you can sign in on any device without waiting for an email.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <input class="acct-input" id="newpw" name="new-password" type="password" placeholder="new password (8+ chars)" style="flex:1; min-width:200px; width:auto;" autocomplete="new-password" minlength="8">
+          <button type="submit" class="btn btn-solid btn-sm" id="btnSetPw">SAVE</button>
+        </div>
+      </form>
+      <p class="acct-msg hidden" id="pwMsg" role="status" aria-live="polite"></p>
       <div style="margin-top:20px; display:flex; gap:12px; flex-wrap:wrap;">
         <a class="btn btn-line btn-sm" href="../leaderboard/">VIEW WORLD RANKS</a>
         <a class="btn btn-line btn-sm" href="../#arcade">PLAY THE LAB</a>
-        <button class="btn btn-sm" id="btnOut" style="border: var(--bw) solid var(--ink); background: var(--paper);">SIGN OUT</button>
+        <button type="button" class="btn btn-sm" id="btnOut" style="border: var(--bw) solid var(--ink); background: var(--paper);">SIGN OUT</button>
       </div>
     </div>
   </div>
 
   <footer class="footer">
     <p class="footer-logo">OUTPOST&nbsp;BOYZ</p>
+    <div class="footer-social"><a href="mailto:squad@outpostboyz.com">SQUAD@OUTPOSTBOYZ.COM</a></div>
     <p class="footer-fine">© 2026 OUTPOST BOYZ — GAMING BEYOND LIMITS.</p>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
   <script src="../assets/ob-sdk.js"></script>
   <script>
   (function () {
     var $ = function (id) { return document.getElementById(id); };
+    var BOXES = ['boxLoading', 'boxSignin', 'boxRecover', 'boxTag', 'boxAccount'];
     function show(id) {
-      ['boxLoading', 'boxSignin', 'boxTag', 'boxAccount'].forEach(function (b) {
-        $(b).classList.toggle('hidden', b !== id);
-      });
+      BOXES.forEach(function (b) { $(b).classList.toggle('hidden', b !== id); });
       $('boxPitch').classList.toggle('hidden', id !== 'boxAccount');
     }
     function msg(id, text, ok) {
@@ -121,15 +143,70 @@
       el.textContent = text;
       el.className = 'acct-msg ' + (ok ? 'ok' : 'err');
     }
+    function friendly(err, fallback) {
+      var m = (err && err.message) || '';
+      if (/fetch|network|Failed to fetch|Load failed/i.test(m)) return "Couldn't reach the server — check your connection and try again.";
+      if (/rate limit|too many|security purposes/i.test(m)) return 'Too many tries — wait a minute, then try again.';
+      if (/Email not confirmed/i.test(m)) return 'Confirm your email first — check your inbox (and spam) for the link.';
+      if (/reauthenticat/i.test(m)) return 'For security, sign out and sign back in, then set your password.';
+      if (/different from the old/i.test(m)) return "That's already your password — pick a new one.";
+      if (/weak|at least|characters/i.test(m)) return 'Pick a stronger password — 8+ characters, mix it up.';
+      return fallback || m || 'Something went wrong — try again in a minute.';
+    }
+
+    // Supabase CDN / SDK failed to load: say so plainly instead of throwing.
+    if (!window.OB) {
+      $('boxLoading').innerHTML = '<p style="font-weight:900; letter-spacing:1px;">SIGN-IN IS OFFLINE RIGHT NOW</p>' +
+        '<p class="acct-sub">We couldn\'t load our login service (a network hiccup or a blocker). Refresh in a minute. Still stuck? Email ' +
+        '<a href="mailto:squad@outpostboyz.com">squad@outpostboyz.com</a>.</p>';
+      show('boxLoading');
+      return;
+    }
+
+    // Password-reset links land here with #...type=recovery; Supabase also fires PASSWORD_RECOVERY.
+    var recovering = /type=recovery/.test(location.hash);
+
+    async function resumePendingBuy() {
+      var slug = null;
+      try {
+        // localStorage so it survives magic-link / confirm-email links that open a new tab.
+        var raw = localStorage.getItem('ob-pending-buy');
+        if (raw) {
+          localStorage.removeItem('ob-pending-buy');
+          var p = null; try { p = JSON.parse(raw); } catch (e2) { }
+          if (p && p.slug && Date.now() - (p.t || 0) < 30 * 60 * 1000) slug = p.slug;
+        }
+      } catch (e) { slug = null; }
+      if (!slug) return false;
+      $('boxLoading').innerHTML = '<p>RESUMING CHECKOUT…</p>';
+      show('boxLoading');
+      await OB.buy(slug);
+      return true;
+    }
 
     async function refresh() {
-      if (!window.OB) { show('boxSignin'); return; }
       var s = await OB.session();
+      if (recovering) {
+        if (s) {
+          $('recUser').value = s.user.email || '';
+          show('boxRecover');
+          return;
+        }
+        recovering = false;
+        show('boxSignin');
+        msg('signinMsg', 'That reset link expired or was already used. Type your email and hit Forgot password for a fresh one.', false);
+        return;
+      }
       if (!s) { show('boxSignin'); return; }
+      await resumePendingBuy();
       var p = await OB.profile();
       if (!p) { show('boxTag'); return; }
       $('outTag').textContent = p.gamertag;
       $('outEmail').textContent = s.user.email;
+      $('pwUser').value = s.user.email || '';
+      var hasPw = !!(s.user.user_metadata && s.user.user_metadata.has_password);
+      $('pwLabel').textContent = hasPw ? 'CHANGE PASSWORD' : 'SET A PASSWORD';
+      $('pwNote').classList.toggle('hidden', hasPw);
       show('boxAccount');
       loadGames();
     }
@@ -152,7 +229,7 @@
       list.innerHTML = games.map(function (g) {
         var title = String(names[g.game_slug] || g.game_slug).replace(/[<>&]/g, '');
         return '<div class="acct-row"><span>' + title + '</span>' +
-          '<button class="btn btn-sm" style="border: var(--bw) solid var(--ink); background: var(--paper);" onclick="OB.playGame(\'' + g.game_slug + '\')">PLAY</button></div>';
+          '<button type="button" class="btn btn-sm" style="border: var(--bw) solid var(--ink); background: var(--paper);" onclick="OB.playGame(\'' + g.game_slug + '\')">PLAY</button></div>';
       }).join('');
     }
 
@@ -161,7 +238,10 @@
       mode = m;
       $('tabIn').classList.toggle('active', m === 'in');
       $('tabUp').classList.toggle('active', m === 'up');
+      $('tabIn').setAttribute('aria-pressed', m === 'in');
+      $('tabUp').setAttribute('aria-pressed', m === 'up');
       $('btnAuth').textContent = m === 'in' ? 'SIGN IN' : 'CREATE ACCOUNT';
+      $('pw').setAttribute('autocomplete', m === 'in' ? 'current-password' : 'new-password');
       $('authBlurb').textContent = m === 'in'
         ? 'Welcome back, operative.'
         : 'New here? Email + password and you are in. One confirm email, click it, done.';
@@ -172,89 +252,131 @@
 
     function validEmail(e) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e); }
 
-    $('btnAuth').addEventListener('click', async function () {
+    $('authForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var btn = $('btnAuth');
       var email = $('email').value.trim();
       var pw = $('pw').value;
       if (!validEmail(email)) { msg('signinMsg', 'That email looks off — check it.', false); return; }
       if (pw.length < 8) { msg('signinMsg', 'Password needs at least 8 characters.', false); return; }
-      this.disabled = true;
-      if (mode === 'in') {
-        var r = await OB.signInPassword(email, pw);
-        this.disabled = false;
-        if (r.error) {
-          var m = r.error.message === 'Invalid login credentials'
-            ? 'Wrong email or password. New here? Hit CREATE ACCOUNT. Made your account with a magic link? Use Forgot password to set one.'
-            : r.error.message;
-          msg('signinMsg', m, false);
-        }
-      } else {
-        var r2 = await OB.signUpPassword(email, pw);
-        this.disabled = false;
-        if (r2.error) { msg('signinMsg', r2.error.message, false); }
-        else if (r2.data && r2.data.user && r2.data.user.identities && r2.data.user.identities.length === 0) {
-          msg('signinMsg', 'That email already has an account — use SIGN IN, or Forgot password.', false);
+      btn.disabled = true;
+      try {
+        if (mode === 'in') {
+          var r = await OB.signInPassword(email, pw);
+          if (r.error) {
+            var m = r.error.message === 'Invalid login credentials'
+              ? 'Wrong email or password. New here? Hit CREATE ACCOUNT. Made your account with a magic link? Use Forgot password to set one.'
+              : friendly(r.error);
+            msg('signinMsg', m, false);
+          } else if (r.data && r.data.user && !(r.data.user.user_metadata || {}).has_password) {
+            // They clearly have a password — remember that so we stop nudging them to set one.
+            OB.client.auth.updateUser({ data: { has_password: true } }).catch(function () { });
+          }
         } else {
-          msg('signinMsg', 'Account created. Check your email for the confirm link, then come back and SIGN IN.', true);
+          var r2 = await OB.signUpPassword(email, pw);
+          if (r2.error) { msg('signinMsg', friendly(r2.error), false); }
+          else if (r2.data && r2.data.user && r2.data.user.identities && r2.data.user.identities.length === 0) {
+            msg('signinMsg', 'That email already has an account — use SIGN IN, or Forgot password.', false);
+          } else if (!r2.data || !r2.data.session) {
+            msg('signinMsg', 'Account created. Check your email for the confirm link, then come back and SIGN IN.', true);
+          }
         }
+      } catch (err) {
+        msg('signinMsg', friendly(err), false);
       }
+      btn.disabled = false;
     });
 
     $('lnkForgot').addEventListener('click', async function (e) {
       e.preventDefault();
       var email = $('email').value.trim();
       if (!validEmail(email)) { msg('signinMsg', 'Type your email above first, then hit Forgot password.', false); return; }
-      var r = await OB.resetPassword(email);
-      msg('signinMsg', r.error ? r.error.message : 'Reset link sent. Open it on THIS device, then set your new password here.', !r.error);
+      var r;
+      try { r = await OB.resetPassword(email); } catch (err) { r = { error: err }; }
+      msg('signinMsg', r.error ? friendly(r.error) : 'Reset link sent. Open it on THIS device, then set your new password here.', !r.error);
     });
 
     $('lnkMagic').addEventListener('click', async function (e) {
       e.preventDefault();
       var email = $('email').value.trim();
       if (!validEmail(email)) { msg('signinMsg', 'Type your email above first.', false); return; }
-      var r = await OB.signIn(email);
-      msg('signinMsg', r.error ? r.error.message : 'Magic link sent. Heads up: it signs in whichever device you OPEN it on.', !r.error);
+      var r;
+      try { r = await OB.signIn(email); } catch (err) { r = { error: err }; }
+      msg('signinMsg', r.error ? friendly(r.error) : 'Magic link sent. Heads up: it signs in whichever device you OPEN it on.', !r.error);
     });
 
-    $('btnSetPw').addEventListener('click', async function () {
+    $('recoverForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var btn = $('btnRecover');
+      var pw = $('recPw').value;
+      if (pw.length < 8) { msg('recMsg', 'At least 8 characters.', false); return; }
+      btn.disabled = true;
+      var r;
+      try { r = await OB.setPassword(pw); } catch (err) { r = { error: err }; }
+      btn.disabled = false;
+      if (r.error) { msg('recMsg', friendly(r.error), false); return; }
+      recovering = false;
+      $('recPw').value = '';
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (err) { }
+      await refresh();
+      msg('pwMsg', 'New password saved — you are signed in.', true);
+    });
+
+    $('pwForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var btn = $('btnSetPw');
       var pw = $('newpw').value;
       if (pw.length < 8) { msg('pwMsg', 'At least 8 characters.', false); return; }
-      this.disabled = true;
-      var r = await OB.setPassword(pw);
-      this.disabled = false;
-      msg('pwMsg', r.error ? r.error.message : 'Password saved — you can now sign in with it on any device.', !r.error);
+      btn.disabled = true;
+      var r;
+      try { r = await OB.setPassword(pw); } catch (err) { r = { error: err }; }
+      btn.disabled = false;
+      msg('pwMsg', r.error ? friendly(r.error) : 'Password saved — you can now sign in with it on any device.', !r.error);
       if (!r.error) $('newpw').value = '';
     });
 
-    $('btnTag').addEventListener('click', async function () {
+    $('tagForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var btn = $('btnTag');
       var tag = $('tag').value.trim();
       if (!/^[A-Za-z0-9_]{3,16}$/.test(tag)) { msg('tagMsg', '3–16 characters, letters/numbers/underscore only.', false); return; }
-      this.disabled = true;
-      var r = await OB.setGamertag(tag);
-      this.disabled = false;
+      btn.disabled = true;
+      var r;
+      try { r = await OB.setGamertag(tag); } catch (err) { r = { error: err }; }
+      btn.disabled = false;
       if (r.error) {
-        msg('tagMsg', (r.error.code === '23505') ? 'That tag is taken — try another.' : r.error.message, false);
+        msg('tagMsg', (r.error.code === '23505') ? 'That tag is taken — try another.'
+          : (r.error.code === 'dirty' ? r.error.message : friendly(r.error)), false);
       } else { refresh(); }
     });
 
-    $('btnOut').addEventListener('click', async function () { await OB.signOut(); refresh(); });
+    $('btnOut').addEventListener('click', async function () {
+      try { await OB.signOut(); } catch (e) { }
+      refresh();
+    });
 
     $('btnIdea').addEventListener('click', async function () {
       var idea = $('ideaText').value.trim();
       if (idea.length < 10) { msg('ideaMsg', 'Give us at least a sentence to work with.', false); return; }
       this.disabled = true;
-      var s = await OB.session();
-      var r = s ? await OB.client.from('ideas').insert({ user_id: s.user.id, idea: idea }) : { error: { message: 'Sign in first' } };
+      var r;
+      try {
+        var s = await OB.session();
+        r = s ? await OB.client.from('ideas').insert({ user_id: s.user.id, idea: idea }) : { error: { message: 'Sign in first' } };
+      } catch (err) { r = { error: err }; }
       this.disabled = false;
-      if (r.error) { msg('ideaMsg', r.error.message, false); }
+      if (r.error) { msg('ideaMsg', friendly(r.error, "That didn't send — try again in a minute."), false); }
       else {
         $('ideaText').value = '';
         msg('ideaMsg', 'Received. The crew reads every pitch — if we build it, you called it.', true);
       }
     });
 
-    if (window.OB) {
-      OB.client.auth.onAuthStateChange(function () { refresh(); });
-    }
+    OB.client.auth.onAuthStateChange(function (event) {
+      if (event === 'PASSWORD_RECOVERY') recovering = true;
+      // Defer: never await Supabase calls inside the auth callback (can deadlock the auth lock).
+      setTimeout(refresh, 0);
+    });
     refresh();
   })();
   </script>

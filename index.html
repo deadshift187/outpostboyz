@@ -3,20 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Outpost Boyz — Free Co-op Games You Can Play Right Now</title>
-  <meta name="description" content="Free browser games you can play instantly on phone or desktop — plus co-op chaos coming to Steam. Made by four friends. No installs, no catch.">
-  <meta name="keywords" content="free browser games, free online games, co-op games, indie game studio, arcade games, Steam co-op, Outpost Boyz">
+  <title>Outpost Boyz — Free Browser Games You Can Play Right Now</title>
+  <meta name="description" content="Free browser games you can play instantly on phone or desktop. No installs, no catch. Co-op games coming to Steam. Made by four friends.">
+  <meta name="keywords" content="free browser games, free online games, phone games, indie game studio, arcade games, Outpost Boyz">
   <meta name="theme-color" content="#000000">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://outpostboyz.com/">
-  <meta property="og:title" content="Outpost Boyz — Free Co-op Games You Can Play Right Now">
-  <meta property="og:description" content="Free browser games you can play instantly. Big co-op chaos coming to Steam. Squad up.">
+  <meta property="og:title" content="Outpost Boyz — Free Browser Games You Can Play Right Now">
+  <meta property="og:description" content="Free browser games you can play instantly on phone or desktop. Co-op games coming to Steam.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://outpostboyz.com/">
   <meta property="og:image" content="https://outpostboyz.com/assets/crew.jpg">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Outpost Boyz — Free Browser Games You Can Play Right Now">
+  <meta name="twitter:description" content="Free browser games you can play instantly on phone or desktop. Co-op games coming to Steam.">
   <meta name="twitter:image" content="https://outpostboyz.com/assets/crew.jpg">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white' font-family='Arial Black'>OB</text></svg>">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
@@ -35,12 +39,13 @@
   (function(){
     var lu=document.getElementById('loadup');
     if(!lu)return;
+    var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(rm){ lu.parentNode.removeChild(lu); return; }
     try{ if(sessionStorage.getItem('ob-splash')){ lu.parentNode.removeChild(lu); return; } sessionStorage.setItem('ob-splash','1'); }catch(e){}
     var gone=false;
-    function done(){ if(gone)return; gone=true; lu.classList.add('lu-out'); setTimeout(function(){ if(lu.parentNode)lu.parentNode.removeChild(lu); },550); }
+    function done(){ if(gone)return; gone=true; lu.classList.add('lu-out'); setTimeout(function(){ if(lu.parentNode)lu.parentNode.removeChild(lu); },250); }
     lu.addEventListener('click',done);
-    var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setTimeout(done, rm?400:2300);
+    setTimeout(done, 550); /* fully gone by 0.8s */
   })();
   </script>
 
@@ -52,6 +57,7 @@
       <a href="#clips">Clips</a>
       <a href="#services">Hire Us</a>
       <a href="leaderboard/">Ranks</a>
+      <a href="download/">Download</a>
       <a href="account/" id="navAccount">Sign In</a>
       <a class="nav-social" href="https://www.tiktok.com/@outpostboyz" aria-label="TikTok"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg></a>
       <a class="nav-social" href="https://www.instagram.com/outpostboyz" aria-label="Instagram"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
@@ -64,7 +70,7 @@
       <p class="hero-kicker">INDEPENDENT GAME STUDIO / EST. 2026</p>
       <h1 class="hero-logo">OUTPOST<br>BOYZ</h1>
       <p class="hero-tag">GAMING BEYOND LIMITS</p>
-      <p class="hero-sub">Four friends. Zero chill. Free games in your browser.<br>Co-op chaos on Steam.</p>
+      <p class="hero-sub">Four friends. Zero chill. Free games in your browser.<br>Co-op chaos coming to Steam.</p>
       <div class="hero-cta">
         <a class="btn btn-solid" href="#arcade">ENTER THE LAB</a>
         <a class="btn btn-line" href="#steam">STEAM CO-OP</a>
@@ -88,7 +94,7 @@
       </div>
     </section>
 
-    <section class="section" id="drops">
+    <section class="section" id="drops" hidden>
       <div class="sec-head">
         <span class="sec-num">(02)</span>
         <h2>DOPE DROPS</h2>
@@ -103,11 +109,11 @@
       <div class="sec-head">
         <span class="sec-num">(03)</span>
         <h2>UNDEFEATED</h2>
-        <p class="sec-sub">These games have never been beaten. Think you'd win? $1. Unlimited runs. First victor takes the $100 bounty.</p>
+        <p class="sec-sub">Games nobody has beaten. The first one opens soon — $1 for unlimited runs, and the first player to win takes the $100 bounty.</p>
       </div>
 
       <div style="border: var(--bw) solid var(--ink); background: var(--ink); color: var(--paper); padding: 18px 22px; margin-bottom: 22px; font-size: 14px;">
-        <b style="letter-spacing: 2px;">THE RULES:</b>
+        <b style="letter-spacing: 2px;">THE RULES (BOUNTY OPENS AT LAUNCH):</b>
         $1 unlocks unlimited runs on your account &nbsp;·&nbsp; every run posts your farthest point to the <a href="leaderboard/" style="color:#39ff14;">world board</a> &nbsp;·&nbsp; first player to BEAT it — verified by the crew — takes the <b style="color:#39ff14;">$100 bounty</b> &nbsp;·&nbsp; conquered games retire to the BEAT PILE with the victor's name on them forever.
       </div>
 
@@ -259,8 +265,11 @@
         <b style="font-family: var(--disp); font-size: 20px; text-transform: uppercase; letter-spacing: -0.5px;">Commission the lab</b>
         <p style="color: var(--grey); font-size: 14px; margin: 6px 0 16px;">Tell us what you want. The crew replies from squad@outpostboyz.com within 48 hours with a plan and a price. No bots, no forms disappearing into the void.</p>
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
-          <input id="svcName" placeholder="Your name" maxlength="100" style="border: var(--bw) solid var(--ink); padding: 13px 14px; font-family: var(--body); font-size: 15px; border-radius: 0;">
-          <input id="svcEmail" type="email" placeholder="your@email.com" maxlength="200" style="border: var(--bw) solid var(--ink); padding: 13px 14px; font-family: var(--body); font-size: 15px; border-radius: 0;">
+          <label class="sr-only" for="svcName">Your name</label>
+          <input id="svcName" autocomplete="name" placeholder="Your name" maxlength="100" style="border: var(--bw) solid var(--ink); padding: 13px 14px; font-family: var(--body); font-size: 15px; border-radius: 0;">
+          <label class="sr-only" for="svcEmail">Your email</label>
+          <input id="svcEmail" type="email" autocomplete="email" placeholder="your@email.com" maxlength="200" style="border: var(--bw) solid var(--ink); padding: 13px 14px; font-family: var(--body); font-size: 15px; border-radius: 0;">
+          <label class="sr-only" for="svcType">What do you need?</label>
           <select id="svcType" style="border: var(--bw) solid var(--ink); padding: 13px 14px; font-family: var(--body); font-size: 15px; border-radius: 0; background: var(--paper);">
             <option value="apprenticeship">The Apprenticeship (learn)</option>
             <option value="commission">Commission a game</option>
@@ -275,10 +284,11 @@
             <option value="other">Something else</option>
           </select>
         </div>
+        <label class="sr-only" for="svcDetails">Project details</label>
         <textarea id="svcDetails" rows="3" maxlength="2000" placeholder="What are we building? Budget? Deadline? The weirder the details, the better." style="width:100%; margin-top:12px; border: var(--bw) solid var(--ink); padding: 13px 14px; font-family: var(--body); font-size: 15px; border-radius: 0; resize: vertical;"></textarea>
         <div style="margin-top:14px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
           <button class="btn btn-solid" id="svcSend">SEND IT TO THE LAB</button>
-          <span id="svcMsg" style="font-weight:600; font-size:14px;"></span>
+          <span id="svcMsg" role="status" aria-live="polite" style="font-weight:600; font-size:14px;"></span>
         </div>
       </div>
     </section>
@@ -343,9 +353,9 @@
         <p class="sec-sub">Actual footage of us losing containment online.</p>
       </div>
       <div class="clips-grid">
-        <div class="clip-slot"><iframe src="https://www.tiktok.com/embed/v2/7487090008185195807" title="Outpost Boyz TikTok clip 1" allow="encrypted-media; fullscreen" loading="lazy"></iframe></div>
-        <div class="clip-slot"><iframe src="https://www.tiktok.com/embed/v2/7487687437867552031" title="Outpost Boyz TikTok clip 2" allow="encrypted-media; fullscreen" loading="lazy"></iframe></div>
-        <div class="clip-slot"><iframe src="https://www.tiktok.com/embed/v2/7487357891049999646" title="Outpost Boyz TikTok clip 3" allow="encrypted-media; fullscreen" loading="lazy"></iframe></div>
+        <div class="clip-slot"><button type="button" class="clip-facade" data-tt="7487090008185195807" data-n="1" aria-label="Play Outpost Boyz TikTok clip 1"><span class="clip-kicker" aria-hidden="true">OUTPOST BOYZ · CLIP 01</span><span class="clip-play" aria-hidden="true"></span><span class="clip-cta" aria-hidden="true">TAP TO LOAD</span></button></div>
+        <div class="clip-slot"><button type="button" class="clip-facade" data-tt="7487687437867552031" data-n="2" aria-label="Play Outpost Boyz TikTok clip 2"><span class="clip-kicker" aria-hidden="true">OUTPOST BOYZ · CLIP 02</span><span class="clip-play" aria-hidden="true"></span><span class="clip-cta" aria-hidden="true">TAP TO LOAD</span></button></div>
+        <div class="clip-slot"><button type="button" class="clip-facade" data-tt="7487357891049999646" data-n="3" aria-label="Play Outpost Boyz TikTok clip 3"><span class="clip-kicker" aria-hidden="true">OUTPOST BOYZ · CLIP 03</span><span class="clip-play" aria-hidden="true"></span><span class="clip-cta" aria-hidden="true">TAP TO LOAD</span></button></div>
       </div>
       <div class="clips-cta">
         <a class="btn btn-line btn-sm" href="https://www.tiktok.com/@outpostboyz">FOLLOW ON TIKTOK</a>
@@ -378,7 +388,7 @@
       <h2>THE $1 RESEARCH GRANT</h2>
       <p style="color: var(--grey); max-width: 520px; margin-left: auto; margin-right: auto;">Every game in THE LAB is free, forever. That's the deal.<br>But labs run on funding — and this one runs on one-dollar research grants from players.</p>
       <p style="font-weight: 900; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; margin: 18px 0 22px;">Grant allocation: 100% new experiments &nbsp;·&nbsp; 0% suits &nbsp;·&nbsp; 0% ads on your games</p>
-      <a class="btn btn-red" id="tipBtn" href="#" target="_blank" rel="noopener">FUND THE LAB — $1</a>
+      <a class="btn btn-red" id="tipBtn" role="link" aria-disabled="true">FUND THE LAB — $1</a>
       <p style="font-size: 12px; color: var(--grey); margin-top: 16px;">Funders receive our eternal respect and a faster next drop. That's it. That's the perk.</p>
     </section>
 
@@ -389,6 +399,7 @@
         <input type="email" name="email" placeholder="YOUR@EMAIL.COM" required aria-label="Email address">
         <button class="btn btn-red" type="submit">INOCULATE ME</button>
       </form>
+      <p class="signup-msg" id="signupMsg" role="status" aria-live="polite"></p>
     </section>
   </main>
 
@@ -398,6 +409,8 @@
       <a href="https://www.tiktok.com/@outpostboyz">TIKTOK</a>
       <span>/</span>
       <a href="https://www.instagram.com/outpostboyz">INSTAGRAM</a>
+      <span>/</span>
+      <a href="mailto:squad@outpostboyz.com">SQUAD@OUTPOSTBOYZ.COM</a>
     </div>
     <p class="footer-fine">© 2026 OUTPOST BOYZ — ALL RIGHTS RESERVED. GAMING BEYOND LIMITS. LAB CONDITIONS NOT GUARANTEED.</p>
   </footer>
@@ -412,14 +425,14 @@
       grid.innerHTML = games.map(g => `
         <article class="game-card" style="--gc:${g.color || '#000'}">
           ${g.badge ? `<span class="chip chip-hot game-badge">${g.badge}</span>` : ''}
-          <div class="game-icon">${g.icon || '🕹️'}</div>
+          <div class="game-icon" aria-hidden="true">${g.icon || '🕹️'}</div>
           <h3>${g.title}</h3>
           <p>${g.tagline || ''}</p>
-          <div class="game-plays" data-plays="${g.slug}" style="font-size:11px;letter-spacing:1px;color:#8892a0;margin:2px 0 8px;font-weight:700;">▶ <span>—</span> PLAYS</div>
+          <div class="game-plays" data-plays="${g.slug}" hidden style="font-size:11px;letter-spacing:1px;color:#8892a0;margin:2px 0 8px;font-weight:700;">▶ <span>—</span> PLAYS</div>
           <a class="game-play" href="games/${g.slug}/">PLAY</a>
         </article>`).join('') +
         `<article class="game-card coming">
-          <div class="game-icon">＋</div>
+          <div class="game-icon" aria-hidden="true">＋</div>
           <h3>NEXT DROP</h3>
           <p>New release in production.</p>
           <span class="game-play dim">COMING SOON</span>
@@ -429,42 +442,59 @@
     }
   })();
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
   <script src="assets/ob-sdk.js"></script>
   <script>
   (function () {
-    if (!window.OB) return;
-
-    // Fill the public play-count tickers on the arcade cards.
-    (async function fillPlays(tries) {
-      var els = document.querySelectorAll('.game-plays[data-plays]');
-      if (!els.length && tries < 30) { return setTimeout(function () { fillPlays(tries + 1); }, 120); }
-      var counts = await OB.getPlayCounts();
-      els.forEach(function (el) {
-        var n = counts[el.getAttribute('data-plays')] || 0;
-        var span = el.querySelector('span');
-        if (span) span.textContent = Number(n).toLocaleString();
-      });
-    })(0);
-
+    // Subscribe form: always intercept (no raw POST to "#"), even if the SDK failed to load.
     var f = document.querySelector('.signup-form');
     if (f) {
+      var fmsg = document.getElementById('signupMsg');
+      var say = function (t) { if (fmsg) fmsg.textContent = t; };
       f.addEventListener('submit', async function (e) {
         e.preventDefault();
         var input = f.querySelector('input[type=email]');
         var btn = f.querySelector('button');
         var email = input.value.trim();
-        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { input.style.borderColor = 'red'; return; }
-        btn.disabled = true; btn.textContent = 'INJECTING...';
-        var r = await OB.subscribe(email);
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+          input.style.borderColor = '#d00000';
+          say("That email doesn't look right — check for typos and try again.");
+          return;
+        }
+        input.style.borderColor = '';
+        if (!window.OB) {
+          say('Signup is temporarily down. Email squad@outpostboyz.com and we will add you by hand.');
+          return;
+        }
+        btn.disabled = true; btn.textContent = 'INJECTING...'; say('');
+        var r;
+        try { r = await OB.subscribe(email); } catch (err) { r = { error: { message: 'network' } }; }
         var ok = !r.error || r.error.code === '23505';
         if (ok) {
           f.innerHTML = '<p style="font-weight:900; letter-spacing:2px; font-size:15px;">YOU ARE IN THE EXPERIMENT. WELCOME TO THE SQUAD.</p>';
+          say('');
         } else {
           btn.disabled = false; btn.textContent = 'TRY AGAIN';
+          say("Couldn't reach the lab just now. Try again in a minute, or email squad@outpostboyz.com.");
         }
       });
     }
+
+    if (!window.OB) return;
+
+    // Fill the public play-count tickers on the arcade cards (only shown at 100+ plays).
+    (async function fillPlays(tries) {
+      var els = document.querySelectorAll('.game-plays[data-plays]');
+      if (!els.length && tries < 30) { return setTimeout(function () { fillPlays(tries + 1); }, 120); }
+      var counts = await OB.getPlayCounts();
+      els.forEach(function (el) {
+        var n = Number(counts[el.getAttribute('data-plays')] || 0);
+        var span = el.querySelector('span');
+        if (n >= 100 && span) { span.textContent = n.toLocaleString(); el.hidden = false; }
+        else { el.hidden = true; }
+      });
+    })(0);
+
     (async function () {
       var s = await OB.session();
       if (!s) return;
@@ -477,45 +507,57 @@
   <script>
   (async function () {
     var grid = document.getElementById('dropsGrid');
+    var gg = document.getElementById('gauntletGrid');
+    var tipBtn = document.getElementById('tipBtn');
+    function tipSoon() {
+      tipBtn.textContent = 'GRANTS DESK OPENS SOON';
+      tipBtn.style.background = 'transparent';
+      tipBtn.style.color = 'var(--grey)';
+      tipBtn.style.borderStyle = 'dashed';
+      tipBtn.style.borderColor = 'var(--grey)';
+    }
     try {
       var res = await fetch('games/store.json', { cache: 'no-cache' });
       var store = await res.json();
-      var tipBtn = document.getElementById('tipBtn');
       if (store.tipUrl) {
         tipBtn.href = store.tipUrl;
+        tipBtn.target = '_blank';
+        tipBtn.rel = 'noopener';
+        tipBtn.removeAttribute('role');
+        tipBtn.removeAttribute('aria-disabled');
       } else {
-        tipBtn.textContent = 'GRANTS DESK OPENS SOON';
-        tipBtn.style.background = 'transparent';
-        tipBtn.style.color = 'var(--grey)';
-        tipBtn.style.borderStyle = 'dashed';
-        tipBtn.style.borderColor = 'var(--grey)';
-        tipBtn.style.pointerEvents = 'none';
+        tipSoon();
       }
       var drops = store.drops || [];
-      if (!drops.length) { grid.innerHTML = '<p class="loading">FIRST DROP IN PRODUCTION.</p>'; }
-      else { grid.innerHTML = drops.map(function (g) {
-        var btn = g.available
-          ? '<a class="game-play" href="#" onclick="OB && OB.buy(\'' + g.slug + '\'); return false;">BUY ' + g.price + '</a>'
-          : '<span class="game-play dim">DROPPING SOON &#8212; ' + g.price + '</span>';
-        return '<article class="game-card" style="--gc:' + (g.color || '#000') + '">' +
-          '<span class="chip chip-hot game-badge">' + g.price + '</span>' +
-          '<div class="game-icon">' + (g.icon || '&#127918;') + '</div>' +
-          '<h3>' + g.title + '</h3><p>' + (g.tagline || '') + '</p>' + btn + '</article>';
-      }).join(''); }
+      if (drops.length) {
+        document.getElementById('drops').hidden = false;
+        if (window.renumberSections) renumberSections();
+        grid.innerHTML = drops.map(function (g) {
+          var btn = g.available
+            ? '<a class="game-play" href="#" onclick="OB && OB.buy(\'' + g.slug + '\'); return false;">BUY ' + g.price + '</a>'
+            : '<span class="game-play dim">DROPPING SOON &#8212; ' + g.price + '</span>';
+          return '<article class="game-card" style="--gc:' + (g.color || '#000') + '">' +
+            '<span class="chip chip-hot game-badge">' + g.price + '</span>' +
+            '<div class="game-icon" aria-hidden="true">' + (g.icon || '&#127918;') + '</div>' +
+            '<h3>' + g.title + '</h3><p>' + (g.tagline || '') + '</p>' + btn + '</article>';
+        }).join('');
+      }
 
-      var gg = document.getElementById('gauntletGrid');
       var gauntlet = store.gauntlet || [];
       if (!gauntlet.length) {
         gg.innerHTML = '<p class="loading">FIRST UNDEFEATED EXPERIMENT IN FABRICATION. BRING BANDAGES.</p>';
       } else {
         gg.innerHTML = gauntlet.map(function (g) {
-          var btn = g.available
+          var live = !!g.available;
+          var btn = live
             ? '<a class="game-play" href="#" onclick="OB && OB.buy(\'' + g.slug + '\'); return false;">$1 — UNLIMITED RUNS</a>'
-            : '<span class="game-play dim">DROPPING SOON</span>';
+            : '<span class="game-play dim">COMING SOON</span>';
+          var teaser = live ? '' :
+            '<p style="flex:0; font-weight:900; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--ink);">Not open yet — the $100 bounty opens at launch.</p>';
           return '<article class="game-card" style="--gc:' + (g.color || '#000') + '">' +
-            '<span class="chip chip-hot game-badge">$100 BOUNTY</span>' +
-            '<div class="game-icon">' + (g.icon || '&#128128;') + '</div>' +
-            '<h3>' + g.title + '</h3><p>' + (g.tagline || '') + '</p>' + btn + '</article>';
+            '<span class="chip chip-hot game-badge">' + (live ? '$100 BOUNTY' : 'COMING SOON') + '</span>' +
+            '<div class="game-icon" aria-hidden="true">' + (g.icon || '&#128128;') + '</div>' +
+            '<h3>' + g.title + '</h3><p>' + (g.tagline || '') + '</p>' + teaser + btn + '</article>';
         }).join('');
       }
       var bp = document.getElementById('beatPile');
@@ -523,12 +565,13 @@
       if (beat.length) {
         bp.innerHTML = beat.map(function (b) {
           return '<div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:14px 18px; border-bottom:2px solid var(--ink); font-size:14px;">' +
-            '<span><b>' + b.title + '</b> — conquered by <b style="color:var(--red);">' + b.winner + '</b> on ' + b.beatenAt + '</span>' +
+            '<span><b>' + b.title + '</b> — conquered by <b style="color:var(--red-text);">' + b.winner + '</b> on ' + b.beatenAt + '</span>' +
             '<span style="font-weight:900;">$100 CLAIMED</span></div>';
         }).join('');
       }
     } catch (e) {
-      grid.innerHTML = '<p class="loading">VAULT OFFLINE.</p>';
+      tipSoon();
+      gg.innerHTML = '<p class="loading">VAULT OFFLINE — REFRESH IN A MINUTE.</p>';
     }
   })();
   </script>
@@ -548,20 +591,52 @@
       var service = document.getElementById('svcType').value;
       var details = document.getElementById('svcDetails').value.trim();
       var msgEl = document.getElementById('svcMsg');
-      if (!name) { msgEl.textContent = 'Name us a name.'; msgEl.style.color = 'red'; return; }
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msgEl.textContent = 'That email looks off.'; msgEl.style.color = 'red'; return; }
-      if (!window.OB) { msgEl.textContent = 'Connection issue - refresh and retry.'; msgEl.style.color = 'red'; return; }
+      var bad = function (t) { msgEl.textContent = t; msgEl.style.color = '#d00000'; };
+      if (!name) { bad('Add your name so we know who to reply to.'); return; }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { bad("That email doesn't look right — check for typos."); return; }
+      if (!window.OB) { bad('Our form is temporarily down. Email squad@outpostboyz.com and we will take it from there.'); return; }
       this.disabled = true; this.textContent = 'TRANSMITTING...';
-      var r = await OB.client.from('service_requests').insert({ name: name, email: email, service: service, details: details || null });
+      var r;
+      try {
+        r = await OB.client.from('service_requests').insert({ name: name, email: email, service: service, details: details || null });
+      } catch (err) { r = { error: err || {} }; }
       if (r.error) {
         this.disabled = false; this.textContent = 'SEND IT TO THE LAB';
-        msgEl.textContent = r.error.message; msgEl.style.color = 'red';
+        bad("That didn't go through on our end. Try again in a minute, or email squad@outpostboyz.com directly.");
       } else {
         this.textContent = 'RECEIVED';
-        msgEl.textContent = 'The crew will hit your inbox within 48 hours.'; msgEl.style.color = 'green';
+        msgEl.textContent = 'The crew will hit your inbox within 48 hours.'; msgEl.style.color = '#1a7a0a';
       }
     });
   })();
+  </script>
+  <script>
+  (function () {
+    // TikTok click-to-load facades: no third-party iframes until someone taps.
+    document.querySelectorAll('.clip-facade').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var f = document.createElement('iframe');
+        f.src = 'https://www.tiktok.com/embed/v2/' + b.getAttribute('data-tt');
+        f.title = 'Outpost Boyz TikTok clip ' + b.getAttribute('data-n');
+        f.allow = 'encrypted-media; fullscreen; autoplay';
+        f.setAttribute('allowfullscreen', '');
+        b.parentNode.replaceChild(f, b);
+      });
+    });
+  })();
+  </script>
+  <script>
+  // Number only the sections that are actually showing (hidden ones like an empty DOPE DROPS don't leave a gap).
+  function renumberSections() {
+    var n = 0;
+    document.querySelectorAll('.sec-num').forEach(function (el) {
+      var sec = el.closest('section');
+      if (sec && sec.hidden) return;
+      n++;
+      el.textContent = '(' + (n < 10 ? '0' + n : n) + ')';
+    });
+  }
+  renumberSections();
   </script>
 </body>
 

@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#12131f">
 <title>Block Nine</title>
 <style>
   :root{
@@ -15,11 +16,18 @@
     --body: system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;height:100%}
+  html,body{margin:0;min-height:100%}
+  html{overscroll-behavior:none;-webkit-text-size-adjust:100%;background:var(--bg2)}
   body{background:radial-gradient(120% 80% at 50% -10%, #1c1e33, var(--bg2));color:var(--ink);
     font-family:var(--body);display:flex;flex-direction:column;align-items:center;
-    user-select:none;-webkit-user-select:none;overscroll-behavior:none;touch-action:manipulation}
-  .app{width:100%;max-width:480px;padding:14px 14px 24px;display:flex;flex-direction:column;gap:12px;min-height:100%}
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;overscroll-behavior:none;touch-action:manipulation}
+  /* --toppad clears the fixed home link on narrow screens; --chrome = everything on screen that isn't the board,
+     so board + tray always fit in one screen (no scrolling mid-drag) */
+  .app{--toppad:14px;--chrome:286px;width:100%;max-width:480px;
+    padding:calc(var(--toppad) + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));
+    display:flex;flex-direction:column;gap:12px;min-height:100vh;min-height:100dvh}
+  @media (max-width:760px){.app{--toppad:48px;--chrome:320px}}
+  .homelink{position:fixed;top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));z-index:99;font-family:ui-monospace,monospace;font-size:10px;letter-spacing:1px;color:#9aa0c2;text-decoration:none;background:rgba(13,14,24,0.8);border:1px solid #2c2f47;border-radius:8px;padding:7px 10px}
 
   .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
   .brand{display:flex;flex-direction:column;line-height:1}
@@ -37,7 +45,10 @@
   .scorebox .num{font-weight:900;font-size:26px;font-variant-numeric:tabular-nums;margin-top:2px}
   .scorebox.best .num{color:var(--accent)}
 
-  .boardwrap{position:relative;width:100%;aspect-ratio:1;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+  .boardwrap{position:relative;width:100%;align-self:center;
+    max-width:max(260px, calc(100vh - var(--chrome) - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+    max-width:max(260px, calc(100svh - var(--chrome) - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+    aspect-ratio:1;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
   #board{position:relative;width:100%;height:100%;display:grid;grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(9,1fr);gap:3px;touch-action:none}
   .c{background:var(--cell);border-radius:5px;transition:background .05s, transform .07s}
   /* subtle 3x3 box tint (no margins — keeps drag math uniform) */
@@ -73,6 +84,11 @@
   .btn{border:0;border-radius:12px;padding:13px 26px;font-weight:800;font-size:16px;cursor:pointer;background:var(--accent);color:#241701}
   .btn.ghostbtn{background:transparent;border:1px solid var(--line2);color:var(--ink)}
   .hint{font-family:var(--mono);font-size:11px;color:var(--ink-faint);text-align:center;letter-spacing:.04em}
+  .hint.keys{display:none}
+  @media (hover:hover) and (pointer:fine){.hint.keys{display:block;margin-top:-6px}}
+  .slot.kbsel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .over .how{font-size:14px;color:var(--ink-dim);line-height:1.55;max-width:300px}
+  .over .how b{color:var(--ink)}
   .chal{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;margin-top:2px}
   .chalrow{display:flex;gap:8px;align-items:center}
   .clab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);white-space:nowrap}
@@ -82,15 +98,16 @@
   #codeIn{flex:1;min-width:0;background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--ink);font-family:var(--mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase}
   #codeIn::placeholder{color:var(--ink-faint);letter-spacing:0;text-transform:none}
   .chalnote{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:center}
-  .toast2{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(16px);opacity:0;background:var(--good);color:#04231a;font-family:var(--mono);font-size:13px;font-weight:800;padding:11px 18px;border-radius:10px;pointer-events:none;transition:.22s;z-index:200}
+  .toast2{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);opacity:0;background:var(--good);color:#04231a;font-family:var(--mono);font-size:13px;font-weight:800;padding:11px 18px;border-radius:10px;pointer-events:none;transition:.22s;z-index:200}
   .toast2.show{opacity:1;transform:translateX(-50%) translateY(0)}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-
-<a href="../../" style="position:fixed;top:10px;right:10px;z-index:99;font-family:ui-monospace,monospace;font-size:10px;letter-spacing:1px;color:#9aa0c2;text-decoration:none;background:rgba(13,14,24,0.8);border:1px solid #2c2f47;border-radius:8px;padding:7px 10px;">&#9666; OUTPOST BOYZ</a>
+</head>
+<body>
+<a href="../../" class="homelink">&#9666; OUTPOST BOYZ</a>
 <div class="app">
   <div class="top">
-    <div class="brand"><span class="t">BLOCK <b>NINE</b></span><span class="s">Outpost Boys</span></div>
+    <div class="brand"><span class="t">BLOCK <b>NINE</b></span><span class="s">Outpost Boyz</span></div>
     <div class="modewrap" id="modes">
       <button class="mode" data-mode="normal" aria-pressed="true">Chill</button>
       <button class="mode hard" data-mode="hard" aria-pressed="false">Hard</button>
@@ -113,10 +130,16 @@
       <button class="btn ghostbtn" id="copyFin">Copy code — challenge a friend</button>
       <button class="btn" id="again">Play again</button>
     </div>
+    <div class="over" id="help">
+      <h2>How to play</h2>
+      <div class="how"><b>Drag</b> a piece onto the grid.<br><b>Tap</b> a piece to rotate it ↻<br>Fill a <b>row</b>, <b>column</b> or <b>3×3 box</b> to clear it.<br>Clear several at once — or back to back — for combos.<br>No room for any piece? Game over.</div>
+      <button class="btn" id="helpOk">Got it</button>
+    </div>
   </div>
 
   <div class="tray" id="tray"></div>
   <div class="hint">Tap a piece to rotate ↻ &nbsp;•&nbsp; drag it onto the grid &nbsp;•&nbsp; fill a row, column, or 3×3 box to clear.</div>
+  <div class="hint keys">Keys: 1–3 pick &nbsp;•&nbsp; arrows move &nbsp;•&nbsp; R rotate &nbsp;•&nbsp; Enter place &nbsp;•&nbsp; Esc drop</div>
   <div class="chal">
     <div class="chalrow"><span class="clab">Board code</span><span id="code">—</span><button class="cbtn" id="copyCode">Copy</button></div>
     <div class="chalrow"><input id="codeIn" placeholder="Enter a friend's code…" autocomplete="off" spellcheck="false"><button class="cbtn go" id="goCode">Play it</button></div>
@@ -128,7 +151,9 @@
 <script>
 const N=9, BOX=3;
 let board, pieces, score, combo, mode, best, dragging=null;
+let runStartBest=0, runSubmitted=false, kb=null; // kb = keyboard selection {idx,row,col}
 const boardEl=document.getElementById('board');
+const helpEl=document.getElementById('help');
 const trayEl=document.getElementById('tray');
 const scoreEl=document.getElementById('score');
 const bestEl=document.getElementById('best');
@@ -186,7 +211,8 @@ function pick(bag){
   return bag[0][0];
 }
 // seeded RNG so a shared code reproduces the exact same run
-function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+// .state() exposes the internal counter so a saved run resumes the SAME piece sequence (challenge codes stay fair)
+function mulberry32(a){a|=0;const f=function(){a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};f.state=()=>a;return f;}
 let rng=Math.random, curSeed=0;
 function encodeCode(){return (mode==='hard'?'H':'C')+curSeed.toString(36).toUpperCase();}
 function decodeCode(str){str=(str||'').trim().toUpperCase();if(!str)return null;
@@ -216,7 +242,7 @@ function rotatePiece(idx){const p=pieces[idx];if(p.used)return;
 function renderTray(){
   trayEl.innerHTML='';
   pieces.forEach((p,i)=>{
-    const slot=document.createElement('div');slot.className='slot'+(p.used?' used':'');
+    const slot=document.createElement('div');slot.className='slot'+(p.used?' used':'')+(kb&&kb.idx===i&&!p.used?' kbsel':'');
     if(!p.used){
       const{h,w}=pieceDims(p.shape);
       const wrap=document.createElement('div');wrap.className='piece';
@@ -237,16 +263,21 @@ function renderTray(){
 }
 
 function metrics(){const rect=boardEl.getBoundingClientRect();const cs=(rect.width-GAP*(N-1))/N;return{rect,cs,step:cs+GAP};}
+function gameIsOver(){return overEl.classList.contains('show');}
 
 function startDrag(e,idx){
-  if(pieces[idx].used)return;
+  if(dragging||gameIsOver())return;                    // one finger at a time — a 2nd touch is ignored
+  if(e.pointerType==='mouse'&&e.button!==0)return;
+  if(!pieces[idx]||pieces[idx].used)return;
   e.preventDefault();
-  const p=pieces[idx];const{cs}=metrics();
+  kbClear();
+  if(helpEl.classList.contains('show'))hideHelp();
+  const p=pieces[idx];const m=metrics();const cs=m.cs;
   const g=document.createElement('div');g.className='ghost';
   const{h,w}=pieceDims(p.shape);
   g.style.gridTemplateColumns=`repeat(${w},${cs}px)`;
   g.style.gridTemplateRows=`repeat(${h},${cs}px)`;
-  g.style.gap='3px';
+  g.style.gap=GAP+'px';
   const set=new Set(p.shape.map(([r,c])=>r+'_'+c));
   for(let r=0;r<h;r++)for(let c=0;c<w;c++){
     const b=document.createElement('div');b.style.width=cs+'px';b.style.height=cs+'px';b.style.borderRadius='5px';
@@ -254,25 +285,36 @@ function startDrag(e,idx){
   }
   g.style.display='none';
   document.body.appendChild(g);
+  try{e.currentTarget.setPointerCapture(e.pointerId);}catch(_){}
   const slotEl=trayEl.children[idx]; if(slotEl)slotEl.classList.add('lifted');
-  dragging={idx,p,g,w,h,cs,startX:e.clientX,startY:e.clientY,moved:false};
+  // touch/pen: piece floats ABOVE the finger so it stays visible; mouse: piece is centred on the cursor
+  const lift=(e.pointerType==='mouse')?null:52;
+  dragging={idx,p,g,w,h,cs,m,lift,pid:e.pointerId,startX:e.clientX,startY:e.clientY,moved:false,tr:null,tc:null};
   moveGhost(e.clientX,e.clientY);
   window.addEventListener('pointermove',onMove,{passive:false});
   window.addEventListener('pointerup',onUp);
+  window.addEventListener('pointercancel',onCancel);
 }
 function moveGhost(x,y){
-  if(!dragging)return;const{g,w,h,cs}=dragging;
+  if(!dragging)return;const{g,w,h,cs,lift}=dragging;
   const pxw=w*cs+(w-1)*GAP, pxh=h*cs+(h-1)*GAP;
-  // center horizontally on finger, lift the piece ABOVE the finger so it's visible
-  const left=x-pxw/2, top=y-pxh-52;
+  const left=x-pxw/2, top=(lift===null)?y-pxh/2:y-pxh-lift;
   g.style.transform=`translate(${left}px,${top}px)`;
   dragging.originX=left;dragging.originY=top;
 }
 function targetCell(){
-  const{rect,step}=metrics();const{originX,originY}=dragging;
-  const col=Math.round((originX-rect.left)/step);
-  const row=Math.round((originY-rect.top)/step);
-  return{row,col};
+  const m=dragging.m||(dragging.m=metrics());
+  const{rect,step}=m;const{originX,originY,p}=dragging;
+  const fc=(originX-rect.left)/step, fr=(originY-rect.top)/step;
+  const row=Math.round(fr), col=Math.round(fc);
+  if(canPlace(p.shape,row,col))return{row,col};
+  // forgiving snap: nearest cell doesn't fit → take the closest neighbouring one that does (within ¾ of a cell)
+  let best=null,bd=1e9;
+  for(const r of [Math.floor(fr),Math.ceil(fr)])for(const c of [Math.floor(fc),Math.ceil(fc)]){
+    if(Math.abs(r-fr)>0.75||Math.abs(c-fc)>0.75||!canPlace(p.shape,r,c))continue;
+    const d=(r-fr)*(r-fr)+(c-fc)*(c-fc);if(d<bd){bd=d;best={row:r,col:c};}
+  }
+  return best||{row,col};
 }
 function canPlace(shape,row,col){
   for(const[dr,dc]of shape){const r=row+dr,c=col+dc;
@@ -281,39 +323,55 @@ function canPlace(shape,row,col){
   return true;
 }
 function clearPrev(){cells.forEach(d=>d.classList.remove('prev','bad'));}
+function showPreview(shape,row,col){
+  clearPrev();const ok=canPlace(shape,row,col);
+  for(const[dr,dc]of shape){const r=row+dr,c=col+dc;
+    if(r>=0&&r<N&&c>=0&&c<N){const el=cellAt(r,c);el.classList.add('prev');if(!ok)el.classList.add('bad');}}
+}
 function onMove(e){
-  if(!dragging)return;e.preventDefault();
+  if(!dragging||e.pointerId!==dragging.pid)return;e.preventDefault();
   if(!dragging.moved){const dx=e.clientX-dragging.startX,dy=e.clientY-dragging.startY;
     if(dx*dx+dy*dy>81){dragging.moved=true;dragging.g.style.display='grid';}}
   moveGhost(e.clientX,e.clientY);
-  clearPrev();
   if(!dragging.moved)return;
-  const{row,col}=targetCell();const ok=canPlace(dragging.p.shape,row,col);
-  for(const[dr,dc]of dragging.p.shape){const r=row+dr,c=col+dc;
-    if(r>=0&&r<N&&c>=0&&c<N){const el=cellAt(r,c);el.classList.add('prev');if(!ok)el.classList.add('bad');}}
+  const t=targetCell();
+  if(t.row===dragging.tr&&t.col===dragging.tc)return;   // only repaint the preview when the target changes
+  dragging.tr=t.row;dragging.tc=t.col;
+  showPreview(dragging.p.shape,t.row,t.col);
 }
-function onUp(){
+function endDrag(){
   if(!dragging)return;
   window.removeEventListener('pointermove',onMove);
   window.removeEventListener('pointerup',onUp);
-  const{p,idx,g,moved}=dragging;
-  const slotEl=trayEl.children[idx]; if(slotEl)slotEl.classList.remove('lifted');
-  g.remove();clearPrev();
-  if(!moved){ rotatePiece(idx); sizePieces(); renderTray(); dragging=null; return; }
-  const t=targetCell();
-  if(canPlace(p.shape,t.row,t.col)){
-    for(const[dr,dc]of p.shape){board[t.row+dr][t.col+dc]=p.color;}
-    paintBoard();
-    score+=p.shape.length;
-    pieces[idx].used=true;
-    resolveClears();
-    if(pieces.every(pp=>pp.used))refillPieces();
-    renderTray();
-    updateScore();
-    checkGameOver();
-    if(!overEl.classList.contains('show'))saveGame();
-  }
+  window.removeEventListener('pointercancel',onCancel);
+  const slotEl=trayEl.children[dragging.idx]; if(slotEl)slotEl.classList.remove('lifted');
+  dragging.g.remove();clearPrev();
   dragging=null;
+}
+function onCancel(e){if(dragging&&e.pointerId===dragging.pid)endDrag();}
+function onUp(e){
+  if(!dragging||e.pointerId!==dragging.pid)return;
+  const{idx,moved}=dragging;
+  let t=null;
+  if(moved){moveGhost(e.clientX,e.clientY);t=targetCell();}
+  endDrag();
+  if(!moved){ rotatePiece(idx); sizePieces(); renderTray(); saveGame(); return; }
+  placePiece(idx,t.row,t.col);
+}
+function placePiece(idx,row,col){
+  const p=pieces[idx];
+  if(!p||p.used||!canPlace(p.shape,row,col))return false;
+  for(const[dr,dc]of p.shape){board[row+dr][col+dc]=p.color;}
+  paintBoard();
+  score+=p.shape.length;
+  p.used=true;
+  resolveClears();
+  if(pieces.every(pp=>pp.used))refillPieces();
+  renderTray();
+  updateScore();
+  checkGameOver();
+  if(!gameIsOver())saveGame();
+  return true;
 }
 
 function paintBoard(){
@@ -342,7 +400,9 @@ function resolveClears(){
   const gained=cellsCleared*2 + lines*10*combo + (lines>1?lines*15:0);
   score+=gained;
   toClear.forEach(k=>{const[r,c]=k.split('_').map(Number);board[r][c]=0;cellAt(r,c).classList.add('clearing');});
-  setTimeout(()=>{toClear.forEach(k=>{const[r,c]=k.split('_').map(Number);const el=cellAt(r,c);el.classList.remove('clearing','fill');el.style.background='';});},130);
+  // after the pop, repaint from the board (a piece may already have been dropped into a cleared cell, or a new game started)
+  setTimeout(()=>{toClear.forEach(k=>{const[r,c]=k.split('_').map(Number);const el=cellAt(r,c);el.classList.remove('clearing');
+    if(board[r][c]){el.classList.add('fill');el.style.background=board[r][c];}else{el.classList.remove('fill');el.style.background='';}});},130);
   if(lines>1||combo>1){
     comboEl.textContent=(combo>1?combo+'x ':'')+ (lines>1?lines+' CLEARS!':'CLEAR!');
     comboEl.classList.remove('show');void comboEl.offsetWidth;comboEl.classList.add('show');
@@ -350,25 +410,34 @@ function resolveClears(){
   updateScore();
 }
 
+// A piece can be tapped through all 8 orientations, so the game is only over when NO orientation of ANY piece fits.
+function fitsSomewhere(shape){for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(canPlace(shape,r,c))return true;return false;}
 function anyMove(){
   for(const p of pieces){if(p.used)continue;
-    for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(canPlace(p.shape,r,c))return true;}
+    for(let s=0;s<8;s++)if(fitsSomewhere(orient(p.base,s)))return true;}
   return false;
 }
+function submitRun(ended){ // exactly once per run; integer score; safe if the SDK failed to load
+  if(runSubmitted)return;runSubmitted=true;
+  const s=Math.max(0,Math.floor(Number(score)||0));
+  try{if(window.OB){if(s>0)OB.submitScore('block-nine',s);if(ended)OB.gameOver('block-nine');}}catch(e){}
+}
 function checkGameOver(){
-  if(!anyMove()){
-    const isBest=score>best;
-    if(isBest){best=score;saveBest();bestEl.textContent=best;}
-    document.getElementById('finalScore').textContent=score;
-    document.getElementById('finCode').textContent=encodeCode();
-    document.getElementById('newbest').style.display=isBest?'block':'none';
-    overEl.classList.add('show'); clearSave(); if(window.OB){OB.submitScore('block-nine',score);OB.gameOver('block-nine');}
-  }
+  if(anyMove())return false;
+  kbClear();
+  const isBest=score>0&&score>runStartBest;
+  if(score>best){best=score;saveBest();}
+  bestEl.textContent=best;
+  document.getElementById('finalScore').textContent=score;
+  document.getElementById('finCode').textContent=encodeCode();
+  document.getElementById('newbest').style.display=isBest?'block':'none';
+  overEl.classList.add('show'); clearSave(); submitRun(true);
+  return true;
 }
 function updateScore(){scoreEl.textContent=score;if(score>best){best=score;bestEl.textContent=best;saveBest();}}
 function bestKey(){return 'blocknine_best_'+mode;}
-function loadBest(){best=parseInt(localStorage.getItem(bestKey())||'0',10)||0;bestEl.textContent=best;}
-function saveBest(){try{localStorage.setItem(bestKey(),String(best));}catch(e){} if(window.OB)OB.submitScore('block-nine',best);}
+function loadBest(){let v=0;try{v=parseInt(localStorage.getItem(bestKey())||'0',10)||0;}catch(e){}best=Math.max(0,v);bestEl.textContent=best;}
+function saveBest(){try{localStorage.setItem(bestKey(),String(best));}catch(e){}}
 
 function preseed(){ // Hard mode starts with scattered blocks
   if(mode!=='hard')return;
@@ -380,14 +449,18 @@ function sizePieces(){ // fit tray piece blocks to slot width
   const pb=Math.max(14,Math.min(24,Math.floor(slotW/5)));
   document.documentElement.style.setProperty('--pb',pb+'px');
 }
-function flash(msg){const t=document.getElementById('toast2');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1500);}
+function flash(msg,ms){const t=document.getElementById('toast2');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),ms||1500);}
+function syncModeButtons(){document.querySelectorAll('.mode').forEach(m=>m.setAttribute('aria-pressed',String(m.dataset.mode===mode)));}
 function newGame(seed){
+  if(!runSubmitted&&score>0)submitRun(false);  // abandoned mid-run (mode switch / friend's code): still counts on the board
+  endDrag();kbClear();
   curSeed=(seed===undefined||seed===null)?(Math.floor(Math.random()*4294967296)>>>0):(seed>>>0);
   rng=mulberry32(curSeed);
   board=Array.from({length:N},()=>Array(N).fill(0));
-  score=0;combo=0;
+  score=0;combo=0;runSubmitted=false;
+  syncModeButtons();
   buildBoardDOM();preseed();paintBoard();
-  loadBest();refillPieces();updateScore();
+  loadBest();runStartBest=best;refillPieces();updateScore();
   overEl.classList.remove('show');
   sizePieces();renderTray();
   const ce=document.getElementById('code');if(ce)ce.textContent=encodeCode();
@@ -395,45 +468,151 @@ function newGame(seed){
 }
 
 var SAVE_KEY='blocknine_save';
-function saveGame(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({v:1,board:board,score:score,combo:combo,mode:mode,curSeed:curSeed,pieces:pieces}));}catch(e){}}
-function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
-function restoreGame(){
-  try{
-    var s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
-    if(!s||s.v!==1||!Array.isArray(s.board)||!Array.isArray(s.pieces))return false;
-    mode=s.mode||'normal';curSeed=(s.curSeed>>>0);rng=mulberry32(curSeed);
-    board=s.board;score=s.score||0;combo=s.combo||0;pieces=s.pieces;
-    document.querySelectorAll('.mode').forEach(function(m){m.setAttribute('aria-pressed',m.dataset.mode===mode);});
-    buildBoardDOM();paintBoard();loadBest();updateScore();
-    overEl.classList.remove('show');sizePieces();renderTray();
-    var ce=document.getElementById('code');if(ce)ce.textContent=encodeCode();
-    return true;
-  }catch(e){return false;}
+function saveGame(){
+  if(!board||!pieces)return;
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,board:board,score:score,combo:combo,mode:mode,curSeed:curSeed,
+    rng:(rng&&rng.state)?rng.state():null,startBest:runStartBest,pieces:pieces}));}catch(e){}
 }
-document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'&&!overEl.classList.contains('show'))saveGame();});
+function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
+const COLOR_RE=/^#[0-9a-fA-F]{3,8}$/;
+function validShape(a){return Array.isArray(a)&&a.length>0&&a.length<=9&&a.every(q=>Array.isArray(q)&&q.length===2&&q.every(v=>Number.isInteger(v)&&v>=0&&v<5));}
+// Validates EVERYTHING before touching game state: a corrupt / old / hand-edited save just starts a fresh game.
+function restoreGame(){
+  let s;
+  try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return false;s=JSON.parse(raw);}catch(e){clearSave();return false;}
+  try{
+    if(!s||typeof s!=='object'||(s.v!==1&&s.v!==2))throw 0;
+    const m=s.mode==='hard'?'hard':(s.mode==='normal'||s.mode==null?'normal':null);if(!m)throw 0;
+    if(!Array.isArray(s.board)||s.board.length!==N)throw 0;
+    const b=s.board.map(row=>{if(!Array.isArray(row)||row.length!==N)throw 0;return row.map(v=>(typeof v==='string'&&COLOR_RE.test(v))?v:0);});
+    if(!Array.isArray(s.pieces)||s.pieces.length!==3)throw 0;
+    const ps=s.pieces.map(p=>{
+      if(!p||typeof p!=='object')throw 0;
+      const raw=validShape(p.base)?p.base:(validShape(p.shape)?p.shape:null);if(!raw)throw 0;
+      const base=normShape(raw);
+      const step=(Number.isInteger(p.step)&&p.step>=0&&p.step<8)?p.step:0;
+      return{base,step,shape:orient(base,step),color:(typeof p.color==='string'&&COLOR_RE.test(p.color))?p.color:PAL[0],used:p.used===true};
+    });
+    const sc=Number(s.score),cb=Number(s.combo);
+    // --- commit ---
+    endDrag();kbClear();
+    mode=m;board=b;pieces=ps;
+    score=(Number.isFinite(sc)&&sc>=0)?Math.floor(sc):0;
+    combo=(Number.isFinite(cb)&&cb>=0)?Math.floor(cb):0;
+    curSeed=(Number(s.curSeed)>>>0);
+    rng=mulberry32(Number.isInteger(s.rng)?s.rng:curSeed); // v1 saves had no rng state
+    syncModeButtons();
+    buildBoardDOM();paintBoard();loadBest();
+    runStartBest=Number.isFinite(s.startBest)?s.startBest:(score>=best?0:best);
+    runSubmitted=false;
+    overEl.classList.remove('show');
+    if(pieces.every(p=>p.used))refillPieces();
+    updateScore();sizePieces();renderTray();
+    const ce=document.getElementById('code');if(ce)ce.textContent=encodeCode();
+    if(!checkGameOver())saveGame(); // a saved run with no moves left ends properly (score submitted once)
+    return true;
+  }catch(e){clearSave();return false;}
+}
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'&&!gameIsOver())saveGame();});
+window.addEventListener('pagehide',function(){if(!gameIsOver())saveGame();});
 
+// ---- confirm before throwing away a run in progress (tap twice; no modal dialogs so it works in kiosk/iframe) ----
+let armedKey=null,armedT=0;
+function confirmAbandon(key,msg){
+  if(!(score>0&&!gameIsOver()))return true;
+  if(armedKey===key&&Date.now()-armedT<2500){armedKey=null;return true;}
+  armedKey=key;armedT=Date.now();flash(msg,2500);return false;
+}
 document.getElementById('modes').addEventListener('click',e=>{
   const b=e.target.closest('.mode');if(!b)return;
+  if(b.dataset.mode===mode&&!gameIsOver())return;        // tapping the active mode no longer wipes the run
+  if(!confirmAbandon('mode-'+b.dataset.mode,'Tap again to end this run and start '+b.textContent))return;
   mode=b.dataset.mode;
-  document.querySelectorAll('.mode').forEach(m=>m.setAttribute('aria-pressed',m===b));
   newGame();
 });
 document.getElementById('again').addEventListener('click',()=>newGame(curSeed)); // replay SAME board
-function copyCode(){navigator.clipboard.writeText(encodeCode()).then(()=>flash('Code copied — send it to your friend!')).catch(()=>flash('Copy failed'));}
+function copyCode(){
+  const code=encodeCode();
+  try{
+    if(navigator.clipboard&&window.isSecureContext){
+      navigator.clipboard.writeText(code).then(()=>flash('Code copied — send it to your friend!')).catch(()=>flash('Your code: '+code,3500));
+      return;
+    }
+  }catch(e){}
+  flash('Your code: '+code,3500);
+}
 document.getElementById('copyCode').addEventListener('click',copyCode);
 document.getElementById('copyFin').addEventListener('click',copyCode);
 document.getElementById('goCode').addEventListener('click',()=>{
   const d=decodeCode(document.getElementById('codeIn').value);
   if(!d){flash('Hmm — that code looks wrong');return;}
-  mode=d.mode;document.querySelectorAll('.mode').forEach(m=>m.setAttribute('aria-pressed',m.dataset.mode===mode));
+  if(!confirmAbandon('code','Tap Play it again to end this run'))return;
+  mode=d.mode;
   newGame(d.seed);document.getElementById('codeIn').value='';flash('Loaded their board — good luck!');
 });
 document.getElementById('codeIn').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('goCode').click();});
-window.addEventListener('resize',()=>{sizePieces();renderTray();});
+let lastW=window.innerWidth;
+window.addEventListener('resize',()=>{
+  sizePieces();                                         // --pb is a CSS var: no tray rebuild needed
+  if(dragging){if(window.innerWidth!==lastW)endDrag();else dragging.m=null;} // rotation mid-drag cancels cleanly
+  lastW=window.innerWidth;
+});
+// touch safety: never let the page scroll / pinch-zoom while a piece is held
+document.addEventListener('touchmove',e=>{if(dragging)e.preventDefault();},{passive:false});
+document.addEventListener('gesturestart',e=>e.preventDefault());
+
+// ---- first-run how-to ----
+function hideHelp(){helpEl.classList.remove('show');try{localStorage.setItem('blocknine_help_seen','1');}catch(e){}}
+function maybeShowHelp(){let seen=null;try{seen=localStorage.getItem('blocknine_help_seen');}catch(e){seen='1';}if(!seen&&!gameIsOver())helpEl.classList.add('show');}
+document.getElementById('helpOk').addEventListener('click',hideHelp);
+
+// ---- keyboard play: 1-3 pick, arrows move, R rotate, Enter/Space place, Esc drop ----
+function kbClear(){if(!kb)return;kb=null;clearPrev();Array.from(trayEl.children).forEach(s=>s.classList.remove('kbsel'));}
+function kbShow(){
+  const p=pieces[kb.idx];const{h,w}=pieceDims(p.shape);
+  kb.row=Math.max(0,Math.min(N-h,kb.row));kb.col=Math.max(0,Math.min(N-w,kb.col));
+  showPreview(p.shape,kb.row,kb.col);
+  Array.from(trayEl.children).forEach((s,i)=>s.classList.toggle('kbsel',i===kb.idx));
+}
+function kbSelect(i){
+  if(i<0||!pieces[i]||pieces[i].used)return;
+  kb={idx:i,row:kb?kb.row:3,col:kb?kb.col:3};
+  if(document.activeElement&&document.activeElement!==document.body&&document.activeElement.blur)document.activeElement.blur();
+  kbShow();
+}
+document.addEventListener('keydown',e=>{
+  const tg=e.target;
+  if(tg&&(tg.tagName==='INPUT'||tg.tagName==='TEXTAREA'))return;
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  const k=e.key;
+  if(helpEl.classList.contains('show')){if(k==='Enter'||k==='Escape'||k===' '){e.preventDefault();hideHelp();}return;}
+  if(gameIsOver()||dragging)return;
+  const firstFree=()=>pieces.findIndex(p=>!p.used);
+  if(k==='1'||k==='2'||k==='3'){e.preventDefault();kbSelect(+k-1);return;}
+  const moves={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]};
+  if(!kb){
+    if(moves[k]||k==='r'||k==='R'||((k==='Enter'||k===' ')&&!(tg&&tg.closest&&tg.closest('button,a')))){e.preventDefault();kbSelect(firstFree());}
+    return;
+  }
+  if(moves[k]){e.preventDefault();kb.row+=moves[k][0];kb.col+=moves[k][1];kbShow();return;}
+  if(k==='r'||k==='R'){e.preventDefault();rotatePiece(kb.idx);renderTray();kbShow();saveGame();return;}
+  if(k==='Escape'){e.preventDefault();kbClear();return;}
+  if(k==='Enter'||k===' '){
+    e.preventDefault();
+    const{idx,row,col}=kb;
+    if(!placePiece(idx,row,col))return;                 // red preview already shows why
+    if(gameIsOver()){kb=null;return;}
+    const f=firstFree();
+    kbClear();if(f>=0){kb={idx:f,row,col};kbShow();}
+  }
+});
 
 mode='normal';
 if(!restoreGame())newGame();
+maybeShowHelp();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../../assets/ob-sdk.js"></script>
+</body>
+</html>

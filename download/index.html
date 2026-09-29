@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play Anywhere — Outpost Boyz Arcade</title>
+  <meta name="description" content="Install the Outpost Boyz free arcade on iPhone, Android, PC or Mac and play offline — or download the pack for your Batocera / Raspberry Pi arcade cabinet.">
+  <meta name="theme-color" content="#000000">
+  <link rel="canonical" href="https://outpostboyz.com/download/">
+  <meta property="og:title" content="Play Anywhere — Outpost Boyz Arcade">
+  <meta property="og:description" content="Free arcade games on your phone, your PC, or your arcade cabinet. Installs in seconds, plays offline.">
+  <meta property="og:url" content="https://outpostboyz.com/download/">
+  <meta property="og:image" content="https://outpostboyz.com/assets/crew.jpg">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Outpost Arcade">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white' font-family='Arial Black'>OB</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .dl-wrap { max-width: 1120px; margin: 0 auto; padding: 56px 24px 90px; }
+    .dl-h { font-family: var(--disp); font-size: clamp(40px, 10vw, 88px); letter-spacing: -2px; text-transform: uppercase; line-height: 0.95; }
+    .dl-sub { color: var(--grey); font-size: 16px; margin-top: 14px; max-width: 600px; }
+    .dl-jump { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px; }
+    .dl-jump a { text-decoration: none; }
+    .dl-grid { display: grid; gap: 26px; margin-top: 48px; }
+    .dl-card { border: var(--bw) solid var(--ink); border-top-width: 8px; padding: 28px 24px; scroll-margin-top: 90px; }
+    .dl-card.ios { border-top-color: #4dd8ff; }
+    .dl-card.and { border-top-color: #39ff14; }
+    .dl-card.arc { border-top-color: #ffb454; }
+    .dl-kicker { font-weight: 900; font-size: 13px; letter-spacing: 1px; color: var(--red); text-transform: uppercase; }
+    .dl-card h2 { font-family: var(--disp); font-size: clamp(26px, 5vw, 40px); letter-spacing: -1px; text-transform: uppercase; line-height: 1.05; margin: 4px 0 14px; }
+    .dl-card p { color: var(--grey); font-size: 15px; max-width: 680px; }
+    .dl-steps { margin: 16px 0 0; padding: 0; list-style: none; counter-reset: s; max-width: 720px; }
+    .dl-steps li { counter-increment: s; position: relative; padding: 12px 0 12px 46px; border-top: 1px solid #ddd; font-size: 15px; }
+    .dl-steps li:last-child { border-bottom: 1px solid #ddd; }
+    .dl-steps li::before { content: counter(s); position: absolute; left: 0; top: 10px; width: 30px; height: 30px; display: grid; place-items: center; background: var(--ink); color: var(--paper); font-weight: 900; font-size: 14px; border-radius: 4px 4px 10px 10px; }
+    .dl-steps b { font-weight: 900; }
+    .dl-steps code, .dl-code { font-family: ui-monospace, Consolas, monospace; font-size: 13px; background: #f1f1f1; padding: 1px 5px; border-radius: 3px; word-break: break-all; }
+    .dl-code { display: block; padding: 10px 12px; margin-top: 8px; white-space: pre-wrap; }
+    .dl-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 20px; }
+    .dl-note { font-size: 13px; color: var(--grey); margin-top: 12px; }
+    #installBtn[hidden] { display: none; }
+    .dl-ok { display: none; font-weight: 900; color: #000; background: #39ff14; padding: 10px 14px; border-radius: 4px 4px 12px 12px; font-size: 14px; }
+    .dl-sub2 { font-family: var(--disp); font-size: 18px; text-transform: uppercase; margin: 26px 0 4px; }
+    .dl-table { width: 100%; max-width: 760px; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+    .dl-table th, .dl-table td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ddd; vertical-align: top; }
+    .dl-table th { font-weight: 900; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; border-bottom: 2px solid var(--ink); }
+    .dl-table td:first-child { font-weight: 900; white-space: nowrap; }
+    @media (max-width: 560px) { .dl-card { padding: 22px 16px; } .dl-steps li { padding-left: 42px; } }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="nav-logo" href="../">OUTPOST&nbsp;BOYZ</a>
+    <div class="nav-links">
+      <a href="../#arcade">Arcade</a>
+      <a href="../#steam">Steam</a>
+      <a href="../leaderboard/">Ranks</a>
+      <a href="../account/" id="navAccount">Sign In</a>
+    </div>
+  </nav>
+
+  <main class="dl-wrap">
+    <h1 class="dl-h">Play<br>Anywhere</h1>
+    <p class="dl-sub">Every free game in THE LAB installs like an app — on your phone, your computer, or your arcade cabinet. No store, no account, no catch. Open it once online and it keeps playing offline.</p>
+    <div class="dl-jump">
+      <a class="chip" href="#iphone">iPhone / iPad</a>
+      <a class="chip" href="#android">Android + PC / Mac</a>
+      <a class="chip" href="#arcade">Arcade / Raspberry Pi</a>
+    </div>
+
+    <div class="dl-grid">
+      <section class="dl-card ios" id="iphone">
+        <span class="dl-kicker">01 / iPhone + iPad</span>
+        <h2>Add to Home Screen</h2>
+        <p>Apple only allows installs from Safari — it takes about ten seconds.</p>
+        <ol class="dl-steps">
+          <li>Open <b>outpostboyz.com</b> in <b>Safari</b> (not Chrome or an in-app browser like TikTok or Instagram).</li>
+          <li>Tap the <b>Share</b> button — the square with the arrow pointing up.</li>
+          <li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>
+          <li>Launch <b>Outpost Arcade</b> from your home screen once while you're online, and open each game you want. After that they play <b>offline</b> — full screen, no browser bars.</li>
+        </ol>
+        <p class="dl-note">RUN THE BOARD's recorded host voice needs a connection; offline it switches to your phone's built-in voice.</p>
+      </section>
+
+      <section class="dl-card and" id="android">
+        <span class="dl-kicker">02 / Android + PC / Mac</span>
+        <h2>Install the app</h2>
+        <p>Chrome and Edge can install the arcade as a real app with its own icon and window.</p>
+        <div class="dl-row">
+          <button class="btn btn-solid" id="installBtn" type="button" hidden>INSTALL OUTPOST ARCADE</button>
+          <span class="dl-ok" id="installedMsg">INSTALLED — CHECK YOUR HOME SCREEN / APPS</span>
+        </div>
+        <p class="dl-note" id="installHint">No install button? Your browser handles it from its menu — steps below.</p>
+        <ol class="dl-steps">
+          <li><b>Android (Chrome):</b> tap the <b>⋮</b> menu → <b>Install app</b> (or <b>Add to Home screen</b>) → <b>Install</b>.</li>
+          <li><b>PC / Mac (Chrome):</b> click the install icon at the right end of the address bar, or <b>⋮</b> → <b>Cast, save and share</b> → <b>Install page as app</b>.</li>
+          <li><b>PC (Edge):</b> <b>…</b> menu → <b>Apps</b> → <b>Install this site as an app</b>.</li>
+          <li>Open the app once online and play each game once — then it runs <b>offline</b>.</li>
+        </ol>
+        <p class="dl-note">Firefox and Safari on Mac can still play everything in the browser; they just don't install it as an app.</p>
+      </section>
+
+      <section class="dl-card arc" id="arcade">
+        <span class="dl-kicker">03 / Arcade cabinet · Raspberry Pi · Batocera</span>
+        <h2>The arcade pack</h2>
+        <p>Put the free games on a Batocera cabinet as their own <b>Outpost Boyz</b> system — they run fully offline in a fullscreen kiosk. Made for keyboard-encoder panels (like an Ultimarc I-PAC) with a trackball.</p>
+        <div class="dl-row">
+          <a class="btn btn-solid" href="https://github.com/deadshift187/outpostboyz/releases/latest/download/outpost-arcade-batocera.zip">DOWNLOAD THE PACK (.ZIP)</a>
+        </div>
+        <ol class="dl-steps">
+          <li><b>Unzip</b> <code>outpost-arcade-batocera.zip</code> on your computer.</li>
+          <li>Copy the <code>outpostboyz</code> folder to <code>/userdata/roms/</code> on the cabinet (over the network share <code>\\BATOCERA\share\roms</code>, or a USB stick).</li>
+          <li>Copy <code>es_systems_outpostboyz.cfg</code> to <code>/userdata/system/configs/emulationstation/</code>.</li>
+          <li>Over SSH (user <code>root</code>), make the launchers runnable:
+            <code class="dl-code">chmod +x /userdata/roms/outpostboyz/*.sh /userdata/roms/outpostboyz/_kiosk/*.bash</code></li>
+          <li><b>Restart EmulationStation</b> (Main Menu → Quit → Restart EmulationStation). <b>Outpost Boyz</b> shows up as a new system.</li>
+        </ol>
+        <p class="dl-note">Exit any game with <b>Start + Coin</b> (1+5 or 2+6) or <b>F10</b> on a keyboard.</p>
+
+        <h3 class="dl-sub2">Cabinet controls</h3>
+        <table class="dl-table">
+          <thead><tr><th>Game</th><th>Controls</th></tr></thead>
+          <tbody>
+            <tr><td>SCRAP RUN</td><td>Stick moves/aims · B1 shoot (tap — no auto-fire) · B2 jump · B3/B4 bomb · 1–2 players</td></tr>
+            <tr><td>SNOWLINE</td><td>Trackball draws · B1 ride/stop · B2 reset level · B3 hold to pan · B4 undo · B5 pen · B6 eraser · Coin = level menu</td></tr>
+            <tr><td>TAP FLIP</td><td>Any button flips gravity</td></tr>
+            <tr><td>PAPER ROUTE '88</td><td>Stick rides · B1 throw left · B2 throw right · Start/any button starts</td></tr>
+            <tr><td>BLOCK NINE</td><td>Trackball drags pieces</td></tr>
+          </tbody>
+        </table>
+        <p class="dl-note">RUN THE BOARD isn't in the pack — it needs a microphone or keyboard to answer. Play it on your phone or PC instead.</p>
+      </section>
+    </div>
+
+    <div class="dl-row" style="margin-top:44px">
+      <a class="btn btn-solid" href="../#arcade">ENTER THE LAB</a>
+      <a class="btn btn-line" href="../leaderboard/">WORLD RANKS</a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-logo">OUTPOST&nbsp;BOYZ</p>
+    <div class="footer-social">
+      <a href="https://www.tiktok.com/@outpostboyz">TIKTOK</a>
+      <span>/</span>
+      <a href="https://www.instagram.com/outpostboyz">INSTAGRAM</a>
+    </div>
+    <p class="footer-fine">© 2026 OUTPOST BOYZ — ALL RIGHTS RESERVED. GAMING BEYOND LIMITS. LAB CONDITIONS NOT GUARANTEED.</p>
+  </footer>
+
+  <script>
+  (function () {
+    var btn = document.getElementById('installBtn');
+    var ok = document.getElementById('installedMsg');
+    var hint = document.getElementById('installHint');
+    var deferred = null;
+    var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+    function installed() {
+      btn.hidden = true; ok.style.display = 'inline-block';
+      if (hint) hint.style.display = 'none';
+    }
+    if (standalone) { installed(); return; }
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      deferred = e;
+      btn.hidden = false;
+      if (hint) hint.textContent = 'Or use your browser menu:';
+    });
+    btn.addEventListener('click', async function () {
+      if (!deferred) return;
+      btn.disabled = true;
+      try {
+        deferred.prompt();
+        var choice = await deferred.userChoice;
+        if (choice && choice.outcome === 'accepted') installed();
+      } catch (e) { }
+      deferred = null; btn.disabled = false;
+      if (!ok.style.display || ok.style.display === 'none') btn.hidden = true;
+    });
+    window.addEventListener('appinstalled', installed);
+  })();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
+  <script src="../assets/ob-sdk.js"></script>
+</body>
+</html>

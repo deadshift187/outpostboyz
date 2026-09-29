@@ -38,6 +38,26 @@
       "added": "2026-07-22"
     },
     {
+      "slug": "scrap-run",
+      "title": "SCRAP RUN",
+      "tagline": "Humans vs the machines. Run, gun, free the POWs, drop the boss.",
+      "icon": "🤖",
+      "color": "#ff4d4d",
+      "controls": "STICK / SHOOT / JUMP",
+      "badge": "NEW",
+      "added": "2026-09-29"
+    },
+    {
+      "slug": "snowline",
+      "title": "SNOWLINE",
+      "tagline": "Draw the line. Ride the snow. 300 levels of don't-land-on-your-head.",
+      "icon": "🏂",
+      "color": "#9dc0dd",
+      "controls": "DRAW / RIDE",
+      "badge": "NEW",
+      "added": "2026-09-29"
+    },
+    {
       "slug": "coming-soon-1",
       "title": "???",
       "tagline": "Next cartridge in production.",

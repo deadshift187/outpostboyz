@@ -4,6 +4,7 @@
   --ink: #000000;
   --grey: #555555;
   --red: #ff0000;
+  --red-text: #d00000; /* small red text: passes contrast on white */
   --bw: 3px;
   --disp: 'Archivo Black', 'Inter', system-ui, sans-serif;
   --body: 'Inter', system-ui, sans-serif;
@@ -52,7 +53,7 @@ body {
   color: var(--ink);
   text-decoration: none;
 }
-.nav-links a:hover { color: var(--red); }
+.nav-links a:hover { color: var(--red-text); }
 .nav-social { display: inline-flex; align-items: center; }
 
 /* ---------- hero ---------- */
@@ -112,7 +113,7 @@ body {
   text-underline-offset: 4px;
   text-transform: uppercase;
 }
-.hero-social a:hover { color: var(--red); }
+.hero-social a:hover { color: var(--red-text); }
 
 /* ---------- marquee strip ---------- */
 .marquee {
@@ -187,7 +188,7 @@ body {
   font-weight: 900;
   font-size: 14px;
   letter-spacing: 1px;
-  color: var(--red);
+  color: var(--red-text);
   display: block;
   margin-bottom: 4px;
 }
@@ -424,7 +425,7 @@ body {
   font-family: var(--body);
   font-weight: 900;
   font-size: 14px;
-  color: var(--red);
+  color: var(--red-text);
 }
 .crew-copy { color: var(--grey); font-size: 17px; max-width: 520px; padding-top: 12px; }
 
@@ -496,7 +497,7 @@ body {
   text-transform: uppercase;
 }
 .footer-social a { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
-.footer-social a:hover { color: var(--red); }
+.footer-social a:hover { color: var(--red-text); }
 .footer-fine { font-size: 11px; margin-top: 6px; letter-spacing: 1px; }
 
 @media (max-width: 560px) {
@@ -510,7 +511,7 @@ body {
   position: fixed; inset: 0; z-index: 9999;
   background: #0a0a0a; color: #fff;
   display: flex; align-items: center; justify-content: center;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 #loadup::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
@@ -520,25 +521,25 @@ body {
 .lu-inner { text-align: center; position: relative; z-index: 1; padding: 20px; }
 .lu-kicker {
   font-family: var(--body); font-weight: 900; font-size: 11px; letter-spacing: 6px;
-  color: #39ff14; opacity: 0; animation: luFade 0.4s ease 0.1s forwards; margin-bottom: 20px;
+  color: #39ff14; opacity: 0; animation: luFade 0.2s ease 0s forwards; margin-bottom: 20px;
 }
 .lu-logo {
   font-family: var(--disp); font-size: clamp(40px, 12vw, 80px); line-height: 0.9;
   letter-spacing: -2px; text-transform: uppercase;
 }
-.lu-logo { opacity: 0; animation: luRise 0.5s ease 0.4s forwards; }
+.lu-logo { opacity: 0; animation: luRise 0.3s ease 0.05s forwards; }
 .lu-logo span { color: #39ff14; text-shadow: 0 0 26px rgba(57,255,20,0.5); }
 .lu-bar {
   width: 200px; max-width: 60vw; height: 5px; background: #1a1a1a; border-radius: 3px;
-  margin: 26px auto 0; overflow: hidden; opacity: 0; animation: luFade 0.3s ease 0.7s forwards;
+  margin: 26px auto 0; overflow: hidden; opacity: 0; animation: luFade 0.15s ease 0.1s forwards;
 }
 .lu-bar span {
   display: block; height: 100%; width: 0; background: #39ff14;
-  box-shadow: 0 0 12px #39ff14; animation: luFill 1.1s ease-out 0.9s forwards;
+  box-shadow: 0 0 12px #39ff14; animation: luFill 0.4s ease-out 0.15s forwards;
 }
 .lu-tag {
   font-family: var(--body); font-weight: 900; font-size: 12px; letter-spacing: 5px;
-  color: #888; margin-top: 20px; opacity: 0; animation: luFade 0.5s ease 1.7s forwards;
+  color: #888; margin-top: 20px; opacity: 0; animation: luFade 0.2s ease 0.25s forwards;
 }
 @keyframes luFade { to { opacity: 1; } }
 @keyframes luRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
@@ -546,6 +547,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .lu-kicker, .lu-logo, .lu-bar, .lu-tag { animation: none; opacity: 1; }
   .lu-bar span { animation: none; width: 100%; }
+  #loadup { display: none; }
 }
 
 @media (max-width: 620px) {
@@ -599,3 +601,73 @@ body {
 /* live TikTok embeds in the footage slots */
 .clip-slot { aspect-ratio: 9 / 16; overflow: hidden; }
 .clip-slot iframe { width: 100%; height: 100%; border: 0; display: block; background: #000; }
+/* ===== audit fixes: a11y + mobile ===== */
+.sr-only {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+[hidden] { display: none !important; }
+
+/* anchor jumps land below the sticky nav */
+section[id], header[id], #hire { scroll-margin-top: 84px; }
+
+/* comfortable tap targets */
+.nav-links a { display: inline-flex; align-items: center; min-height: 44px; }
+.nav-social { min-width: 44px; justify-content: center; }
+.hero-social a, .footer-social a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; }
+.footer-social { flex-wrap: wrap; align-items: center; }
+
+/* signup status line */
+.signup .signup-msg { margin: 14px auto 0; max-width: 520px; min-height: 1em; color: #ffffff; text-transform: none; letter-spacing: 0.3px; font-size: 14px; }
+
+/* TikTok click-to-load facade */
+.clip-facade {
+  width: 100%; height: 100%; border: 0; cursor: pointer; color: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  background:
+    repeating-linear-gradient(0deg, rgba(57,255,20,0.05) 0 2px, transparent 2px 4px),
+    radial-gradient(circle at 50% 42%, #1c2a1e 0%, #0a0a0a 70%);
+  font-family: var(--body);
+}
+.clip-slot .clip-facade span { border: 0; padding: 0; color: inherit; }
+.clip-facade .clip-kicker { font-weight: 900; font-size: 11px; letter-spacing: 3px; color: #39ff14; }
+.clip-facade .clip-play {
+  width: 76px; height: 76px; border-radius: 50%; background: #39ff14; position: relative;
+  box-shadow: 0 0 26px rgba(57,255,20,0.45);
+}
+.clip-facade .clip-play::after {
+  content: ''; position: absolute; left: 31px; top: 23px;
+  border-style: solid; border-width: 15px 0 15px 24px; border-color: transparent transparent transparent #000;
+}
+.clip-facade .clip-cta { font-weight: 900; font-size: 12px; letter-spacing: 2px; color: #bbbbbb; }
+.clip-facade:hover .clip-play, .clip-facade:focus-visible .clip-play { background: #fff; }
+.clip-facade:focus-visible { outline: 3px solid #39ff14; outline-offset: -6px; }
+
+/* phones: ONE nav row — logo + horizontally scrollable links (never 3 rows) */
+@media (max-width: 560px) {
+  .nav { flex-wrap: nowrap; gap: 12px; padding: 4px 0 4px 16px; }
+  .nav-logo { width: auto; flex: 0 0 auto; font-size: 15px; }
+  .nav-links {
+    width: auto; flex: 1 1 auto; min-width: 0; flex-wrap: nowrap; gap: 0;
+    overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    padding-right: 16px;
+    -webkit-mask-image: linear-gradient(to right, #000 85%, transparent);
+            mask-image: linear-gradient(to right, #000 85%, transparent);
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a { flex: 0 0 auto; padding: 0 10px; font-size: 12px; white-space: nowrap; }
+  section[id], header[id], #hire { scroll-margin-top: 64px; }
+}
+
+/* respect reduced-motion: no smooth scroll, no animations */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .marquee-track { animation: none !important; }
+}
+.btn[aria-disabled="true"] { cursor: default; }

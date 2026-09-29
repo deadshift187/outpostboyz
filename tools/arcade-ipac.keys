@@ -1,0 +1,34 @@
+{
+  "actions_player1": [
+    { "trigger": "up",       "type": "key", "target": ["KEY_UP"] },
+    { "trigger": "down",     "type": "key", "target": ["KEY_DOWN"] },
+    { "trigger": "left",     "type": "key", "target": ["KEY_LEFT"] },
+    { "trigger": "right",    "type": "key", "target": ["KEY_RIGHT"] },
+    { "trigger": "b",        "type": "key", "target": ["KEY_LEFTCTRL"] },
+    { "trigger": "a",        "type": "key", "target": ["KEY_LEFTALT"] },
+    { "trigger": "y",        "type": "key", "target": ["KEY_SPACE"] },
+    { "trigger": "x",        "type": "key", "target": ["KEY_LEFTSHIFT"] },
+    { "trigger": "l2",       "type": "key", "target": ["KEY_Z"] },
+    { "trigger": "pageup",   "type": "key", "target": ["KEY_X"] },
+    { "trigger": "r2",       "type": "key", "target": ["KEY_C"] },
+    { "trigger": "pagedown", "type": "key", "target": ["KEY_V"] },
+    { "trigger": "start",    "type": "key", "target": ["KEY_ENTER"] },
+    { "trigger": "select",   "type": "key", "target": ["KEY_5"] }
+  ],
+  "actions_player2": [
+    { "trigger": "up",       "type": "key", "target": ["KEY_R"] },
+    { "trigger": "down",     "type": "key", "target": ["KEY_F"] },
+    { "trigger": "left",     "type": "key", "target": ["KEY_D"] },
+    { "trigger": "right",    "type": "key", "target": ["KEY_G"] },
+    { "trigger": "b",        "type": "key", "target": ["KEY_A"] },
+    { "trigger": "a",        "type": "key", "target": ["KEY_S"] },
+    { "trigger": "y",        "type": "key", "target": ["KEY_Q"] },
+    { "trigger": "x",        "type": "key", "target": ["KEY_W"] },
+    { "trigger": "l2",       "type": "key", "target": ["KEY_I"] },
+    { "trigger": "pageup",   "type": "key", "target": ["KEY_K"] },
+    { "trigger": "r2",       "type": "key", "target": ["KEY_J"] },
+    { "trigger": "pagedown", "type": "key", "target": ["KEY_L"] },
+    { "trigger": "start",    "type": "key", "target": ["KEY_2"] },
+    { "trigger": "select",   "type": "key", "target": ["KEY_6"] }
+  ]
+}

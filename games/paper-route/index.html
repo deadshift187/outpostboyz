@@ -2,50 +2,71 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Paper Route '88 — Outpost Boyz</title>
 <style>
   :root{color-scheme:dark;--ink:#f4f1e8;--dim:#b7c0a0;--accent:#ffb43a;--accent2:#5ec4ff;--bad:#ff5d5d;--good:#7be08a;
-    --mono:ui-monospace,"Cascadia Code","Consolas",monospace;--body:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;}
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
-  html,body{margin:0;height:100%}
-  body{background:radial-gradient(120% 80% at 50% 0%,#2a3350,#0f1119);color:var(--ink);font-family:var(--body);
+    --mono:ui-monospace,"Cascadia Code","Consolas",monospace;--body:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --sat:env(safe-area-inset-top,0px);--sar:env(safe-area-inset-right,0px);--sab:env(safe-area-inset-bottom,0px);--sal:env(safe-area-inset-left,0px);}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+  html,body{margin:0;height:100%;overflow:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  body{background:radial-gradient(120% 80% at 50% 0%,#2a3350,#0f1119);background-color:#0f1119;color:var(--ink);font-family:var(--body);
     display:flex;justify-content:center;overscroll-behavior:none;touch-action:none}
-  .wrap{width:100%;max-width:460px;padding:42px 10px 12px;display:flex;flex-direction:column;gap:8px;height:100dvh}
-  .hud{display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:var(--mono);font-size:13px}
+  .wrap{width:100%;max-width:460px;display:flex;flex-direction:column;gap:8px;height:100vh;height:100dvh;
+    padding:calc(42px + var(--sat)) max(10px,var(--sar)) max(12px,var(--sab)) max(10px,var(--sal))}
+  .hud{display:flex;align-items:center;justify-content:space-between;gap:6px;font-family:var(--mono);font-size:13px}
   .hud .b{font-weight:800;font-size:16px;font-variant-numeric:tabular-nums}
-  .pill{background:rgba(0,0,0,.28);border:1px solid #ffffff22;border-radius:10px;padding:5px 9px;display:flex;gap:6px;align-items:center}
+  .pill{background:rgba(0,0,0,.28);border:1px solid #ffffff22;border-radius:10px;padding:5px 9px;display:flex;gap:6px;align-items:center;min-width:0}
   .pill .lab{color:var(--dim);font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+  .pill.low{border-color:var(--bad)}
+  .pill.low .b{color:var(--bad)}
   #lives{color:var(--bad);letter-spacing:2px}
-  .stage{position:relative;flex:1;min-height:0;display:flex;align-items:stretch;justify-content:center}
-  canvas{width:100%;height:100%;object-fit:contain;image-rendering:auto;border-radius:12px;
-    border:1px solid #ffffff1a;background:#3f7d3a;touch-action:none;display:block}
+  .stage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  canvas{display:block;border-radius:12px;box-shadow:0 0 0 1px #ffffff1a;background:#3f7d3a;touch-action:none;
+    max-width:100%;max-height:100%}
   .ctrls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .tbtn{font-family:var(--mono);font-weight:800;font-size:16px;letter-spacing:.04em;border:1px solid #ffffff2a;
-    background:linear-gradient(180deg,#2a2f45,#1b1f30);color:var(--ink);padding:15px 8px;border-radius:12px;cursor:pointer}
-  .tbtn:active{transform:scale(.97);background:#ffb43a;color:#241701}
+  .tbtn{font-family:var(--mono);font-weight:800;font-size:16px;letter-spacing:.04em;border:1px solid #ffffff2a;touch-action:none;
+    background:linear-gradient(180deg,#2a2f45,#1b1f30);color:var(--ink);padding:16px 8px;border-radius:12px;cursor:pointer}
+  .tbtn:active,.tbtn.hit{transform:scale(.97);background:#ffb43a;color:#241701}
   .hint{font-family:var(--mono);font-size:10.5px;color:var(--dim);text-align:center;letter-spacing:.02em}
 
   .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    text-align:center;gap:14px;padding:24px;background:rgba(11,13,20,.86);backdrop-filter:blur(3px);border-radius:12px;z-index:5}
+    text-align:center;gap:12px;padding:16px;background:rgba(11,13,20,.86);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);border-radius:12px;z-index:5}
   .overlay.hide{display:none}
   .overlay .brand{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
   .overlay h1{margin:0;font-weight:900;font-size:clamp(30px,9vw,46px);line-height:.9;color:var(--accent);text-shadow:2px 2px 0 #a55}
-  .overlay p{margin:0;color:var(--dim);font-size:14px;max-width:30ch;line-height:1.5}
+  .overlay p{margin:0;color:var(--dim);font-size:14px;max-width:30ch;line-height:1.45}
   .overlay .big{font-size:22px;font-weight:900;color:var(--ink)}
   .overlay .big b{color:var(--accent)}
   .go{border:0;border-radius:12px;padding:14px 34px;font-size:18px;font-weight:800;cursor:pointer;background:var(--accent);color:#241701}
   .newbest{color:var(--good);font-family:var(--mono);font-weight:800;letter-spacing:.08em}
-  @media (prefers-reduced-motion:reduce){.overlay{backdrop-filter:none}}
+  .home-btn{position:fixed;top:calc(10px + var(--sat));left:max(10px,var(--sal));z-index:10;font-family:'Press Start 2P',monospace;font-size:8px;color:#7d8da0;
+    text-decoration:none;background:rgba(7,10,15,0.7);border:1px solid #1d2a3a;padding:8px 10px}
+  @media (max-width:360px){.pill{padding:4px 6px}.pill .lab{font-size:9px;letter-spacing:.04em}.hud .b{font-size:14px}}
+  /* phone held sideways: throw buttons flank the street, HUD stacks on the right */
+  @media (orientation:landscape) and (max-height:520px){
+    .wrap{max-width:none;display:grid;grid-template-columns:1fr auto 1fr;grid-template-rows:auto 1fr;
+      grid-template-areas:"l s h" "l s r";gap:8px 12px;padding:max(8px,var(--sat)) max(10px,var(--sar)) max(8px,var(--sab)) max(10px,var(--sal))}
+    .hud{grid-area:h;flex-direction:column;align-items:stretch}
+    .stage{grid-area:s;height:100%;width:calc((100vh - 16px) * .625);width:calc((100dvh - 16px) * .625)}
+    .ctrls{display:contents}
+    #throwL{grid-area:l;margin-top:40px}
+    #throwR{grid-area:r}
+    .hint{display:none}
+    .overlay{position:fixed;border-radius:0;gap:8px;padding:10px}
+    .overlay h1{font-size:34px}
+    .overlay p{font-size:13px;max-width:44ch}
+  }
+  @media (prefers-reduced-motion:reduce){.overlay{backdrop-filter:none;-webkit-backdrop-filter:none}}
 </style>
 </head>
 <body>
-<a class="home-btn" href="../../" style="position:fixed;top:10px;left:10px;z-index:10;font-family:'Press Start 2P',monospace;font-size:8px;color:#7d8da0;text-decoration:none;background:rgba(7,10,15,0.7);border:1px solid #1d2a3a;padding:8px 10px;">◂ OUTPOST BOYZ</a>
+<a class="home-btn" href="../../">◂ OUTPOST BOYZ</a>
 
 <div class="wrap">
   <div class="hud">
     <div class="pill"><span class="lab">Score</span><span class="b" id="score">0</span></div>
-    <div class="pill"><span class="lab">Papers</span><span class="b" id="papers">15</span></div>
+    <div class="pill" id="papersPill"><span class="lab">Papers</span><span class="b" id="papers">20</span></div>
     <div class="pill"><span class="lab">Best</span><span class="b" id="best">0</span></div>
     <div class="pill"><span class="lab">Lives</span><span class="b" id="lives">❤❤❤</span></div>
   </div>
@@ -53,11 +74,16 @@
   <div class="stage">
     <canvas id="cv" width="400" height="640"></canvas>
     <div class="overlay" id="start">
-      <div class="brand">Outpost Boys</div>
+      <div class="brand">Outpost Boyz</div>
       <h1>PAPER<br>ROUTE '88</h1>
-      <p>Deliver papers to the <b style="color:var(--accent)">glowing mailboxes</b>. Dodge cars, cans, and dogs. Grab paper bundles before you run dry.</p>
-      <p style="font-size:12px">Drag to steer · tap <b>◀</b>/<b>▶</b> to throw<br>Desktop: A/D or ← → steer · Q/E throw</p>
+      <p>Deliver papers to the <b style="color:var(--accent)">glowing mailboxes</b>. Dodge cars, cans, and dogs. Grab <b style="color:var(--accent2)">NEWS</b> bundles before you run dry.</p>
+      <p style="font-size:12px">Drag the street to steer · tap <b>◀</b>/<b>▶ THROW</b> as a mailbox rolls by<br>Desktop: A/D or ← → steer · Q/E throw · P pause</p>
       <button class="go" id="startBtn">Start route</button>
+    </div>
+    <div class="overlay hide" id="paused">
+      <h1>PAUSED</h1>
+      <p>Tap to keep riding</p>
+      <button class="go" id="resumeBtn">Resume</button>
     </div>
     <div class="overlay hide" id="over">
       <h1 style="color:var(--bad);text-shadow:2px 2px 0 #500">WIPEOUT!</h1>
@@ -76,130 +102,268 @@
 </div>
 
 <script>
+// =====================================================================
+// TUNING — every difficulty / balance knob lives here.
+// Units: "px" = logical canvas px (canvas is 400x640), "step" = 1/60 s
+// fixed simulation step (frame-rate independent). Distance ("dist")
+// grows by speed/12 per step (~13-30 per second).
+// =====================================================================
+const TUNE={
+  // --- speed (px of scroll per step) ---
+  START_SPEED: 2.4,        // was 3.0
+  MAX_SPEED: 6.4,          // unchanged — late game stays fast
+  SPEED_RAMP: 1600,        // +1 speed per this much dist (was 900 → ramp ~2x slower)
+  // --- obstacle spawning (px of scroll between spawns) ---
+  FIRST_SPAWN_GAP: 260,    // quiet warm-up before the first hazard (was 0)
+  SPAWN_GAP_START: 150,    // was 70
+  SPAWN_GAP_MIN: 30,       // was 26
+  SPAWN_GAP_RAMP: 35,      // gap shrinks by 1px per this much dist (was 40); min gap reached at dist ~4200 (was ~1760)
+  // hazard mix eases in: weights lerp from EARLY to LATE over DIFF_FULL_DIST
+  DIFF_FULL_DIST: 3000,
+  MIX_EARLY: {car:0.28, can:0.36, hydrant:0.28, dog:0.08},
+  MIX_LATE:  {car:0.42, can:0.26, hydrant:0.16, dog:0.16},   // old fixed mix ≈ car .42 can .26 hyd .16 dog .16
+  DOG_SPEED_EARLY: 0.45,   // px/step lateral chase (was a flat 0.7)
+  DOG_SPEED_LATE: 0.7,
+  DOG_LEASH: 48,           // max px a dog can stray from where it spawned (was unlimited)
+  // --- collision (half-extents in px; smaller = more forgiving) ---
+  BIKE_HIT_X: 4, BIKE_HIT_Y: 12,
+  HIT: {car:{hw:13,hh:18}, can:{hw:8,hh:10}, hydrant:{hw:8,hh:9}, dog:{hw:12,hh:8}},
+  // old: every hazard hit if |dx|<24 && |dy|<30 (cans/hydrants hit ~10px outside their art)
+  // --- lives / grace ---
+  LIVES: 3,
+  INVULN_STEPS: 120,       // grace after a crash, 2.0 s (was 90 = 1.5 s)
+  // --- papers ---
+  START_PAPERS: 20,        // was 15
+  REFILL: 7,               // papers per NEWS bundle (was 5)
+  PAPER_CAP: 35,           // was 30
+  // bundles now run on their own distance timer (was: 14% of hazard spawns, so
+  // fewer hazards meant fewer refills). Each gap is randomised x0.75-1.25.
+  PICKUP_GAP: 520,         // px of road between bundles (old ≈ 500 early, ≈ 190 late)
+  PICKUP_GAP_LOW: 260,     // when papers <= LOW_PAPERS
+  LOW_PAPERS: 4,
+  PICKUP_ONLY_BELOW: 25,   // no bundles spawn while carrying >= this (was 20)
+  PICKUP_RADIUS: 30,       // was 26
+  // --- controls ---
+  KEY_STEER: 5.2,          // keyboard px/step
+  STEER_LERP: 0.25,
+};
+
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 const CW=400, CH=640;
 const ROAD_L=96, ROAD_R=304, BIKE_Y=520;
-const scoreEl=document.getElementById('score'), papersEl=document.getElementById('papers'),
-      bestEl=document.getElementById('best'), livesEl=document.getElementById('lives'),
-      startEl=document.getElementById('start'), overEl=document.getElementById('over');
+const BIKE_MIN=ROAD_L+16, BIKE_MAX=ROAD_R-16;
+const STEP_MS=1000/60;
+const BEST_KEY='ob-paper-route-best', SEEN_KEY='ob-paper-route-seen';
+const $=id=>document.getElementById(id);
+const scoreEl=$('score'), papersEl=$('papers'), papersPill=$('papersPill'),
+      bestEl=$('best'), livesEl=$('lives'), stageEl=document.querySelector('.stage'),
+      startEl=$('start'), overEl=$('over'), pausedEl=$('paused');
 
-let bikeX, targetX, speed, score, papers, lives, dist, combo, invuln, running, spawnTimer, houseTimer, best;
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+
+let bikeX, targetX, speed, score, papers, lives, dist, combo, invuln, spawnTimer, pickupTimer, best, delivered, shownScore, tip='', tipT=0;
+let running=false, paused=false, ended=false, lockUntil=0;
 let houses, obstacles, pickups, papersFly, floaters;
+const keys={};
+let dragId=null;
 
-best=parseInt(localStorage.getItem('ob-paper-route-best')||'0',10)||0; bestEl.textContent=best;
+best=parseInt(lsGet(BEST_KEY)||'0',10)||0; bestEl.textContent=best;
 
 function reset(){
-  bikeX=200; targetX=200; speed=3.0; score=0; papers=15; lives=3; dist=0; combo=0; invuln=0;
-  spawnTimer=0; houseTimer=0;
+  bikeX=200; targetX=200; speed=TUNE.START_SPEED; score=0; papers=TUNE.START_PAPERS; lives=TUNE.LIVES;
+  dist=0; combo=0; invuln=0; delivered=0; shownScore=-1; tip=''; tipT=0;
+  spawnTimer=TUNE.FIRST_SPAWN_GAP; pickupTimer=TUNE.PICKUP_GAP*0.6; ended=false; dragId=null;
+  for(const k in keys)keys[k]=false;
   houses=[]; obstacles=[]; pickups=[]; papersFly=[]; floaters=[];
-  // pre-fill some houses
-  for(let y=-40;y>-CH;y-=110){ addHouseRow(y); }
+  // fill the visible street with houses (rows 110px apart); none at/under the bike are subscribers
+  for(let y=-60;y<CH+20;y+=110) addHouseRow(y, y<BIKE_Y-140);
   updateHUD();
 }
-function addHouseRow(y){
+function addHouseRow(y,allowSub){
   ['L','R'].forEach(side=>{
-    const sub=Math.random()<0.5;
+    const sub=allowSub!==false && Math.random()<0.5;
     houses.push({side,y,sub,delivered:false, color:pickHouse()});
   });
 }
 function pickHouse(){const c=['#c8663f','#b9944a','#6d8f57','#8a6da0','#5a86a8','#a85a6d'];return c[Math.floor(Math.random()*c.length)];}
 
 function updateHUD(){
-  scoreEl.textContent=score; papersEl.textContent=papers;
+  shownScore=Math.floor(score); scoreEl.textContent=shownScore; papersEl.textContent=papers;
+  papersPill.classList.toggle('low',papers<=TUNE.LOW_PAPERS);
   livesEl.textContent='❤'.repeat(Math.max(0,lives))||'—';
 }
+function showTip(txt,steps){tip=txt;tipT=steps;}
 
 // ---------- input ----------
-let dragging=false;
-function canvasX(clientX){const r=cv.getBoundingClientRect();return (clientX-r.left)*(CW/r.width);}
-cv.addEventListener('pointerdown',e=>{dragging=true;targetX=clamp(canvasX(e.clientX),ROAD_L+16,ROAD_R-16);});
-cv.addEventListener('pointermove',e=>{if(dragging)targetX=clamp(canvasX(e.clientX),ROAD_L+16,ROAD_R-16);});
-window.addEventListener('pointerup',()=>dragging=false);
-const keys={};
-window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;
-  if(e.key.toLowerCase()==='q')throwPaper(-1); if(e.key.toLowerCase()==='e')throwPaper(1);
-  if([' ','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();});
-window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
-document.getElementById('throwL').addEventListener('click',()=>throwPaper(-1));
-document.getElementById('throwR').addEventListener('click',()=>throwPaper(1));
-document.getElementById('startBtn').addEventListener('click',start);
-document.getElementById('againBtn').addEventListener('click',start);
+function canvasX(clientX){const r=cv.getBoundingClientRect();return (clientX-r.left)*(CW/(r.width||1));}
+function steerTo(clientX){targetX=clamp(canvasX(clientX),BIKE_MIN,BIKE_MAX);}
+cv.addEventListener('pointerdown',e=>{
+  dragId=e.pointerId; try{cv.setPointerCapture(e.pointerId);}catch(_){}
+  steerTo(e.clientX); e.preventDefault();
+});
+cv.addEventListener('pointermove',e=>{if(e.pointerId===dragId)steerTo(e.clientX);});
+function endDrag(e){if(e.pointerId===dragId)dragId=null;}
+cv.addEventListener('pointerup',endDrag);
+cv.addEventListener('pointercancel',endDrag);
+cv.addEventListener('lostpointercapture',endDrag);
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+
+function bindThrow(id,dir){
+  const b=$(id);
+  // pointerdown = instant, and a second finger can throw while the first keeps steering
+  b.addEventListener('pointerdown',e=>{e.preventDefault();throwPaper(dir);b.classList.add('hit');setTimeout(()=>b.classList.remove('hit'),90);});
+  b.addEventListener('click',e=>{if(e.detail===0)throwPaper(dir);}); // keyboard activation only
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+}
+bindThrow('throwL',-1); bindThrow('throwR',1);
+$('startBtn').addEventListener('click',start);
+$('againBtn').addEventListener('click',start);
+pausedEl.addEventListener('click',resume);
+// iOS ignores user-scalable=no: block pinch / double-tap zoom explicitly
+document.addEventListener('gesturestart',e=>e.preventDefault());
+document.addEventListener('dblclick',e=>e.preventDefault());
+
+window.addEventListener('keydown',e=>{
+  const k=(e.key||'').toLowerCase();
+  if([' ','arrowleft','arrowright','arrowup','arrowdown'].includes(k))e.preventDefault();
+  const go=(k==='enter'||k===' ')&&!e.repeat&&!(e.target&&e.target.closest&&e.target.closest('a'));
+  if(!running){ if(go){e.preventDefault();start();} return; }
+  if(k==='p'||k==='escape'){ if(!e.repeat)(paused?resume:pause)(); return; }
+  if(paused){ if(go){e.preventDefault();resume();} return; }
+  keys[k]=true;
+  if(e.repeat)return;               // holding Q/E must not machine-gun the whole bag
+  if(k==='q')throwPaper(-1); else if(k==='e')throwPaper(1);
+});
+window.addEventListener('keyup',e=>{keys[(e.key||'').toLowerCase()]=false;});
+window.addEventListener('blur',()=>{for(const k in keys)keys[k]=false; pause();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
 
 function throwPaper(dir){
-  if(!running||papers<=0)return;
+  if(!running||paused)return;
+  if(papers<=0){showTip('Out of papers! Grab a NEWS bundle',120);return;}
   papers--; updateHUD();
   papersFly.push({x:bikeX,y:BIKE_Y-6,vx:dir*4.4,vy:speed*0.55,dir,life:120});
+  if(papers===0)showTip('Out of papers! Grab a NEWS bundle',150);
 }
 function clamp(v,a,b){return v<a?a:v>b?b:v;}
+function lerp(a,b,t){return a+(b-a)*t;}
+function difficulty(){return clamp(dist/TUNE.DIFF_FULL_DIST,0,1);}
 
-// ---------- loop ----------
-function start(){ reset(); startEl.classList.add('hide'); overEl.classList.add('hide'); running=true; requestAnimationFrame(loop); }
+// ---------- run lifecycle ----------
+function start(){
+  if(running||performance.now()<lockUntil)return;
+  reset(); startEl.classList.add('hide'); overEl.classList.add('hide'); pausedEl.classList.add('hide');
+  running=true; paused=false;
+  if(!lsGet(SEEN_KEY)){showTip('THROW when a glowing mailbox is beside you',330); lsSet(SEEN_KEY,'1');}
+  kick();
+}
+function pause(){
+  if(!running||paused)return;
+  paused=true; dragId=null; for(const k in keys)keys[k]=false;
+  pausedEl.classList.remove('hide');
+}
+function resume(){
+  if(!running||!paused)return;
+  paused=false; pausedEl.classList.add('hide'); kick();
+}
 function gameOver(){
-  running=false;
-  const isBest=score>best; if(isBest){best=score;localStorage.setItem('ob-paper-route-best',String(best));bestEl.textContent=best;} if(window.OB){OB.submitScore('paper-route',score);OB.gameOver('paper-route');}
-  document.getElementById('finalScore').textContent=score;
-  document.getElementById('newbest').style.display=isBest?'block':'none';
-  document.getElementById('finStats').textContent=Math.floor(dist)+' m delivered';
+  if(ended)return;
+  ended=true; running=false; paused=false; dragId=null;
+  const final=Math.max(0,Math.floor(score));
+  const isBest=final>best;
+  if(isBest){best=final;lsSet(BEST_KEY,String(best));bestEl.textContent=best;}
+  scoreEl.textContent=final;
+  try{
+    if(window.OB&&typeof OB.submitScore==='function'){
+      const p=OB.submitScore('paper-route',final); if(p&&p.catch)p.catch(()=>{});
+      const g=OB.gameOver&&OB.gameOver('paper-route'); if(g&&g.catch)g.catch(()=>{});
+    }
+  }catch(e){}
+  $('finalScore').textContent=final;
+  $('newbest').style.display=isBest?'block':'none';
+  $('finStats').textContent=Math.floor(dist)+' m ridden · '+delivered+' papers delivered';
+  lockUntil=performance.now()+600;   // a stray tap/keypress can't instantly restart
   overEl.classList.remove('hide');
 }
 
-let last=0;
+// ---------- loop: fixed 60 Hz simulation, render every display frame ----------
+let rafId=0, lastT=0, acc=0;
+function kick(){ if(!rafId){ lastT=performance.now(); acc=0; rafId=requestAnimationFrame(loop); } }
 function loop(t){
-  if(!running)return;
-  update(); render();
-  requestAnimationFrame(loop);
+  rafId=0;
+  if(!running||paused)return;
+  let dt=t-lastT; lastT=t;
+  if(!(dt>0))dt=0; if(dt>100)dt=100;               // no giant jump after a stall
+  if(Math.abs(dt-STEP_MS)<1.5)dt=STEP_MS;           // absorb 60 Hz vsync jitter
+  acc+=dt;
+  let n=0;
+  while(acc>=STEP_MS&&n<6&&running){update();acc-=STEP_MS;n++;}
+  if(n>=6)acc=0;
+  render();
+  if(running&&!paused)rafId=requestAnimationFrame(loop);
 }
 
 function update(){
-  speed=Math.min(6.4, 3.0+dist/900);
+  speed=Math.min(TUNE.MAX_SPEED, TUNE.START_SPEED+dist/TUNE.SPEED_RAMP);
   dist+=speed/12;
   if(invuln>0)invuln--;
+  if(tipT>0)tipT--;
   // steer (keyboard)
-  if(keys['a']||keys['arrowleft'])targetX-=5.2;
-  if(keys['d']||keys['arrowright'])targetX+=5.2;
-  targetX=clamp(targetX,ROAD_L+16,ROAD_R-16);
-  bikeX+=(targetX-bikeX)*0.25;
-
-  // spawn houses
-  houseTimer-=speed;
-  if(houseTimer<=0){ addHouseRow(-60); houseTimer=110; }
-  // spawn obstacles + pickups
-  spawnTimer-=speed;
-  if(spawnTimer<=0){
-    spawnTimer=Math.max(26, 70-dist/40);
-    const r=Math.random();
-    if(r<0.14 && papers<20){ pickups.push({x:rand(ROAD_L+18,ROAD_R-18),y:-30}); }
-    else{
-      const type=r<0.5?'car':(r<0.72?'can':(r<0.86?'hydrant':'dog'));
-      obstacles.push({type,x:rand(ROAD_L+22,ROAD_R-22),y:-40,vx:0});
-    }
-  }
+  if(keys['a']||keys['arrowleft'])targetX-=TUNE.KEY_STEER;
+  if(keys['d']||keys['arrowright'])targetX+=TUNE.KEY_STEER;
+  targetX=clamp(targetX,BIKE_MIN,BIKE_MAX);
+  bikeX+=(targetX-bikeX)*TUNE.STEER_LERP;
 
   const dy=speed;
-  // houses
+  // spawn obstacles + pickups
+  spawnTimer-=dy;
+  if(spawnTimer<=0){
+    spawnTimer=Math.max(TUNE.SPAWN_GAP_MIN, TUNE.SPAWN_GAP_START-dist/TUNE.SPAWN_GAP_RAMP);
+    spawnObstacle(pickType());
+  }
+  pickupTimer-=dy;
+  if(papers<=TUNE.LOW_PAPERS)pickupTimer=Math.min(pickupTimer,TUNE.PICKUP_GAP_LOW*1.25);
+  if(pickupTimer<=0){
+    if(papers<TUNE.PICKUP_ONLY_BELOW && spawnPickup())
+      pickupTimer=(papers<=TUNE.LOW_PAPERS?TUNE.PICKUP_GAP_LOW:TUNE.PICKUP_GAP)*rand(0.75,1.25);
+    else pickupTimer=40; // bag full or no clear spot yet — check again shortly
+  }
+
+  // houses: keep rows 110px apart, always one queued above the screen
   for(const h of houses)h.y+=dy;
   houses=houses.filter(h=>{ if(h.y>CH+40){ if(h.sub&&!h.delivered)combo=0; return false;} return true; });
+  let topY=CH; for(const h of houses)if(h.y<topY)topY=h.y;
+  while(topY>=50){topY-=110; addHouseRow(topY,true);}
 
   // pickups
+  const pr=TUNE.PICKUP_RADIUS;
   for(const p of pickups)p.y+=dy;
   pickups=pickups.filter(p=>{
-    if(Math.abs(p.x-bikeX)<26 && Math.abs(p.y-BIKE_Y)<26){ papers=Math.min(30,papers+5); updateHUD(); floater('+5 papers','#5ec4ff',p.x,p.y); return false; }
+    if(Math.abs(p.x-bikeX)<pr && Math.abs(p.y-BIKE_Y)<pr){
+      papers=Math.min(TUNE.PAPER_CAP,papers+TUNE.REFILL); updateHUD(); floater('+'+TUNE.REFILL+' papers','#5ec4ff',p.x,p.y);
+      if(tip.startsWith('Out of papers'))tipT=0;
+      return false;
+    }
     return p.y<CH+30;
   });
 
   // obstacles
-  for(const o of obstacles){ o.y+=dy; if(o.type==='dog'){ o.x+=Math.sign(bikeX-o.x)*0.7; } }
+  const dogSpd=lerp(TUNE.DOG_SPEED_EARLY,TUNE.DOG_SPEED_LATE,difficulty());
+  for(const o of obstacles){ o.y+=dy;
+    if(o.type==='dog'){ o.x=clamp(o.x+Math.sign(bikeX-o.x)*Math.min(dogSpd,Math.abs(bikeX-o.x)), o.x0-TUNE.DOG_LEASH, o.x0+TUNE.DOG_LEASH); } }
   obstacles=obstacles.filter(o=>{
-    if(invuln<=0 && Math.abs(o.x-bikeX)<24 && Math.abs(o.y-BIKE_Y)<30){ crash(); return false; }
+    if(invuln<=0 && Math.abs(o.x-bikeX)<o.hw+TUNE.BIKE_HIT_X && Math.abs(o.y-BIKE_Y)<o.hh+TUNE.BIKE_HIT_Y){ crash(); return false; }
     return o.y<CH+40;
   });
+  if(lives<=0){gameOver();return;}
 
   // flying papers -> deliver to subscriber mailboxes
   for(const f of papersFly){ f.x+=f.vx; f.y+=f.vy; f.life--;
     for(const h of houses){ if(!h.sub||h.delivered)continue;
       const mb=mailbox(h), px=9, pt=12, pb=16;
       if(f.x>mb.x-px&&f.x<mb.x+mb.w+px&&f.y>mb.y-pt&&f.y<mb.y+mb.h+pb){
-        h.delivered=true; combo++; const pts=100*Math.min(5,combo);
+        h.delivered=true; delivered++; combo++; const pts=100*Math.min(5,combo);
         score+=pts; floater('+'+pts+(combo>1?'  x'+Math.min(5,combo):''),'#7be08a',mb.x+mb.w/2,mb.y); updateHUD(); f.life=0; break;
       }
     }
@@ -211,14 +375,93 @@ function update(){
   floaters=floaters.filter(fl=>fl.life>0);
 
   score+=speed*0.015; // distance points
-  scoreEl.textContent=Math.floor(score);
+  if(Math.floor(score)!==shownScore){shownScore=Math.floor(score);scoreEl.textContent=shownScore;}
 }
 function rand(a,b){return a+Math.random()*(b-a);}
 function floater(txt,col,x,y){floaters.push({txt,col,x,y,life:60});}
 function crash(){
-  lives--; invuln=90; combo=0; updateHUD();
+  lives--; invuln=TUNE.INVULN_STEPS; combo=0; updateHUD();
   floater('CRASH!','#ff5d5d',bikeX,BIKE_Y-30);
-  if(lives<=0)gameOver();
+  try{if(navigator.vibrate)navigator.vibrate(lives>0?60:180);}catch(e){}
+}
+
+// ---------- fair spawning ----------
+function pickType(){
+  const d=difficulty(), E=TUNE.MIX_EARLY, L=TUNE.MIX_LATE;
+  const w={car:lerp(E.car,L.car,d),can:lerp(E.can,L.can,d),hydrant:lerp(E.hydrant,L.hydrant,d),dog:lerp(E.dog,L.dog,d)};
+  let r=Math.random()*(w.car+w.can+w.hydrant+w.dog);
+  for(const k of ['car','can','hydrant','dog']){ if((r-=w[k])<0)return k; }
+  return 'can';
+}
+// no stacking a new item on top of something that just spawned
+function overlapsSpawned(x,y,hw,hh){
+  for(const o of obstacles) if(Math.abs(o.y-y)<o.hh+hh+6 && Math.abs(o.x-x)<o.hw+hw+4) return true;
+  for(const p of pickups)   if(Math.abs(p.y-y)<p.hh+hh+6 && Math.abs(p.x-x)<p.hw+hw+4) return true;
+  return false;
+}
+function spawnObstacle(type){
+  const d=TUNE.HIT[type], y=-40;
+  // strict margin when possible (absorbs row-quantisation jitter), else plain check
+  const strict=hasPath(null,true), baseline=strict||hasPath(null,false);
+  for(let i=0;i<8;i++){
+    const x=rand(ROAD_L+22,ROAD_R-22);
+    if(overlapsSpawned(x,y,d.hw+4,d.hh+4))continue;
+    const o={type,x,y,x0:x,hw:d.hw,hh:d.hh};
+    if(!baseline||hasPath(o,strict)){obstacles.push(o);return true;}
+  }
+  return false; // every spot would wall the street off — skip this one
+}
+function spawnPickup(){
+  for(let i=0;i<8;i++){
+    const x=rand(ROAD_L+18,ROAD_R-18);
+    if(overlapsSpawned(x,-30,10,8))continue;
+    pickups.push({x,y:-30,hw:10,hh:8}); return true;
+  }
+  return false;
+}
+// Conservative reachability check: can a KEYBOARD player (slowest control;
+// drag steering is far faster) weave from the bike's current spot past every
+// hazard on screen? Rows = 8px of scroll, cells = 4px of bike x.
+const ROW=8, CELL=4, NC=Math.floor((BIKE_MAX-BIKE_MIN)/CELL)+1, NROWS=Math.ceil((BIKE_Y+90)/ROW)+1;
+const blk=new Uint8Array(NROWS*NC); let cur=new Uint8Array(NC), nxt=new Uint8Array(NC);
+function hasPath(extra,strict){
+  const pad=strict?1:0;
+  blk.fill(0);
+  // judged at top speed so a path accepted now stays valid as the ride speeds up
+  const reach=Math.max(1,Math.floor(TUNE.KEY_STEER*0.7*ROW/TUNE.MAX_SPEED/CELL));
+  const safeRows=invuln>0?Math.floor(invuln*speed/ROW):0;
+  const dogSpd=TUNE.DOG_SPEED_LATE;
+  const mark=o=>{
+    const hw=o.hw+TUNE.BIKE_HIT_X+1+pad*CELL;
+    let xl=o.x, xr=o.x;
+    if(o.type==='dog'){ // a dog can end up anywhere it could chase to before it passes the bike
+      const m=dogSpd*Math.max(0,BIKE_Y-o.y+o.hh+TUNE.BIKE_HIT_Y)/speed+1;
+      xl=Math.min(o.x,Math.max(o.x-m,o.x0-TUNE.DOG_LEASH)); xr=Math.max(o.x,Math.min(o.x+m,o.x0+TUNE.DOG_LEASH));
+    }
+    const yr=o.hh+TUNE.BIKE_HIT_Y+ROW/2+pad*ROW;
+    const r0=Math.max(safeRows,Math.ceil((BIKE_Y-o.y-yr)/ROW)), r1=Math.min(NROWS-1,Math.floor((BIKE_Y-o.y+yr)/ROW));
+    const c0=Math.max(0,Math.ceil((xl-hw-BIKE_MIN)/CELL)), c1=Math.min(NC-1,Math.floor((xr+hw-BIKE_MIN)/CELL));
+    for(let r=r0;r<=r1;r++){const b=r*NC; for(let c=c0;c<=c1;c++)blk[b+c]=1;}
+  };
+  for(const o of obstacles)mark(o);
+  if(extra)mark(extra);
+  cur.fill(0);
+  const s=clamp(Math.round((bikeX-BIKE_MIN)/CELL),0,NC-1);
+  for(let c=Math.max(0,s-1);c<=Math.min(NC-1,s+1);c++)cur[c]=1;
+  for(let r=1;r<NROWS;r++){
+    if(!stepRow(r-1,r,reach,cur,nxt))return false;
+    const t=cur;cur=nxt;nxt=t;
+  }
+  return true;
+}
+// Slide up to `reach` cells sideways through cells that are free in `slideRow`
+// (no corner-cutting through a hazard), then land on a cell free in `destRow`.
+function stepRow(slideRow,destRow,reach,from,to){
+  to.fill(0); const b=slideRow*NC, d=destRow*NC; let any=false, last=-1e9;
+  for(let c=0;c<NC;c++){ if(blk[b+c]){last=-1e9;continue;} if(from[c])last=c; if(c-last<=reach&&!blk[d+c]){to[c]=1;any=true;} }
+  last=1e9;
+  for(let c=NC-1;c>=0;c--){ if(blk[b+c]){last=1e9;continue;} if(from[c])last=c; if(last-c<=reach&&!blk[d+c]){to[c]=1;any=true;} }
+  return any;
 }
 
 function mailbox(h){
@@ -227,8 +470,25 @@ function mailbox(h){
   return {x:ROAD_R+2,y,w:14,h:18};
 }
 
+// ---------- sizing (crisp on high-DPI, exact aspect so touch maps 1:1) ----------
+function fit(){
+  const w=stageEl.clientWidth, h=stageEl.clientHeight; if(!w||!h)return;
+  const s=Math.min(w/CW,h/CH);
+  const cssW=Math.max(1,Math.floor(CW*s)), cssH=Math.max(1,Math.floor(CH*s));
+  cv.style.width=cssW+'px'; cv.style.height=cssH+'px';
+  const dpr=Math.min(window.devicePixelRatio||1,3);
+  let bw=Math.round(cssW*dpr), bh=Math.round(cssH*dpr);
+  const cap=1600/Math.max(bw,bh); if(cap<1){bw=Math.round(bw*cap);bh=Math.round(bh*cap);}
+  if(cv.width!==bw||cv.height!==bh){cv.width=bw;cv.height=bh;}
+  render();
+}
+if(window.ResizeObserver)new ResizeObserver(fit).observe(stageEl);
+window.addEventListener('resize',fit);
+window.addEventListener('orientationchange',()=>setTimeout(fit,120));
+
 // ---------- render ----------
 function render(){
+  ctx.setTransform(cv.width/CW,0,0,cv.height/CH,0,0);
   // grass
   ctx.fillStyle='#4c9142';ctx.fillRect(0,0,CW,CH);
   // sidewalks
@@ -253,6 +513,13 @@ function render(){
   // floaters
   ctx.textAlign='center';ctx.font='bold 14px system-ui';
   for(const fl of floaters){ctx.globalAlpha=Math.min(1,fl.life/30);ctx.fillStyle=fl.col;ctx.fillText(fl.txt,fl.x,fl.y);ctx.globalAlpha=1;}
+  // tip banner (first run / out of papers)
+  if(tipT>0&&tip){
+    ctx.globalAlpha=Math.min(1,tipT/30);ctx.font='bold 13px system-ui';
+    const w=Math.min(CW-16,ctx.measureText(tip).width+22);
+    ctx.fillStyle='rgba(11,13,20,.82)';roundRect(CW/2-w/2,84,w,28,8);ctx.fill();
+    ctx.fillStyle='#ffb43a';ctx.fillText(tip,CW/2,103,CW-28);ctx.globalAlpha=1;
+  }
 }
 
 function drawHouse(h){
@@ -299,10 +566,9 @@ function drawBike(){
 function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 
 reset();
-render();
+fit();
 </script>
-</body>
-</html>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../../assets/ob-sdk.js"></script>
+</body>
+</html>
