@@ -8,7 +8,7 @@
 //    audio/video (run-the-board's ~105MB of .wav stays network-only; offline it falls back to TTS).
 //
 // Bump VERSION on a deploy that changes cached assets to drop every old cache on activate.
-const VERSION = '2026-09-29a';
+const VERSION = '2026-09-29b';
 const CACHE = 'ob-arcade-' + VERSION;
 
 // Precached on install so every free game plays offline after the first visit.
@@ -117,6 +117,7 @@ self.addEventListener('fetch', (e) => {
   const dest = req.destination;
   if (dest === 'audio' || dest === 'video' || dest === 'track' || MEDIA_EXT.test(url.pathname)) return;
   if (url.pathname === '/sw.js') return;
+  if (url.pathname.startsWith('/games/save-lost-angeles/bld/')) return;  // ~120MB of art: leave it to the HTTP cache
 
   const accept = req.headers.get('accept') || '';
   const isDoc = req.mode === 'navigate' || dest === 'document' || dest === 'iframe' ||

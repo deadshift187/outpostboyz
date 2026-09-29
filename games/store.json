@@ -8,7 +8,8 @@
       "icon": "🌴",
       "color": "#ff4d9d",
       "price": "$1",
-      "available": false
+      "available": false,
+      "freePlay": true
     }
   ],
   "beatPile": [],

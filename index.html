@@ -551,9 +551,10 @@
           var live = !!g.available;
           var btn = live
             ? '<a class="game-play" href="#" onclick="OB && OB.buy(\'' + g.slug + '\'); return false;">$1 — UNLIMITED RUNS</a>'
-            : '<span class="game-play dim">COMING SOON</span>';
+            : (g.freePlay ? '<a class="game-play" href="games/' + g.slug + '/">PLAY FREE NOW →</a>' : '<span class="game-play dim">COMING SOON</span>');
           var teaser = live ? '' :
-            '<p style="flex:0; font-weight:900; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--ink);">Not open yet — the $100 bounty opens at launch.</p>';
+            '<p style="flex:0; font-weight:900; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--ink);">' +
+            (g.freePlay ? 'Free to play while we build it — the $100 bounty opens at launch.' : 'Not open yet — the $100 bounty opens at launch.') + '</p>';
           return '<article class="game-card" style="--gc:' + (g.color || '#000') + '">' +
             '<span class="chip chip-hot game-badge">' + (live ? '$100 BOUNTY' : 'COMING SOON') + '</span>' +
             '<div class="game-icon" aria-hidden="true">' + (g.icon || '&#128128;') + '</div>' +

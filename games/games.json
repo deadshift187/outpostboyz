@@ -1,6 +1,16 @@
 {
   "games": [
     {
+      "slug": "save-lost-angeles",
+      "title": "SAVE LOST ANGELES",
+      "tagline": "Run all of LA as Golden Boy. Rescue citizens, beat every boss, fly north for Newscum.",
+      "icon": "🌴",
+      "color": "#ff5fa2",
+      "controls": "ARROWS / JUMP / FIRE",
+      "badge": "NEW",
+      "added": "2026-09-29"
+    },
+    {
       "slug": "tap-flip",
       "title": "TAP FLIP",
       "tagline": "Flip gravity. Dodge everything. How far can you run?",
