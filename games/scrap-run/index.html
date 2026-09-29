@@ -2,7 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<script>
+/* iPhone Safari ignores user-scalable=no: block pinch (two thumbs on stick + button read as a pinch),
+   double-tap zoom and page scroll directly. Touch controls use pointer events, so they are unaffected;
+   links/buttons/inputs keep their normal taps. */
+(function(){
+  var ok=function(t){ return t&&t.closest&&t.closest('a,button,input,select,textarea,label'); };
+  ['gesturestart','gesturechange','gestureend'].forEach(function(n){ document.addEventListener(n,function(e){ e.preventDefault(); },{passive:false}); });
+  document.addEventListener('touchstart',function(e){ if(e.touches.length>1||!ok(e.target))e.preventDefault(); },{passive:false});
+  document.addEventListener('touchmove',function(e){ e.preventDefault(); },{passive:false});
+  var last=0; document.addEventListener('touchend',function(e){ var n=Date.now(); if(n-last<350&&!ok(e.target))e.preventDefault(); last=n; },{passive:false});
+  document.addEventListener('dblclick',function(e){ e.preventDefault(); },{passive:false});
+})();
+</script>
 <meta name="theme-color" content="#070a0f"/>
 <link rel="manifest" href="../../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png">
@@ -14,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
-  html,body{margin:0;height:100%;height:100dvh;background:#070a0f;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none;-webkit-touch-callout:none}
+  html,body{margin:0;height:100%;height:100dvh;background:#070a0f;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none;-webkit-touch-callout:none;overscroll-behavior:none}
   body.kb{cursor:none}
   #wrap{position:fixed;left:0;right:0;top:0;height:100dvh;display:flex;align-items:center;justify-content:center}
   body.touch.portrait #wrap{height:58dvh;align-items:flex-end}
