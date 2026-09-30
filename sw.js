@@ -8,7 +8,7 @@
 //    audio/video (run-the-board's ~105MB of .wav stays network-only; offline it falls back to TTS).
 //
 // Bump VERSION on a deploy that changes cached assets to drop every old cache on activate.
-const VERSION = '2026-09-29c';
+const VERSION = '2026-09-29d';
 const CACHE = 'ob-arcade-' + VERSION;
 
 // Precached on install so every free game plays offline after the first visit.
@@ -121,12 +121,15 @@ self.addEventListener('fetch', (e) => {
 
   const accept = req.headers.get('accept') || '';
   const isDoc = req.mode === 'navigate' || dest === 'document' || dest === 'iframe' ||
-    accept.includes('text/html') || DATA_EXT.test(url.pathname) || url.pathname.endsWith('/');
+    accept.includes('text/html') || DATA_EXT.test(url.pathname) || url.pathname.endsWith('/') ||
+    /\.(js|css)$/i.test(url.pathname);   // code too: a new page must never run against last deploy's scripts
 
   if (isDoc) {
     // Network-first.
     e.respondWith(
-      fetch(req)
+      // 'no-cache' = always ask the server (a cheap 304 when unchanged), so the 10-minute
+      // GitHub Pages max-age can't serve the previous deploy right after a push.
+      fetch(new Request(req, { cache: 'no-cache' }))
         .then((res) => { put(req, res); return res; })
         .catch(async () => {
           const hit = await lookup(req, url);
