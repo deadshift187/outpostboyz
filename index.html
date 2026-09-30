@@ -32,6 +32,76 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://duogqviqgmbaynfrhrmq.supabase.co" crossorigin>
   <link rel="stylesheet" href="assets/style.css">
+  <style>
+  /* Hire the lab (services). Inline so it ships with the network-first HTML, not the cache-first style.css. */
+  .hire-case,.hire-card,.hire-extra,.hire-form{border:var(--bw) solid var(--ink);background:var(--paper)}
+  .hire-case{margin-bottom:24px}
+  .hire-case-head{padding:20px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;border-bottom:var(--bw) solid var(--ink)}
+  .hire-case-head p,.hire-body p,.hire-extra p{color:var(--grey);font-size:14px}
+  .hire-case h3,.hire-body h3{font-family:var(--disp);font-size:24px;letter-spacing:-1px;line-height:1.05;text-transform:uppercase}
+  .hire-steps{display:grid;grid-template-columns:1fr 1fr}
+  .hire-step{margin:0;display:flex;flex-direction:column;min-width:0}
+  .hire-step:nth-child(2){border-left:var(--bw) solid var(--ink)}
+  .hire-step:nth-child(3){grid-column:1/-1;border-top:var(--bw) solid var(--ink)}
+  .hire-pic{aspect-ratio:3/4;overflow:hidden;position:relative;background:#222}
+  .hire-step:nth-child(3) .hire-pic{aspect-ratio:16/9}
+  @media(min-width:760px){.hire-steps{grid-template-columns:repeat(3,1fr)}.hire-step:nth-child(3){grid-column:auto;border-top:0;border-left:var(--bw) solid var(--ink)}.hire-step:nth-child(3) .hire-pic{aspect-ratio:3/4}}
+  .hire-pic img{width:100%;height:100%;object-fit:contain;display:block}
+  .hire-step figcaption{padding:10px 14px 12px;font-size:13px;color:var(--grey);border-top:2px solid var(--ink)}
+  .hire-step figcaption b{display:block;font-family:var(--disp);font-size:15px;color:var(--ink);text-transform:uppercase;font-weight:400}
+  .hire-grid{display:grid;grid-template-columns:1fr;gap:24px}
+  @media(min-width:760px){.hire-grid{grid-template-columns:1fr 1fr}}
+  .hire-card{display:flex;flex-direction:column;min-width:0}
+  .hire-media{display:block;position:relative;overflow:hidden;border-bottom:var(--bw) solid var(--ink);background:#111}
+  .hire-media img{width:100%;height:100%;object-fit:cover;display:block}
+  .hire-tag,.hire-lab{position:absolute;top:10px;left:10px;background:var(--ink);color:var(--paper);font-weight:900;font-size:11px;letter-spacing:1.5px;padding:4px 8px;pointer-events:none}
+  .hire-lab.r{left:auto;right:10px}
+  .hire-body{padding:20px;display:flex;flex-direction:column;gap:12px;flex:1}
+  .hire-rows{font-size:14px;width:100%}
+  .hire-rows div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-top:2px solid var(--ink);padding:9px 0}
+  .hire-rows div:last-child{border-bottom:2px solid var(--ink)}
+  .hire-rows b{white-space:nowrap}
+  .hire-fine{font-size:12px!important}
+  .hire-links{display:flex;flex-wrap:wrap;gap:8px}
+  .hire-links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border:2px solid var(--ink);color:var(--ink);font-weight:900;font-size:12px;letter-spacing:1px;text-transform:uppercase;text-decoration:none}
+  .hire-links a:hover{background:var(--ink);color:var(--paper)}
+  .hire-cta{display:block;text-align:center;margin-top:auto;min-height:48px}
+  /* drawing -> 3D slider */
+  .hire-ba{position:relative;aspect-ratio:1/1;overflow:hidden;background:#222;border-bottom:var(--bw) solid var(--ink);touch-action:pan-y}
+  .hire-ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .hire-ba .top{clip-path:inset(0 calc(100% - var(--x,50%)) 0 0)}
+  .hire-ba .bar{position:absolute;top:0;bottom:0;left:var(--x,50%);width:3px;margin-left:-1px;background:var(--paper);box-shadow:0 0 0 1px var(--ink);pointer-events:none}
+  .hire-ba .bar::after{content:'\2039 \203A';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--ink);color:var(--paper);font-weight:900;font-size:16px;line-height:1;padding:8px 10px;border:2px solid var(--paper);white-space:nowrap}
+  .hire-ba input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
+  .hire-ba input:focus-visible + .bar{outline:3px solid var(--red)}
+  /* tap-to-play clips */
+  .hire-pair{display:grid;grid-template-columns:1fr 1fr;border-bottom:var(--bw) solid var(--ink)}
+  .hire-pair > div{position:relative;overflow:hidden;min-width:0}
+  .hire-pair > div + div{border-left:var(--bw) solid var(--ink)}
+  .hire-pair .hire-vid{aspect-ratio:3/4;background:#000}
+  .hire-vid video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;background:#000}
+  .hire-play{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);min-height:44px;padding:0 14px;background:var(--red);color:var(--paper);border:var(--bw) solid var(--ink);font-family:var(--body);font-weight:900;font-size:12px;letter-spacing:1px;cursor:pointer;white-space:nowrap}
+  .hire-play:hover{background:var(--ink)}
+  .hire-vid.on .hire-play{display:none}
+  .hire-brands > div{display:flex;align-items:center;justify-content:center;aspect-ratio:1/1}
+  .hire-brands img{width:100%;height:100%;object-fit:contain;display:block}
+  /* learn + something else */
+  .hire-extra{margin-top:24px;display:grid;grid-template-columns:1fr}
+  .hire-extra > div{padding:20px;display:flex;flex-direction:column;gap:12px}
+  .hire-extra > div + div{border-top:var(--bw) solid var(--ink)}
+  @media(min-width:760px){.hire-extra{grid-template-columns:1.4fr 1fr}.hire-extra > div + div{border-top:0;border-left:var(--bw) solid var(--ink)}}
+  .hire-kicker{font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase}
+  .hire-merch{display:inline-flex;align-items:center;min-height:44px;color:var(--ink);font-weight:700;font-size:13px}
+  /* contact form */
+  .hire-form{margin-top:24px;padding:24px 20px}
+  .hire-form-title{font-family:var(--disp);font-size:20px;text-transform:uppercase;letter-spacing:-.5px;font-weight:400}
+  .hire-form > p{color:var(--grey);font-size:14px;margin:6px 0 16px}
+  .hire-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .hire-form input,.hire-form select,.hire-form textarea{width:100%;min-height:48px;border:var(--bw) solid var(--ink);padding:12px 14px;font-family:var(--body);font-size:16px;border-radius:0;background:var(--paper);color:var(--ink)}
+  .hire-form textarea{margin-top:12px;resize:vertical}
+  .hire-send{margin-top:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  #svcMsg{font-weight:600;font-size:14px}
+  </style>
 </head>
 <body>
   <div id="loadup" aria-hidden="true">
@@ -145,137 +215,159 @@
     <section class="section" id="services">
       <div class="sec-head">
         <span class="sec-num">(04)</span>
-        <h2>LAB SERVICES</h2>
-        <p class="sec-sub">The lab works for hire. Real humans. Real builds. No agencies.</p>
+        <h2>HIRE THE LAB</h2>
+        <p class="sec-sub">What we make. Something else in mind? Contact us.</p>
       </div>
 
-      <div class="steam-row">
-        <article class="steam-mini">
-          <span class="chip chip-hot">1-ON-1 LIVE</span>
-          <h4>THE APPRENTICESHIP</h4>
-          <p>We remote onto YOUR desktop and teach you to build games — live, hands-on, human. You leave with a real game you made.</p>
-          <div style="width:100%; font-size:14px;">
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); padding:8px 0;"><span>Single session (2 hrs)</span><b>$299</b></div>
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); padding:8px 0;"><span>ZERO TO GAME — two 2-hour sessions, ship your first 2D game</span><b>$499</b></div>
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); padding:8px 0;"><span>YOUR OWN GAME — we build you a basic game starring 1 custom character of your choice</span><b>$1,000</b></div>
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); border-bottom:2px solid var(--ink); padding:8px 0;"><span>FULL 3D MASTERCLASS — everything we know</span><b>$5,000</b></div>
+      <article class="hire-case" id="terry">
+        <div class="hire-case-head">
+          <span class="chip chip-hot">CASE STUDY</span>
+          <h3>Just Terry, concept to playable</h3>
+          <p>Our crewmate Terry, turned into an animated character running around our game DEAD SHIFT.</p>
+        </div>
+        <div class="hire-steps">
+          <figure class="hire-step">
+            <div class="hire-pic" style="background:#c4c4c4"><img src="assets/work/terry-design.webp" alt="Character design sheet of Terry" width="600" height="800" loading="lazy" decoding="async"></div>
+            <figcaption><b>01 · The design</b>Outfit and style, locked first.</figcaption>
+          </figure>
+          <figure class="hire-step">
+            <div class="hire-pic" style="background:#222"><img src="assets/work/terry-model.webp" alt="Rotating 3D model of Terry" width="360" height="480" loading="lazy" decoding="async"></div>
+            <figcaption><b>02 · The model</b>Textured, rigged and animated.</figcaption>
+          </figure>
+          <figure class="hire-step">
+            <div class="hire-pic hire-vid">
+              <video src="assets/work/terry-ingame.mp4" poster="assets/work/terry-ingame.webp" muted loop playsinline preload="none" width="640" height="360" aria-label="Terry running in DEAD SHIFT"></video>
+              <button type="button" class="hire-play" aria-label="Play clip: Terry in DEAD SHIFT"><span aria-hidden="true">&#9654;</span> PLAY</button>
+            </div>
+            <figcaption><b>03 · In the game</b>Playable in DEAD SHIFT.</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <div class="hire-grid">
+        <!-- 1. GAME -->
+        <article class="hire-card">
+          <a class="hire-media" href="games/save-lost-angeles/" style="aspect-ratio:4/3"><img src="assets/work/sla-coop.webp" alt="SAVE LOST ANGELES two-player co-op in Chinatown" width="800" height="450" loading="lazy" decoding="async"><span class="hire-tag">SAVE LOST ANGELES</span></a>
+          <div class="hire-body">
+            <h3>A game, made for you</h3>
+            <p>Gift games, promo games, channel games. Same crew that made SAVE LOST ANGELES and everything in THE LAB.</p>
+            <div class="hire-rows">
+              <div><span>Arcade · we host it, you share the link</span><b>$199</b></div>
+              <div><span>Own it · full rights + source files</span><b>$799</b></div>
+              <div><span>Bigger idea · 3D, multiplayer, Steam</span><b>Contact us</b></div>
+            </div>
+            <div class="hire-links"><a href="games/save-lost-angeles/">Play Save Lost Angeles &rarr;</a><a href="#arcade">Free arcade &rarr;</a></div>
+            <a class="btn btn-red btn-sm svc-btn hire-cta" data-svc="commission" href="#hire">START A GAME</a>
           </div>
-          <a class="btn btn-red btn-sm svc-btn" data-svc="apprenticeship" href="#hire">REQUEST TRAINING</a>
         </article>
 
-        <article class="steam-mini">
-          <span class="chip chip-hot">CUSTOM BUILD</span>
-          <h4>COMMISSION A GAME</h4>
-          <p>Your idea, built by the lab. Gift games, promo games, channel games — Block Nine energy with your name on it.</p>
-          <div style="width:100%; font-size:14px;">
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); padding:8px 0;"><span>ARCADE — we host it, you get the link</span><b>$199</b></div>
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); padding:8px 0;"><span>OWN IT — full rights + source files</span><b>$799</b></div>
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); border-bottom:2px solid var(--ink); padding:8px 0;"><span>BRING A BUDGET — 3D, multiplayer, wild ideas</span><b>Custom</b></div>
+        <!-- 2. 3D -->
+        <article class="hire-card">
+          <div class="hire-ba" style="--x:50%">
+            <img src="assets/work/ruffer-3d.webp" alt="3D model of a Ruff Transit crew member" width="600" height="800" loading="lazy" decoding="async">
+            <img class="top" src="assets/work/ruffer-drawing.webp" alt="Original drawing of a Ruff Transit crew member" width="600" height="800" loading="lazy" decoding="async">
+            <span class="hire-lab l" aria-hidden="true">DRAWING</span><span class="hire-lab r" aria-hidden="true">3D MODEL</span>
+            <input type="range" min="0" max="100" value="50" aria-label="Drag to compare the drawing and the 3D model"><span class="bar" aria-hidden="true"></span>
           </div>
-          <a class="btn btn-red btn-sm svc-btn" data-svc="commission" href="#hire">START A COMMISSION</a>
+          <div class="hire-body">
+            <h3>You, in 3D</h3>
+            <p>From a photo or a sketch to a game-ready 3D character, with a turntable video you can post.</p>
+            <div class="hire-rows">
+              <div><span>Static model · 4K textures</span><b>$69</b></div>
+              <div><span>Rigged + animated (idle / walk / run)</span><b>$149</b></div>
+            </div>
+            <p class="hire-fine">Real people only with their OK.</p>
+            <a class="btn btn-red btn-sm svc-btn hire-cta" data-svc="character" href="#hire">ORDER A CHARACTER</a>
+          </div>
         </article>
 
-        <article class="steam-mini">
-          <span class="chip chip-hot">GAME-READY</span>
-          <h4>CUSTOM 3D CHARACTER</h4>
-          <p>You — or anyone — as a game-ready 3D character, built from a photo or a description. Use it in games, renders, wherever.</p>
-          <div style="width:100%; font-size:14px;">
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); padding:8px 0;"><span>STATIC MODEL</span><b>$69</b></div>
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); padding:8px 0;"><span>RIGGED + ANIMATED (idle / walk / run)</span><b>$149</b></div>
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); border-bottom:2px solid var(--ink); padding:8px 0;"><span>Textures: 2K included · 4K +$25 · 8K +$50</span><b>&nbsp;</b></div>
+        <!-- 3. VIDEO LAB -->
+        <article class="hire-card">
+          <div class="hire-pair">
+            <div class="hire-vid">
+              <video src="assets/work/lab-raw.mp4" poster="assets/work/lab-raw.webp" muted loop playsinline preload="none" width="360" height="500" aria-label="Raw gameplay capture"></video>
+              <span class="hire-lab l" aria-hidden="true">RAW</span>
+              <button type="button" class="hire-play" aria-label="Play the raw capture"><span aria-hidden="true">&#9654;</span> PLAY</button>
+            </div>
+            <div class="hire-vid">
+              <video src="assets/work/lab-reel.mp4" poster="assets/work/lab-reel.webp" muted loop playsinline preload="none" width="360" height="640" aria-label="Finished promo reel"></video>
+              <span class="hire-lab l" aria-hidden="true">FINISHED</span>
+              <button type="button" class="hire-play" aria-label="Play the finished reel"><span aria-hidden="true">&#9654;</span> PLAY</button>
+            </div>
           </div>
-          <a class="btn btn-red btn-sm svc-btn" data-svc="character" href="#hire">ORDER A CHARACTER</a>
+          <div class="hire-body">
+            <h3>Video lab</h3>
+            <p>Send us your footage. We turn it into finished shots for music videos, ads and launches.</p>
+            <div class="hire-rows">
+              <div><span>One hero shot · up to 10 sec</span><b>$199</b></div>
+              <div><span>Hook pack · 3 shots, ~30 sec</span><b>$499</b></div>
+              <div><span>30-sec promo · vertical + wide</span><b>$299</b></div>
+            </div>
+            <p class="hire-fine">Above: our own raw capture and the finished reel. You must own the footage or have the rights to it. No real faces without that person's OK.</p>
+            <a class="btn btn-red btn-sm svc-btn hire-cta" data-svc="renders" href="#hire">SEND FOOTAGE</a>
+          </div>
+        </article>
+
+        <!-- 4. LAUNCH KIT -->
+        <article class="hire-card">
+          <div class="hire-pair hire-brands">
+            <div style="background:#f3efe7"><img src="assets/work/watchpost-owl.webp" alt="WATCHPOST owl logo, wordmark and app icon" width="720" height="312" loading="lazy" decoding="async"></div>
+            <div style="background:#fff"><img src="assets/work/vvs-crest.webp" alt="Vintage Vault Supply crest on a navy crewneck" width="600" height="600" loading="lazy" decoding="async"></div>
+          </div>
+          <div class="hire-body">
+            <h3>Launch kit</h3>
+            <p>Your whole look, plus a site on the internet. Above: WATCHPOST and Vintage Vault Supply. And the site you're on.</p>
+            <div class="hire-rows">
+              <div><span>Brand kit · logos, colors, fonts, social pack</span><b>$349</b></div>
+              <div><span>Site · one page, mobile, contact form</span><b>$749</b></div>
+              <div><span>Both</span><b>$999</b></div>
+            </div>
+            <a class="btn btn-red btn-sm svc-btn hire-cta" data-svc="brandkit" href="#hire">GET THE KIT</a>
+          </div>
         </article>
       </div>
 
-      <p style="font-weight:900; font-size:13px; letter-spacing:2px; text-transform:uppercase; margin:34px 0 14px;">For brands — the lab builds for businesses too. Fast, flat-priced, no agency games.</p>
-
-      <div class="steam-row">
-        <article class="steam-mini">
-          <span class="chip chip-hot">72-HOUR TURNAROUND</span>
-          <h4>BRAND KIT</h4>
-          <p>Your whole look, built: logo suite, official colors and fonts, plus profile pics, banners, and post templates ready for every platform.</p>
-          <div style="width:100%; font-size:14px;">
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); padding:8px 0;"><span>FULL KIT — logos + colors/fonts + social pack</span><b>$349</b></div>
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); border-bottom:2px solid var(--ink); padding:8px 0;"><span style="color:var(--grey);">Pairs with WEBSITE, LIVE for a full launch look.</span><b>&nbsp;</b></div>
+      <div class="hire-extra">
+        <div>
+          <b class="hire-kicker">Learn with us</b>
+          <div class="hire-rows">
+            <div><span>1-on-1 live session · 2 hrs on your computer</span><b>$299</b></div>
+            <div><span>Zero to game · two 2-hr sessions on your first 2D game</span><b>$499</b></div>
           </div>
-          <a class="btn btn-red btn-sm svc-btn" data-svc="brandkit" href="#hire">GET THE LOOK</a>
-        </article>
-
-        <article class="steam-mini">
-          <span class="chip chip-hot">72-HOUR BUILD</span>
-          <h4>WEBSITE, LIVE</h4>
-          <p>Domain set up, site designed, live on the internet in 72 hours. Mobile-ready, contact form, email capture, the works.</p>
-          <div style="width:100%; font-size:14px;">
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); padding:8px 0;"><span>ONE-PAGER, LIVE</span><b>$749</b></div>
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); border-bottom:2px solid var(--ink); padding:8px 0;"><span>FULL BUILD — multi-page + booking + SEO basics</span><b>$1,499</b></div>
-          </div>
-          <a class="btn btn-red btn-sm svc-btn" data-svc="website" href="#hire">GET A SITE</a>
-        </article>
-
-        <article class="steam-mini">
-          <span class="chip chip-hot">AI VIDEO</span>
-          <h4>RENDER PACK</h4>
-          <p>Scroll-stopping promo video for your product or brand. Rendered, scored, and delivered fast.</p>
-          <div style="width:100%; font-size:14px;">
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); padding:8px 0;"><span>30-SECOND PROMO</span><b>$299</b></div>
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); border-bottom:2px solid var(--ink); padding:8px 0;"><span>3-PACK — vertical ads, TikTok / Reels ready</span><b>$699</b></div>
-          </div>
-          <a class="btn btn-red btn-sm svc-btn" data-svc="renders" href="#hire">ORDER RENDERS</a>
-        </article>
-
-        <article class="steam-mini">
-          <span class="chip chip-hot">SELECT BRANDS</span>
-          <h4>MARKETING PARTNER</h4>
-          <p>A fresh drop of marketing material every month — graphics, videos, campaign copy. You post it, you profit. We take on a few brands at a time.</p>
-          <div style="width:100%; font-size:14px;">
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); padding:8px 0;"><span>MONTHLY MATERIAL DROP</span><b>from $1,499/mo</b></div>
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); border-bottom:2px solid var(--ink); padding:8px 0;"><span style="color:var(--grey);">Delivered ready-to-post. What we ship is what you run — no edit rounds.</span><b>&nbsp;</b></div>
-          </div>
-          <a class="btn btn-red btn-sm svc-btn" data-svc="marketing" href="#hire">APPLY</a>
-        </article>
+          <a class="btn btn-line btn-sm svc-btn hire-cta" data-svc="apprenticeship" href="#hire">ASK ABOUT A SESSION</a>
+        </div>
+        <div>
+          <b class="hire-kicker">Something else in mind?</b>
+          <p>Merch, a mascot, a weird idea. Contact us.</p>
+          <a class="btn btn-solid btn-sm svc-btn hire-cta" data-svc="other" href="#hire">CONTACT US</a>
+          <a class="hire-merch svc-btn" data-svc="merch" href="#hire">Merch drop: get on the list &rarr;</a>
+        </div>
       </div>
 
-      <p style="font-weight:900; font-size:13px; letter-spacing:2px; text-transform:uppercase; margin:34px 0 14px;">The merch table — printed in-house, shipped to your door.</p>
-
-      <div class="steam-row">
-        <article class="steam-mini">
-          <span class="chip">INCOMING</span>
-          <h4>MERCH</h4>
-          <p>Tees, hoodies, and more with the Outpost crew art — dropping soon. Want first dibs or something custom? Tell us.</p>
-          <div style="width:100%; font-size:14px;">
-            <div style="display:flex; justify-content:space-between; border-top:2px solid var(--ink); border-bottom:2px solid var(--ink); padding:8px 0;"><span style="color:var(--grey);">Apparel drop in the works.</span><b>SOON</b></div>
-          </div>
-          <a class="btn btn-line btn-sm svc-btn" data-svc="merch" href="#hire">GET ON THE LIST</a>
-        </article>
-      </div>
-
-      <div id="hire" style="border: var(--bw) solid var(--ink); margin-top: 22px; padding: 26px;">
-        <b style="font-family: var(--disp); font-size: 20px; text-transform: uppercase; letter-spacing: -0.5px;">Commission the lab</b>
-        <p style="color: var(--grey); font-size: 14px; margin: 6px 0 16px;">Tell us what you want. The crew replies from squad@outpostboyz.com within 48 hours with a plan and a price. No bots, no forms disappearing into the void.</p>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+      <div id="hire" class="hire-form">
+        <b class="hire-form-title">Contact us</b>
+        <p>Tell us what you have in mind.</p>
+        <div class="hire-fields">
           <label class="sr-only" for="svcName">Your name</label>
-          <input id="svcName" autocomplete="name" placeholder="Your name" maxlength="100" style="border: var(--bw) solid var(--ink); padding: 13px 14px; font-family: var(--body); font-size: 15px; border-radius: 0;">
+          <input id="svcName" autocomplete="name" placeholder="Your name" maxlength="100">
           <label class="sr-only" for="svcEmail">Your email</label>
-          <input id="svcEmail" type="email" autocomplete="email" placeholder="your@email.com" maxlength="200" style="border: var(--bw) solid var(--ink); padding: 13px 14px; font-family: var(--body); font-size: 15px; border-radius: 0;">
-          <label class="sr-only" for="svcType">What do you need?</label>
-          <select id="svcType" style="border: var(--bw) solid var(--ink); padding: 13px 14px; font-family: var(--body); font-size: 15px; border-radius: 0; background: var(--paper);">
-            <option value="apprenticeship">The Apprenticeship (learn)</option>
-            <option value="commission">Commission a game</option>
-            <option value="character">Custom 3D character</option>
-            <option value="brandkit">Brand kit (logo + look)</option>
-            <option value="website">Website build</option>
-            <option value="renders">Video render pack</option>
-            <option value="marketing">Marketing partner (brands)</option>
-            <option value="merch">Merch / apparel</option>
+          <input id="svcEmail" type="email" autocomplete="email" placeholder="your@email.com" maxlength="200">
+          <label class="sr-only" for="svcType">What is it about?</label>
+          <select id="svcType">
+            <option value="commission">A game, made for you</option>
+            <option value="character">You, in 3D</option>
+            <option value="renders">Video lab</option>
+            <option value="brandkit">Launch kit (brand / site)</option>
+            <option value="apprenticeship">Learn with us</option>
+            <option value="merch">Merch list</option>
             <option value="other">Something else</option>
           </select>
         </div>
-        <label class="sr-only" for="svcDetails">Project details</label>
-        <textarea id="svcDetails" rows="3" maxlength="2000" placeholder="What are we building? Budget? Deadline? The weirder the details, the better." style="width:100%; margin-top:12px; border: var(--bw) solid var(--ink); padding: 13px 14px; font-family: var(--body); font-size: 15px; border-radius: 0; resize: vertical;"></textarea>
-        <div style="margin-top:14px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+        <label class="sr-only" for="svcDetails">Details</label>
+        <textarea id="svcDetails" rows="3" maxlength="2000" placeholder="What do you have in mind? Links, budget, anything useful."></textarea>
+        <div class="hire-send">
           <button class="btn btn-solid" id="svcSend">SEND IT TO THE LAB</button>
-          <span id="svcMsg" role="status" aria-live="polite" style="font-weight:600; font-size:14px;"></span>
+          <span id="svcMsg" role="status" aria-live="polite"></span>
         </div>
       </div>
     </section>
@@ -613,6 +705,27 @@
         if (sel) sel.value = this.getAttribute('data-svc');
       });
     });
+    // Drawing -> 3D compare slider.
+    document.querySelectorAll('.hire-ba').forEach(function (b) {
+      var r = b.querySelector('input');
+      if (!r) return;
+      var set = function () { b.style.setProperty('--x', r.value + '%'); };
+      r.addEventListener('input', set); set();
+    });
+    // Tap-to-play proof clips: nothing downloads until someone taps (preload="none").
+    document.querySelectorAll('.hire-vid').forEach(function (w) {
+      var v = w.querySelector('video'), p = w.querySelector('.hire-play');
+      if (!v || !p) return;
+      var play = function () {
+        w.classList.add('on');
+        var pr = v.play();
+        if (pr && pr.catch) pr.catch(function () { w.classList.remove('on'); });
+      };
+      p.addEventListener('click', play);
+      v.addEventListener('click', function () {
+        if (v.paused) play(); else { v.pause(); w.classList.remove('on'); }
+      });
+    });
     var send = document.getElementById('svcSend');
     if (!send) return;
     send.addEventListener('click', async function () {
@@ -622,9 +735,9 @@
       var details = document.getElementById('svcDetails').value.trim();
       var msgEl = document.getElementById('svcMsg');
       var bad = function (t) { msgEl.textContent = t; msgEl.style.color = '#d00000'; };
-      if (!name) { bad('Add your name so we know who to reply to.'); return; }
+      if (!name) { bad('Add your name first.'); return; }
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { bad("That email doesn't look right — check for typos."); return; }
-      if (!window.OB) { bad('Our form is temporarily down. Email squad@outpostboyz.com and we will take it from there.'); return; }
+      if (!window.OB) { bad('Our form is temporarily down. You can email squad@outpostboyz.com instead.'); return; }
       this.disabled = true; this.textContent = 'TRANSMITTING...';
       var r;
       try {
@@ -635,7 +748,7 @@
         bad("That didn't go through on our end. Try again in a minute, or email squad@outpostboyz.com directly.");
       } else {
         this.textContent = 'RECEIVED';
-        msgEl.textContent = 'The crew will hit your inbox within 48 hours.'; msgEl.style.color = '#1a7a0a';
+        msgEl.textContent = 'Got it. Thanks for reaching out.'; msgEl.style.color = '#1a7a0a';
       }
     });
   })();
