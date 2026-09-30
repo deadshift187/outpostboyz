@@ -8,7 +8,7 @@
 //    audio/video (run-the-board's ~7MB of .mp3 clips stay network-only; offline it falls back to TTS).
 //
 // Bump VERSION on a deploy that changes cached assets to drop every old cache on activate.
-const VERSION = '2026-09-29f';
+const VERSION = '2026-09-29f-nav';
 const CACHE = 'ob-arcade-' + VERSION;
 
 // Precached on install so every free game plays offline after the first visit.

@@ -656,8 +656,8 @@ section[id], header[id], #hire { scroll-margin-top: 84px; }
 .clip-facade:hover .clip-play, .clip-facade:focus-visible .clip-play { background: #fff; }
 .clip-facade:focus-visible { outline: 3px solid #39ff14; outline-offset: -6px; }
 
-/* phones: ONE nav row — logo + horizontally scrollable links (never 3 rows) */
-@media (max-width: 560px) {
+/* phones + tablets: ONE nav row — logo + horizontally scrollable links (never 3 rows) */
+@media (max-width: 1020px) {
   .nav { flex-wrap: nowrap; gap: 12px; padding: 4px 0 4px 16px; }
   .nav-logo { width: auto; flex: 0 0 auto; font-size: 15px; }
   .nav-links {
