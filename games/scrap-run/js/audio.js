@@ -5,11 +5,16 @@
    ===================================================================== */
 let AC=null, sfxG=null, musG=null, MUTED=false, NB=null, SILENT=false;   // SILENT = attract demo
 try{ MUTED=localStorage.getItem('scraprun_mute')==='1'; }catch(e){}
-function audioInit(){ if(AC)return; try{ AC=new (window.AudioContext||window.webkitAudioContext)();
+/* Called from every input. Browsers only unlock audio on certain gestures (Android Chrome: pointerUP/touchend for
+   touch, not pointerdown), so a context made on the first touch-down starts 'suspended' - keep nudging it awake. */
+function audioInit(){ if(AC){ if(AC.state==='suspended'&&!document.hidden)try{ AC.resume().catch(()=>{}); }catch(e){} return; }
+  try{ AC=new (window.AudioContext||window.webkitAudioContext)();
   const m=AC.createGain(); m.gain.value=.6; m.connect(AC.destination); sfxG=AC.createGain(); sfxG.connect(m); musG=AC.createGain(); musG.gain.value=MUTED?0:.18; musG.connect(m);
   if(MUTED)sfxG.gain.value=0;
-  NB=AC.createBuffer(1,AC.sampleRate,AC.sampleRate); const c=NB.getChannelData(0); for(let i=0;i<c.length;i++)c[i]=Math.random()*2-1; }catch(e){ AC=null; } }
-function toggleMute(){ MUTED=!MUTED; try{ localStorage.setItem('scraprun_mute',MUTED?'1':'0'); }catch(e){} if(musG)musG.gain.value=MUTED?0:.18; if(sfxG)sfxG.gain.value=MUTED?0:1; if(MUTED)try{ speechSynthesis.cancel(); }catch(e){} }
+  NB=AC.createBuffer(1,AC.sampleRate,AC.sampleRate); const c=NB.getChannelData(0); for(let i=0;i<c.length;i++)c[i]=Math.random()*2-1;
+  if(AC.state==='suspended')AC.resume().catch(()=>{}); }catch(e){ AC=null; } }
+function muteLabel(){ const b=document.getElementById('tbMute'); if(b)b.classList.toggle('off',MUTED); }
+function toggleMute(){ MUTED=!MUTED; try{ localStorage.setItem('scraprun_mute',MUTED?'1':'0'); }catch(e){} if(musG)musG.gain.value=MUTED?0:.18; if(sfxG)sfxG.gain.value=MUTED?0:1; if(MUTED)try{ speechSynthesis.cancel(); }catch(e){} muteLabel(); }
 function tone(f,d,type,v,slide,dest,when){ if(!AC)return; const t=when||AC.currentTime, o=AC.createOscillator(), ga=AC.createGain();
   o.type=type||'square'; o.frequency.setValueAtTime(f,t); if(slide&&slide!==1)o.frequency.exponentialRampToValueAtTime(Math.max(20,f*slide),t+d);
   ga.gain.setValueAtTime(v||.1,t); ga.gain.exponentialRampToValueAtTime(.0001,t+d); o.connect(ga).connect(dest||sfxG); o.start(t); o.stop(t+d+.02); }

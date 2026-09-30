@@ -32,8 +32,13 @@
   #wrap{position:fixed;left:0;right:0;top:0;height:100dvh;display:flex;align-items:center;justify-content:center}
   body.touch.portrait #wrap{height:58dvh;align-items:flex-end}
   canvas{image-rendering:pixelated;image-rendering:crisp-edges;background:#000}
-  .home-btn{position:fixed;top:10px;left:10px;z-index:10;font-family:'Press Start 2P',monospace;font-size:8px;color:#7d8da0;text-decoration:none;background:rgba(7,10,15,.7);border:1px solid #1d2a3a;padding:8px 10px}
+  .home-btn{position:fixed;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));z-index:10;font-family:'Press Start 2P',monospace;font-size:8px;color:#7d8da0;text-decoration:none;background:rgba(7,10,15,.7);border:1px solid #1d2a3a;padding:8px 10px}
+  .home-btn::after{content:'';position:absolute;inset:-8px}
   body.playing .home-btn{display:none}
+  /* phones held upright: say how the tiny menu works (tap a line) and that sideways is bigger */
+  #thint{display:none;position:fixed;left:16px;right:16px;top:calc(58dvh + 14px);z-index:4;pointer-events:none;text-align:center;
+    font-family:'Press Start 2P',monospace;font-size:8px;line-height:1.8;color:#7d8da0}
+  body.touch.portrait:not(.playing) #thint{display:block}
   /* ---- touch controls (shown after the first touch) ---- */
   #touch{display:none;position:fixed;inset:0;pointer-events:none;z-index:5;font-family:'Press Start 2P',monospace}
   body.touch #touch{display:block}
@@ -47,7 +52,9 @@
   #tbFire{right:max(96px,calc(env(safe-area-inset-right) + 82px));bottom:max(22px,env(safe-area-inset-bottom));width:74px;height:74px;background:rgba(255,77,157,.45)}
   #tbJump{right:max(14px,env(safe-area-inset-right));bottom:max(74px,calc(env(safe-area-inset-bottom) + 60px));width:74px;height:74px;background:rgba(65,255,107,.40)}
   #tbBomb{right:max(24px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));width:48px;height:48px;background:rgba(255,180,84,.45);font-size:7px}
-  #tbPause{right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));width:36px;height:36px;border-radius:8px;background:rgba(7,10,15,.6);font-size:9px}
+  #tbPause{right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));width:44px;height:44px;border-radius:8px;background:rgba(7,10,15,.6);font-size:9px}
+  #tbMute{right:max(62px,calc(env(safe-area-inset-right) + 52px));top:max(10px,env(safe-area-inset-top));width:44px;height:44px;border-radius:8px;background:rgba(7,10,15,.6);font-size:12px}
+  #tbMute.off{opacity:.55;text-decoration:line-through}
   body.touch.landscape #tpad{opacity:.8} body.touch.landscape .tb{opacity:.85}
 </style>
 </head>
@@ -56,8 +63,9 @@
 <div id="wrap"><canvas id="c" width="256" height="144"></canvas></div>
 <div id="touch">
   <div id="tpad"><div class="knob"></div><span class="ar" style="left:62px;top:6px">▲</span><span class="ar" style="left:62px;bottom:6px">▼</span><span class="ar" style="left:8px;top:62px">◀</span><span class="ar" style="right:8px;top:62px">▶</span></div>
-  <div class="tb" id="tbFire">SHOOT</div><div class="tb" id="tbJump">JUMP</div><div class="tb" id="tbBomb">BOMB</div><div class="tb" id="tbPause">II</div>
+  <div class="tb" id="tbFire">SHOOT</div><div class="tb" id="tbJump">JUMP</div><div class="tb" id="tbBomb">BOMB</div><div class="tb" id="tbPause">II</div><div class="tb" id="tbMute" aria-label="Sound on/off">♪</div>
 </div>
+<div id="thint">TAP A MENU LINE TO PICK IT<br>TURN SIDEWAYS FOR A BIGGER VIEW</div>
 <!-- load order matters: shared core -> data -> rules -> presentation -> glue -->
 <script src="js/core.js"></script>
 <script src="js/levels.js"></script>

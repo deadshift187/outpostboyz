@@ -36,7 +36,13 @@ addEventListener('keydown',e=>{ audioInit(); if(!COARSE&&!document.body.classLis
   if(e.code==='KeyM')toggleMute(); });
 addEventListener('keyup',e=>{ KB[e.code]=0; });
 addEventListener('blur',()=>{ for(const k in KB)KB[k]=0; });
-cv.addEventListener('pointerdown',()=>{ audioInit(); KBP.Enter=1; });
+/* a tap on the canvas = START/OK; TAPX/TAPY (game px) let menus pick the line / map node that was tapped */
+let TAPX=-1, TAPY=-1;
+cv.addEventListener('pointerdown',e=>{ audioInit(); KBP.Enter=1; const r=cv.getBoundingClientRect();
+  if(r.width&&r.height){ TAPX=(e.clientX-r.left)*W/r.width; TAPY=(e.clientY-r.top)*H/r.height; } });
+function tapRow(y0,step,n){ if(TAPY<0)return -1; const i=Math.floor((TAPY-y0)/step); return i>=0&&i<n?i:-1; }
+/* the audio unlock gesture on touch screens is the finger LIFT, so wake the audio there too (capture: buttons stop propagation) */
+addEventListener('pointerup',()=>audioInit(),true); addEventListener('touchend',()=>audioInit(),true);
 const kAny=(list)=>list.some(c=>KB[c]||KBP[c]);
 /* ---- touch controls (mobile): virtual d-pad + SHOOT/JUMP/BOMB + pause. Tap = one press (no auto-fire). ---- */
 const TOUCH={l:0,r:0,u:0,d:0,fire:0,jump:0,bomb:0}; let TOUCHP={};
@@ -53,7 +59,16 @@ addEventListener('touchstart',touchOn,{passive:true}); addEventListener('pointer
   [['tbFire','fire'],['tbJump','jump'],['tbBomb','bomb']].forEach(([id,k])=>{ const el=document.getElementById(id);
     el.addEventListener('pointerdown',e=>{ touchOn(); TOUCH[k]=1; TOUCHP[k]=1; el.classList.add('on'); try{ el.setPointerCapture(e.pointerId); }catch(_){ } audioInit(); e.preventDefault(); e.stopPropagation(); });
     const off=()=>{ TOUCH[k]=0; el.classList.remove('on'); }; el.addEventListener('pointerup',off); el.addEventListener('pointercancel',off); });
-  document.getElementById('tbPause').addEventListener('pointerdown',e=>{ KBP.Escape=1; e.preventDefault(); e.stopPropagation(); }); })();
+  document.getElementById('tbPause').addEventListener('pointerdown',e=>{ KBP.Escape=1; e.preventDefault(); e.stopPropagation(); });
+  const mb=document.getElementById('tbMute'); if(mb)mb.addEventListener('pointerdown',e=>{ audioInit(); toggleMute(); e.preventDefault(); e.stopPropagation(); });
+  muteLabel(); })();
+/* phone put away / app switched (Instagram users do this constantly): pause the level and drop held touches,
+   so nobody comes back to a dead run or a stick stuck held down */
+function releaseTouch(){ for(const k in TOUCH)TOUCH[k]=0; TOUCHP={}; for(const k in KB)KB[k]=0;
+  const kn=document.querySelector('#tpad .knob'); if(kn)kn.style.transform=''; document.querySelectorAll('#touch .tb.on').forEach(b=>b.classList.remove('on')); }
+function autoPause(){ releaseTouch(); if(NET.role!=='guest'&&SCR==='level'&&S&&S.phase==='play'&&!PAUSED){ PAUSED=true; SEL=0; } }
+document.addEventListener('visibilitychange',()=>{ if(document.hidden){ autoPause(); try{ if(AC)AC.suspend().catch(()=>{}); }catch(e){} } else audioInit(); });
+addEventListener('pagehide',autoPause); addEventListener('blur',autoPause);
 function touchMask(){ let m=0; const t=k=>TOUCH[k]||TOUCHP[k]; if(t('l'))m|=B_L; if(t('r'))m|=B_R; if(t('u'))m|=B_U; if(t('d'))m|=B_D;
   if(t('fire'))m|=B_FIRE; if(t('jump'))m|=B_JUMP; if(t('bomb'))m|=B_BOMB; return m; }
 function maskFrom(L){ let m=0; if(kAny(L.l))m|=B_L; if(kAny(L.r))m|=B_R; if(kAny(L.u))m|=B_U; if(kAny(L.d))m|=B_D;
@@ -111,12 +126,13 @@ function tick(){ T++; pollPads(); netTick(); const K=menuKeys();
   case 'ending': RESULT.t++; if(RESULT.t>180&&K.ok)toMap(); break; }
   if(NET.role==='host')hostSend();
   endFrame(); }
-function endFrame(){ for(const k in KBP)KBP[k]=0; TOUCHP={}; stepFX(); }
+function endFrame(){ for(const k in KBP)KBP[k]=0; TOUCHP={}; TAPX=TAPY=-1; stepFX(); }
 const TITLE_ITEMS=['1 PLAYER','1P + BOT BUDDY','2 PLAYERS - SAME SCREEN','ONLINE CO-OP','CONTROLS'];
 function titleTick(K){
   if(!DEMO||DEMO.phase!=='play'||DEMO.t>60*70){ DEMO=newSim({li:(T/3600|0)%3,np:2,seed:T+7,god:true}); DEMOMEM=[{},{}]; }
   simStep(DEMO,[botInput(DEMO,0,DEMOMEM[0]),botInput(DEMO,1,DEMOMEM[1])]); SILENT=true; consumeFX(FXQ,DEMO); SILENT=false; FXQ.length=0;
   if(K.up){ SEL=(SEL+TITLE_ITEMS.length-1)%TITLE_ITEMS.length; SFX('sel'); } if(K.down){ SEL=(SEL+1)%TITLE_ITEMS.length; SFX('sel'); }
+  if(K.ok){ const ti=tapRow(74,11,TITLE_ITEMS.length); if(ti>=0)SEL=ti; }
   if(K.ok){ SFX('ok'); resetFX(); DEMO=null;
     if(SEL===0){ MODE='solo'; NP=1; toMap(); } else if(SEL===1){ MODE='bot'; NP=2; toMap(); } else if(SEL===2){ MODE='duo'; NP=2; toMap(); }
     else if(SEL===3){ SCR='online'; SEL=0; } else SCR='controls'; SEL=SCR==='map'?Math.max(0,SAVE.unlocked-1):SEL; } }
@@ -126,14 +142,24 @@ function onlineTick(K){
   if(TYPING)return;
   if(K.up){ SEL=(SEL+2)%3; SFX('sel'); } if(K.down){ SEL=(SEL+1)%3; SFX('sel'); }
   if(K.back){ netReset(); SCR='title'; SEL=3; return; }
-  if(K.ok){ SFX('ok'); if(SEL===0)netHost(); else if(SEL===1){ netReset(); TYPING=true; CODE=''; } else { netReset(); SCR='title'; SEL=3; } } }
+  if(K.ok){ const oi=tapRow(58,12,ONLINE_ITEMS.length); if(oi>=0)SEL=oi; }
+  if(K.ok){ SFX('ok'); if(SEL===0)netHost(); else if(SEL===1){ netReset();
+      // phones have no keyboard to type the room code on the canvas: ask with the system prompt instead
+      if(document.body.classList.contains('touch')){ let c=''; try{ c=String(prompt('Enter the 4-letter room code')||''); }catch(e){}
+        c=c.toUpperCase().replace(/[^A-Z]/g,'').slice(0,4); if(c.length===4)netJoin(c); else if(c)flash('ROOM CODES ARE 4 LETTERS'); }
+      else { TYPING=true; CODE=''; } }
+    else { netReset(); SCR='title'; SEL=3; } } }
 function mapTick(K){ const n=SAVE.unlocked;
   if(K.left||K.up){ SEL=Math.max(0,SEL-1); SFX('sel'); } if(K.right||K.down){ SEL=Math.min(n-1,SEL+1); SFX('sel'); }
   if(K.back&&!KBP.Enter){ if(MODE==='online')netReset(); SCR='title'; SEL=0; musicStop(); return; }
+  if(K.ok&&TAPX>=0){ // tapped a mission node? pick it (locked ones stay unpickable)
+    let bi=-1, bd=16*16; for(let i=0;i<n;i++){ const dx=MAP_NODES[i][0]-TAPX, dy=MAP_NODES[i][1]-TAPY, d=dx*dx+dy*dy; if(d<bd){ bd=d; bi=i; } }
+    if(bi>=0)SEL=bi; }
   if(K.ok){ SFX('ok'); RETRIES=0; startLevel(SEL,false); } }
 function levelTick(K){
   if(K.pause&&S.phase==='play'){ PAUSED=!PAUSED; SEL=0; SFX('sel'); if(PAUSED)return; }
   if(PAUSED){ if(K.up)SEL=(SEL+2)%3; if(K.down)SEL=(SEL+1)%3;
+    if(K.ok){ const pi=tapRow(58,12,3); if(pi>=0)SEL=pi; }
     if(K.ok){ PAUSED=false; if(SEL===1){ RETRIES++; startLevel(LI,false); } else if(SEL===2)toMap(); } return; }
   let masks=localMasks(NP);
   if(MODE==='bot')masks[1]=botInput(S,1,BOTMEM);
@@ -145,6 +171,7 @@ function levelTick(K){
 function failItems(){ return FAIL.cp?['RETRY FROM BOSS','RETRY FROM START','WORLD MAP']:['RETRY','WORLD MAP']; }
 function failTick(K){ FAIL.t++; const it=failItems(); if(FAIL.t<40)return;
   if(K.up){ SEL=(SEL+it.length-1)%it.length; SFX('sel'); } if(K.down){ SEL=(SEL+1)%it.length; SFX('sel'); }
+  if(K.ok){ const fi=tapRow(92,11,it.length); if(fi>=0)SEL=fi; }
   if(K.ok){ SFX('ok'); const c=it[SEL]; RETRIES++; if(c==='RETRY FROM BOSS')startLevel(LI,true); else if(c==='WORLD MAP')toMap(); else startLevel(LI,false); } }
 
 /* ---------------- online: host side ---------------- */
