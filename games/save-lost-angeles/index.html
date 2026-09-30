@@ -1,134 +1,41 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#0b0d14">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Save Lost Angeles — Outpost Boyz</title>
-<meta name="description" content="Save Lost Angeles: a free Mario-style platformer. You're Golden Boy: 27 levels across 5 worlds of LA, 18 bosses, 2-player co-op. Play free in your browser.">
-<meta property="og:title" content="Save Lost Angeles — Outpost Boyz">
-<meta property="og:description" content="Golden Boy vs. the system. 27 levels, 18 bosses, 2-player co-op. Free in your browser.">
-<meta property="og:url" content="https://outpostboyz.com/games/save-lost-angeles/">
-<link rel="canonical" href="https://outpostboyz.com/games/save-lost-angeles/">
-<link rel="manifest" href="/manifest.webmanifest">
-<link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
-<link rel="icon" href="/assets/icons/icon-192.png">
-<script>
-/* iPhone Safari ignores user-scalable=no: a stray pinch (thumbs on stick + button) or double-tap zoomed the
-   game in mid-level (Saint, 9/29). Block pinch, double-tap zoom and scroll; the touch pad uses pointer events. */
-(function(){
-  var ok=function(t){ return t&&t.closest&&t.closest('a,button,input,select,textarea,label'); };
-  ['gesturestart','gesturechange','gestureend'].forEach(function(n){ document.addEventListener(n,function(e){ e.preventDefault(); },{passive:false}); });
-  document.addEventListener('touchstart',function(e){ if(e.touches.length>1||!ok(e.target))e.preventDefault(); },{passive:false});
-  document.addEventListener('touchmove',function(e){ e.preventDefault(); },{passive:false});
-  var last=0; document.addEventListener('touchend',function(e){ var n=Date.now(); if(n-last<350&&!ok(e.target))e.preventDefault(); last=n; },{passive:false});
-  document.addEventListener('dblclick',function(e){ e.preventDefault(); },{passive:false});
-})();
-</script>
-<style>
-  html,body{margin:0;height:100%;background:#0b0d14;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
-  #cv{position:absolute;image-rendering:pixelated;image-rendering:crisp-edges;background:#000}
-  #ui{position:absolute;inset:0;pointer-events:none}
-  #ui .touch{pointer-events:auto}
-  noscript{color:#fff;font:16px system-ui;padding:24px;display:block}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Save Lost Angeles — Outpost Boyz</title>
+  <meta name="description" content="Save Lost Angeles: Golden Boy vs. the system. 27 levels, 18 bosses, 2-player co-op. Coming soon to outpostboyz.com.">
+  <meta property="og:title" content="Save Lost Angeles — Outpost Boyz">
+  <meta property="og:description" content="Golden Boy vs. the system. 27 levels, 18 bosses, 2-player co-op. Coming soon.">
+  <meta property="og:url" content="https://outpostboyz.com/games/save-lost-angeles/">
+  <link rel="canonical" href="https://outpostboyz.com/games/save-lost-angeles/">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+  <link rel="icon" href="/assets/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    .la-wrap { max-width: 720px; margin: 0 auto; padding: 64px 16px 80px; text-align: center; }
+    .la-kicker { font-weight: 900; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--red-text); }
+    .la-title { font-family: var(--disp); font-size: clamp(44px, 11vw, 96px); line-height: .92; margin: 14px 0 18px; text-wrap: balance; }
+    .la-sub { font-size: 18px; line-height: 1.5; max-width: 34em; margin: 0 auto 28px; }
+    .la-facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 0 0 32px; }
+    .la-facts span { border: var(--bw) solid var(--ink); padding: 8px 12px; font-weight: 900; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; }
+    .la-soon { display: inline-block; background: var(--ink); color: var(--paper); padding: 16px 24px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+    .la-back { display: inline-block; margin-top: 28px; font-weight: 900; color: var(--ink); }
+  </style>
 </head>
 <body>
-<canvas id="cv"></canvas>
-<div id="ui"></div>
-<noscript>LOST ANGELES needs JavaScript.</noscript>
-
-<!-- ===== DATA (generated from Saint's city by tools/extract.js, tools/dims.py) ===== -->
-<script src="data/sprites.js"></script>
-<script src="data/dims.js"></script>
-<script src="data/opus-art.js"></script>
-<script src="data/city.js"></script>
-<script src="data/layout.js"></script>
-<script src="data/builder.js"></script>
-<script src="data/content.js"></script>
-
-<!-- ===== CORE (lead) ===== -->
-<script src="src/core/la.js"></script>
-<script src="src/core/assets.js"></script>
-<script src="src/core/viewport.js"></script>
-<script src="src/core/input.js"></script>
-<script src="src/core/loop.js"></script>
-<script src="src/core/phys.js"></script>
-<script src="src/core/camera.js"></script>
-<script src="src/core/scenes.js"></script>
-<script src="src/world/city.js"></script>
-<script src="src/levels/levels.js"></script>
-<script src="src/core/game.js"></script>
-
-<!-- ===== AUDIO (agent: audio) ===== -->
-<script src="src/audio/audio.js"></script>
-<script src="src/audio/music.js"></script>
-
-<!-- ===== GAMEPLAY (lead: player; agent: gameplay) ===== -->
-<script src="src/game/player.js"></script>
-<script src="src/game/powers.js"></script>
-<script src="src/game/shots.js"></script>
-<script src="src/game/enemies.js"></script>
-<script src="src/game/hazards.js"></script>
-<script src="src/game/props.js"></script>
-<script src="src/game/pickups.js"></script>
-<script src="src/game/citizens.js"></script>
-<script src="src/game/populate.js"></script>
-
-<!-- ===== SET-PIECES (agent: setpieces) ===== -->
-<script src="src/setpieces/setpieces.js"></script>
-<script src="src/setpieces/concert.js"></script>
-<script src="src/setpieces/rv.js"></script>
-<script src="src/setpieces/heist.js"></script>
-<script src="src/setpieces/kult.js"></script>
-<script src="src/setpieces/fbi.js"></script>
-<script src="src/setpieces/flood.js"></script>
-<script src="src/setpieces/paparazzi.js"></script>
-<script src="src/setpieces/flight.js"></script>
-<script src="src/setpieces/alcatraz.js"></script>
-
-<!-- ===== BOSSES (agent: bosses) ===== -->
-<script src="src/bosses/bosses.js"></script>
-<script src="src/bosses/art.js"></script>
-<script src="src/bosses/fights-coast.js"></script>
-<script src="src/bosses/fights-valley.js"></script>
-<script src="src/bosses/fights-downtown.js"></script>
-<script src="src/bosses/fights-westside.js"></script>
-<script src="src/bosses/fights-reckoning.js"></script>
-
-<!-- ===== PROGRESSION / UI / STORY (agent: ui) ===== -->
-<script src="src/progression/save.js"></script>
-<script src="src/ui/ui.js"></script>
-<script src="src/ui/hud.js"></script>
-<script src="src/ui/touch.js"></script>
-<script src="src/ui/title.js"></script>
-<script src="src/ui/map.js"></script>
-<script src="src/ui/screens.js"></script>
-<script src="src/story/cutscenes.js"></script>
-<script src="src/progression/flow.js"></script>
-
-<!-- ===== BOOT (lead) ===== -->
-<script src="src/core/debug.js"></script>
-<script src="src/core/notes.js"></script>
-<script src="src/main.js"></script>
-<!-- ===== OUTPOST BOYZ (site only): home link on menu screens, never over gameplay + play counter ===== -->
-<style>
-#obHome{position:fixed;top:max(10px,env(safe-area-inset-top));left:10px;z-index:50;display:none;align-items:center;
-  padding:8px 12px;min-height:28px;border:1px solid rgba(255,255,255,.18);border-radius:6px;background:rgba(8,10,16,.72);
-  color:#cfd6e4;font:600 10px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.15em;text-decoration:none}
-#obHome:hover,#obHome:focus-visible{color:#fff;border-color:#FF5A1F;outline:none}
-</style>
-<a id="obHome" href="/">&#9666; OUTPOST BOYZ</a>
-<script>
-(function () {
-  var MENUS = { title: 1, gameover: 1, credits: 1 };   // not map/results: their headers sit top-left
-  var el = document.getElementById('obHome');
-  function show(name) { el.style.display = MENUS[name] ? 'flex' : 'none'; }
-  if (window.LA && LA.on) { LA.on('scene', show); if (LA.scenes) show(LA.scenes.curName); }
-})();
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
-<script src="/assets/ob-sdk.js"></script>
+  <main class="la-wrap">
+    <p class="la-kicker">Outpost Boyz · Undefeated</p>
+    <h1 class="la-title">SAVE LOST ANGELES</h1>
+    <p class="la-sub">Golden Boy vs. the system. Run all of LA from Venice to Alcatraz, rescue the citizens, and take down every boss.</p>
+    <div class="la-facts"><span>27 levels</span><span>18 bosses</span><span>5 worlds</span><span>2-player co-op</span></div>
+    <span class="la-soon">Coming soon to the site</span>
+    <br>
+    <a class="la-back" href="/">&larr; Back to Outpost Boyz</a>
+  </main>
 </body>
 </html>

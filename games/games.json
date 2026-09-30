@@ -1,16 +1,6 @@
 {
   "games": [
     {
-      "slug": "save-lost-angeles",
-      "title": "SAVE LOST ANGELES",
-      "tagline": "Golden Boy vs. the system. 27 levels, 18 bosses, 2-player co-op.",
-      "icon": "🌴",
-      "color": "#ff5fa2",
-      "controls": "ARROWS · JUMP · FIRE · 2P CO-OP",
-      "badge": "NEW",
-      "added": "2026-09-29"
-    },
-    {
       "slug": "tap-flip",
       "title": "TAP FLIP",
       "tagline": "Flip gravity. Dodge everything. How far can you run?",
