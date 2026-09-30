@@ -545,8 +545,13 @@
       var gxEsc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); };
       var gxWinners = {};
       try {
-        if (window.OB) {
-          var gxW = await OB.client.from('bounty_winners').select('game_slug,gamertag,won_at');
+        // Only ask when a bounty is actually running, and never wait more than 3s: a slow or down
+        // backend must not leave the $4.99 card stuck on the loading line.
+        if (window.OB && OB.client && gauntlet.some(function (g) { return g.bountyStatus && g.bountyStatus !== 'soon'; })) {
+          var gxW = await Promise.race([
+            OB.client.from('bounty_winners').select('game_slug,gamertag,won_at'),
+            new Promise(function (r) { setTimeout(function () { r({ data: [] }); }, 3000); })
+          ]);
           (gxW.data || []).forEach(function (w) { gxWinners[w.game_slug] = w; });
         }
       } catch (e) { }

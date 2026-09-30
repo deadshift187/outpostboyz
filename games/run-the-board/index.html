@@ -398,7 +398,7 @@ const IWORDS=/^(think|guess|believe|bet|know|mean|reckon|would|say|am|m|dunno)$/
 const ORD=['','first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth','eleventh','twelfth','thirteenth','fourteenth','fifteenth','sixteenth','seventeenth','eighteenth','nineteenth','twentieth'];
 const ordWord=x=>{const m=/^(\d+)(?:st|nd|rd|th)$/.exec(x);return m&&ORD[+m[1]]?ORD[+m[1]]:x;}; // "5th"->"fifth"
 function normalize(s){
-  s=String(s==null?'':s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  s=String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   s=s.replace(/π/g,' pi ').replace(/&/g,' and ').replace(/['’‘`]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
   if(!s)return '';
   let w=s.split(' ');
