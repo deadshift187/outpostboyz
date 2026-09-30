@@ -109,12 +109,13 @@
       <div class="sec-head">
         <span class="sec-num">(03)</span>
         <h2>UNDEFEATED</h2>
-        <p class="sec-sub">Games nobody has beaten. The first one is open: SAVE LOST ANGELES, $4.99 on your account. A $100 bounty for the first player to beat it is coming soon.</p>
+        <p class="sec-sub">Games nobody has beaten. The first one: SAVE LOST ANGELES, $4.99 on your account. First player to beat it gets $100.</p>
       </div>
 
       <div style="border: var(--bw) solid var(--ink); background: var(--ink); color: var(--paper); padding: 18px 22px; margin-bottom: 22px; font-size: 14px;">
-        <b style="letter-spacing: 2px;">THE RULES (BOUNTY COMING SOON):</b>
-        buy it once and it's yours on your account, on phone and computer &nbsp;·&nbsp; every run posts your farthest point to the <a href="leaderboard/" style="color:#39ff14;">world board</a> &nbsp;·&nbsp; first player to BEAT it — verified by the crew — takes the <b style="color:#39ff14;">$100 bounty</b> &nbsp;·&nbsp; conquered games retire to the BEAT PILE with the victor's name on them forever.
+        <b style="letter-spacing: 2px;">THE $100 BOUNTY <span id="gxStatus" style="color:#39ff14;">(OPENS SOON)</span>:</b>
+        buy the game once and it's yours &nbsp;·&nbsp; owners enter free &nbsp;·&nbsp; first to beat the <b style="color:#39ff14;">FULL CITY RUN on NATIVE</b> — solo, GOLDEN BOY, zero continues, on video — and pass the crew's check takes the <b style="color:#39ff14;">$100</b> &nbsp;·&nbsp; conquered games retire to the BEAT PILE with the victor's name on them forever.
+        <span style="display:block; margin-top:10px; font-size:12px; color:#bbbbbb;">18+. US only; not open to residents of AR, AZ, CT, DE, IA, IN, LA, ME, MT, SC, SD, TN. Void where prohibited. <a href="bounty/" style="color:#39ff14;">Bounty details</a> &middot; <a href="bounty/rules/" style="color:#39ff14;">Official Rules</a></span>
       </div>
 
       <div class="game-grid" id="gauntletGrid">
@@ -516,17 +517,38 @@
       }
 
       var gauntlet = store.gauntlet || [];
+      // Bounty status per game: store.json bountyStatus ("soon" | "open" | "claimed"); a verified winner
+      // in public.bounty_winners (set from /admin/bounty/) overrides it to CLAIMED.
+      var gxEsc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); };
+      var gxWinners = {};
+      try {
+        if (window.OB) {
+          var gxW = await OB.client.from('bounty_winners').select('game_slug,gamertag,won_at');
+          (gxW.data || []).forEach(function (w) { gxWinners[w.game_slug] = w; });
+        }
+      } catch (e) { }
       if (!gauntlet.length) {
         gg.innerHTML = '<p class="loading">FIRST UNDEFEATED EXPERIMENT IN FABRICATION. BRING BANDAGES.</p>';
       } else {
+        var gxLabel = function (g) {
+          var w = gxWinners[g.slug];
+          if (w || g.bountyStatus === 'claimed') return 'CLAIMED' + (w ? ' — WINNER: ' + gxEsc(w.gamertag) : '');
+          return g.bountyStatus === 'open' ? 'OPEN NOW' : 'OPENS SOON';
+        };
+        var gxFirst = gauntlet.filter(function (g) { return g.bountyStatus; })[0];
+        var gxS = document.getElementById('gxStatus');
+        if (gxS && gxFirst) gxS.innerHTML = '(' + gxLabel(gxFirst) + ')';
         gg.innerHTML = gauntlet.map(function (g) {
           var live = !!g.available;
           // Paid gauntlet games sell (and unlock) on their own page: /games/<slug>/.
           var btn = live
             ? '<a class="game-play" href="games/' + g.slug + '/">GET IT &#8212; ' + g.price + '</a>'
             : '<span class="game-play dim">COMING SOON</span>';
-          var teaser = '<p style="flex:0; font-weight:900; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--ink);">' +
-            (live ? 'One-time purchase &#183; $100 bounty coming soon' : 'Not open yet — the $100 bounty opens at launch.') + '</p>';
+          var teaser = g.bountyStatus
+            ? '<a href="bounty/" style="flex:0; display:block; font-weight:900; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--ink); border:2px solid var(--ink); padding:10px 12px; text-decoration:none; min-height:44px;">' +
+              (g.bountyPrize || '$100') + ' BOUNTY &#183; ' + gxLabel(g) + ' &#8594;</a>'
+            : '<p style="flex:0; font-weight:900; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--ink);">' +
+              (live ? 'One-time purchase' : 'Not open yet.') + '</p>';
           return '<article class="game-card" style="--gc:' + (g.color || '#000') + '">' +
             '<span class="chip chip-hot game-badge">' + (live ? g.price : 'COMING SOON') + '</span>' +
             '<div class="game-icon" aria-hidden="true">' + (g.icon || '&#128128;') + '</div>' +
@@ -534,11 +556,18 @@
         }).join('');
       }
       var bp = document.getElementById('beatPile');
-      var beat = store.beatPile || [];
+      var beat = (store.beatPile || []).slice();
+      // Verified bounty winners show up here right away; a store.json beatPile entry for the same game wins.
+      (gauntlet || []).forEach(function (g) {
+        var w = gxWinners && gxWinners[g.slug];
+        if (w && !beat.some(function (b) { return b.title === g.title; })) {
+          beat.push({ title: g.title, winner: w.gamertag, beatenAt: new Date(w.won_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) });
+        }
+      });
       if (beat.length) {
         bp.innerHTML = beat.map(function (b) {
           return '<div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:14px 18px; border-bottom:2px solid var(--ink); font-size:14px;">' +
-            '<span><b>' + b.title + '</b> — conquered by <b style="color:var(--red-text);">' + b.winner + '</b> on ' + b.beatenAt + '</span>' +
+            '<span><b>' + gxEsc(b.title) + '</b> — conquered by <b style="color:var(--red-text);">' + gxEsc(b.winner) + '</b> on ' + gxEsc(b.beatenAt) + '</span>' +
             '<span style="font-weight:900;">$100 CLAIMED</span></div>';
         }).join('');
       }

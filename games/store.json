@@ -9,7 +9,10 @@
       "color": "#ff4d9d",
       "price": "$4.99",
       "available": true,
-      "paid": true
+      "paid": true,
+      "bountyStatus": "soon",
+      "bountyOpenedAt": null,
+      "bountyPrize": "$100"
     }
   ],
   "beatPile": [],

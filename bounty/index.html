@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>$100 Bounty — First to Beat Save Lost Angeles — Outpost Boyz</title>
+  <meta name="description" content="First player to beat SAVE LOST ANGELES' Full City Run on NATIVE — solo, Golden Boy, zero continues — gets $100. Own the game, enter free, submit your video.">
+  <meta name="theme-color" content="#000000">
+  <link rel="canonical" href="https://outpostboyz.com/bounty/">
+  <meta property="og:title" content="First to beat it gets $100 — SAVE LOST ANGELES">
+  <meta property="og:description" content="Full City Run. NATIVE. Solo. Zero continues. First verified player to beat it takes the $100 bounty.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://outpostboyz.com/bounty/">
+  <meta property="og:image" content="https://outpostboyz.com/assets/crew.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white' font-family='Arial Black'>OB</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .bh-wrap { max-width: 760px; margin: 0 auto; padding: 36px 16px 80px; }
+    .bh-kick { font-weight: 900; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--red-text); }
+    .bh-h { font-family: var(--disp); font-size: clamp(40px, 12vw, 86px); letter-spacing: -2px; line-height: .92; text-transform: uppercase; margin-top: 8px; }
+    .bh-h em { font-style: normal; color: #1a7a0a; }
+    .bh-badge { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; padding: 9px 14px; min-height: 44px; border: var(--bw) solid var(--ink);
+      font: 900 14px/1.2 var(--body); letter-spacing: 1.5px; text-transform: uppercase; }
+    .bh-badge.soon { border-style: dashed; border-color: var(--grey); color: var(--grey); }
+    .bh-badge.open { background: #39ff14; color: #000; }
+    .bh-badge.claimed { background: var(--ink); color: var(--paper); }
+    .bh-badge.ended { color: var(--grey); border-color: var(--grey); }
+    .bh-dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; flex: none; }
+    .bh-when { color: var(--grey); font-size: 14px; margin-top: 8px; }
+    .bh-rule { border: var(--bw) solid var(--ink); background: var(--ink); color: var(--paper); padding: 16px 18px; margin-top: 20px; font-size: 17px; line-height: 1.45; }
+    .bh-rule b { color: #39ff14; }
+    .bh-cta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+    .bh-cta .btn { flex: 1 1 200px; text-align: center; }
+    .bh-card { border: var(--bw) solid var(--ink); padding: 20px 18px; margin-top: 26px; }
+    .bh-card h2, .bh-sec h2 { font-family: var(--disp); font-size: clamp(22px, 6vw, 30px); letter-spacing: -.5px; text-transform: uppercase; line-height: 1.05; }
+    .bh-card p { font-size: 16px; margin-top: 10px; }
+    .bh-sub { color: var(--grey); font-size: 14px !important; }
+    .bh-who { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px; font-weight: 900; letter-spacing: .5px; }
+    .bh-tag { font-family: var(--disp); font-size: 26px; letter-spacing: 0; overflow-wrap: anywhere; }
+    .bh-in { background: #39ff14; color: #000; border: 2px solid #000; padding: 4px 8px; font: 900 12px/1.2 var(--body); letter-spacing: 1px; }
+    .bh-label { font-weight: 900; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; display: block; margin: 16px 0 6px; }
+    .bh-input { width: 100%; border: var(--bw) solid var(--ink); padding: 13px 14px; font: 16px var(--body); border-radius: 0; background: var(--paper); color: var(--ink); }
+    .bh-input:focus { outline: 3px solid #39ff14; outline-offset: 2px; }
+    .bh-check { display: flex; gap: 12px; align-items: flex-start; margin-top: 12px; font-size: 15px; line-height: 1.4; cursor: pointer; }
+    .bh-check input { width: 24px; height: 24px; flex: none; margin-top: 1px; accent-color: #000; }
+    .bh-btn { width: 100%; margin-top: 16px; min-height: 52px; font-size: 15px; }
+    .bh-btn[disabled] { opacity: .5; cursor: not-allowed; }
+    .bh-msg { margin-top: 12px; font-weight: 600; font-size: 15px; min-height: 1em; }
+    .bh-msg.err { color: var(--red-text); }
+    .bh-msg.ok { color: #1a7a0a; }
+    .bh-warn { border: 2px solid var(--red-text); color: var(--red-text); padding: 10px 12px; margin-top: 10px; font-weight: 600; font-size: 14px; }
+    .bh-steps { list-style: none; counter-reset: s; margin-top: 12px; }
+    .bh-steps li { counter-increment: s; position: relative; padding: 12px 0 12px 46px; border-top: 1px solid #ddd; font-size: 16px; }
+    .bh-steps li:last-child { border-bottom: 1px solid #ddd; }
+    .bh-steps li::before { content: counter(s); position: absolute; left: 0; top: 10px; width: 32px; height: 32px; display: grid; place-items: center;
+      background: var(--ink); color: var(--paper); font-weight: 900; font-size: 15px; border-radius: 4px 4px 10px 10px; }
+    .bh-sec { margin-top: 36px; }
+    .bh-list { margin: 12px 0 0 20px; }
+    .bh-list li { margin-top: 8px; font-size: 16px; }
+    .bh-claim { border-top: 2px solid var(--ink); padding: 12px 0; font-size: 14px; }
+    .bh-claim:last-child { border-bottom: 2px solid var(--ink); }
+    .bh-chip { display: inline-block; font: 900 11px/1 var(--body); letter-spacing: 1px; padding: 5px 7px; border: 2px solid var(--ink); text-transform: uppercase; }
+    .bh-chip.pending { background: #ffe14d; border-color: #8a6d00; }
+    .bh-chip.approved { background: #39ff14; border-color: #1a7a0a; }
+    .bh-chip.rejected { color: var(--red-text); border-color: var(--red-text); }
+    .bh-link { overflow-wrap: anywhere; }
+    .bh-fine { color: var(--grey); font-size: 13px; margin-top: 30px; line-height: 1.5; }
+    .bh-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .bh-row .bh-input { flex: 1 1 200px; width: auto; }
+    .bh-row .btn { flex: 0 0 auto; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="nav-logo" href="../">OUTPOST&nbsp;BOYZ</a>
+    <div class="nav-links">
+      <a href="../games/save-lost-angeles/">The Game</a>
+      <a href="rules/">Rules</a>
+      <a href="../leaderboard/">Ranks</a>
+      <a href="../account/?return=/bounty/" id="navAccount">Sign In</a>
+    </div>
+  </nav>
+
+  <main class="bh-wrap">
+    <p class="bh-kick">Save Lost Angeles &middot; Undefeated</p>
+    <h1 class="bh-h">First to beat it gets <em>$100</em></h1>
+
+    <div id="badge" class="bh-badge soon" role="status" aria-live="polite"><span class="bh-dot" aria-hidden="true"></span><span id="badgeText">CHECKING…</span></div>
+    <p class="bh-when" id="when"></p>
+
+    <p class="bh-rule"><b>The win:</b> beat the <b>FULL CITY RUN</b> on <b>NATIVE</b> &mdash; 1 player, <b>GOLDEN BOY</b>, <b>zero continues</b>, one sitting &mdash; on an unedited video.</p>
+
+    <div class="bh-cta">
+      <a class="btn btn-solid" href="../games/save-lost-angeles/" id="ctaGame">GET THE GAME &mdash; $4.99</a>
+      <a class="btn btn-line" href="rules/">OFFICIAL RULES</a>
+    </div>
+
+    <section class="bh-card" id="panel" aria-live="polite">
+      <h2>Your entry</h2>
+      <p class="bh-sub">Loading…</p>
+    </section>
+
+    <section class="bh-sec">
+      <h2>How to enter</h2>
+      <ol class="bh-steps">
+        <li><b>Own the game.</b> Buy SAVE LOST ANGELES ($4.99). It&rsquo;s yours to keep either way. Entering the bounty is free.</li>
+        <li><b>Sign in</b> on this page with the account that bought it.</li>
+        <li>Press <b>ENTER THE BOUNTY</b>. Pick your state, confirm you&rsquo;re 18+ and agree to the rules.</li>
+        <li><b>Record and play.</b> Start your screen recorder (or stream) on this page, then play the Full City Run on NATIVE.</li>
+        <li><b>Submit your video link</b> here. The crew reviews claims in the order they come in.</li>
+      </ol>
+    </section>
+
+    <section class="bh-sec">
+      <h2>What your video must show</h2>
+      <ul class="bh-list">
+        <li>This page first, with your gamertag and <b>ENTERED</b> badge. Then straight into the game.</li>
+        <li>The whole run, start to finish, with the on-screen run timer visible. No cuts, no edits.</li>
+        <li>The Full City Run results screen: <b>CONTINUES 0</b> and the RUN row <b>NATIVE &middot; 1P &middot; GOLDEN BOY</b>.</li>
+        <li>YouTube (unlisted is fine), Google Drive, or a Twitch VOD. Anyone with the link must be able to watch it.</li>
+      </ul>
+      <p class="bh-sub" style="margin-top:12px;">Cheats, console edits, modified games, macros, slow-mo or someone else playing = disqualified. The crew checks every claim by hand before anything is paid.</p>
+    </section>
+
+    <p class="bh-fine">One prize: $100, paid by PayPal after the crew verifies the run, your ID and your age. 18+. Legal US residents only. Not open to residents of AR, AZ, CT, DE, IA, IN, LA, ME, MT, SC, SD or TN. Crew, their families, and comped or admin accounts can&rsquo;t win. The $4.99 is the price of the game; there is no entry fee and the price doesn&rsquo;t change with the bounty. Void where prohibited. Full details in the <a href="rules/">Official Rules</a>. Questions: <a href="mailto:squad@outpostboyz.com">squad@outpostboyz.com</a>.</p>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-logo">OUTPOST&nbsp;BOYZ</p>
+    <div class="footer-social">
+      <a href="rules/">OFFICIAL RULES</a>
+      <a href="mailto:squad@outpostboyz.com">SQUAD@OUTPOSTBOYZ.COM</a>
+    </div>
+    <p class="footer-fine">© 2026 OUTPOST BOYZ. 18+. US ONLY. VOID WHERE PROHIBITED.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
+  <script src="../assets/ob-sdk.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    var SLUG = 'save-lost-angeles';
+    var RULES = '2026-09-29';   // must match RULES_VERSION in supabase/functions/_shared/bounty.ts and /bounty/rules/
+    var FN = 'https://duogqviqgmbaynfrhrmq.supabase.co/functions/v1/';
+    var EXCLUDED = ['AR', 'AZ', 'CT', 'DE', 'IA', 'IN', 'LA', 'ME', 'MT', 'SC', 'SD', 'TN'];
+    var STATES = [['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],['CO','Colorado'],['CT','Connecticut'],
+      ['DE','Delaware'],['DC','District of Columbia'],['FL','Florida'],['GA','Georgia'],['HI','Hawaii'],['ID','Idaho'],['IL','Illinois'],['IN','Indiana'],
+      ['IA','Iowa'],['KS','Kansas'],['KY','Kentucky'],['LA','Louisiana'],['ME','Maine'],['MD','Maryland'],['MA','Massachusetts'],['MI','Michigan'],
+      ['MN','Minnesota'],['MS','Mississippi'],['MO','Missouri'],['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],['NH','New Hampshire'],
+      ['NJ','New Jersey'],['NM','New Mexico'],['NY','New York'],['NC','North Carolina'],['ND','North Dakota'],['OH','Ohio'],['OK','Oklahoma'],
+      ['OR','Oregon'],['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],['SD','South Dakota'],['TN','Tennessee'],['TX','Texas'],
+      ['UT','Utah'],['VT','Vermont'],['VA','Virginia'],['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming']];
+
+    var $ = function (id) { return document.getElementById(id); };
+    var panel = $('panel');
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); }
+    function day(iso) {
+      var d = new Date(iso); if (isNaN(d)) return '';
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    function card(title, html) { panel.innerHTML = '<h2>' + title + '</h2>' + html; }
+    function msg(id, text, ok) { var el = $(id); if (!el) return; el.textContent = text || ''; el.className = 'bh-msg ' + (ok ? 'ok' : 'err'); }
+
+    var S = { status: 'soon', openedAt: null, endsAt: null, winner: null, session: null, me: null };
+
+    function paintBadge() {
+      var b = $('badge'), t = $('badgeText'), w = $('when');
+      b.className = 'bh-badge ' + (S.status === 'unknown' ? 'soon' : S.status);
+      w.textContent = '';
+      if (S.status === 'open') {
+        t.textContent = 'OPEN — NOBODY HAS BEATEN IT';
+        if (S.openedAt) w.textContent = 'Opened ' + day(S.openedAt) + (S.endsAt ? ' · ends ' + day(S.endsAt) + ' or when someone wins' : '') + '.';
+      } else if (S.status === 'claimed') {
+        t.textContent = 'CLAIMED — WINNER: ' + (S.winner ? S.winner.gamertag : 'VERIFIED');
+        if (S.winner && S.winner.won_at) w.textContent = 'Beaten and verified ' + day(S.winner.won_at) + '. Respect.';
+      } else if (S.status === 'ended') {
+        t.textContent = 'ENDED — UNDEFEATED';
+      } else {
+        t.textContent = 'OPENS SOON';
+        w.textContent = 'The crew is still proving NATIVE is brutal but beatable. Buy the game and practice now.';
+      }
+    }
+
+    async function fn(name, body) {
+      var s = await OB.session();
+      if (!s) return { status: 401, data: {} };
+      var r = await fetch(FN + name, {
+        method: 'POST', cache: 'no-store',
+        headers: { 'Authorization': 'Bearer ' + s.access_token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body || {})
+      });
+      var d = {}; try { d = await r.json(); } catch (e) { }
+      return { status: r.status, data: d };
+    }
+
+    // ---------- panels ----------
+    function signinPanel() {
+      var ret = '/account/?return=' + encodeURIComponent('/bounty/');
+      if (S.status === 'soon' || S.status === 'unknown') {
+        card('Get the alert', '<p>The bounty isn&rsquo;t open yet. Drop your email and we&rsquo;ll tell you the second it opens.</p>' +
+          '<div class="bh-row" style="margin-top:12px;"><label class="sr-only" for="nEmail">Email</label>' +
+          '<input class="bh-input" id="nEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="you@email.com">' +
+          '<button type="button" class="btn btn-solid" id="nGo">NOTIFY ME</button></div>' +
+          '<p class="bh-msg" id="nMsg" role="status"></p>' +
+          '<p class="bh-sub">Already own the game? <a href="' + ret + '">Sign in</a>.</p>');
+        $('nGo').addEventListener('click', notifyEmail);
+        return;
+      }
+      if (S.status !== 'open') { closedPanel(); return; }
+      card('Sign in to enter', '<p>Sign in with the account that owns SAVE LOST ANGELES. No account yet? Make one free, buy the game, then come back here.</p>' +
+        '<a class="btn btn-solid bh-btn" style="display:block;text-align:center;" href="' + ret + '">SIGN IN</a>');
+    }
+
+    function closedPanel() {
+      if (S.status === 'claimed') {
+        card('It&rsquo;s been beaten', '<p><b>' + esc(S.winner ? S.winner.gamertag : 'A player') + '</b> beat the Full City Run on NATIVE and took the $100. The game is still yours to play &mdash; and it&rsquo;s on the Beat Pile forever.</p>' +
+          '<a class="btn btn-line bh-btn" style="display:block;text-align:center;" href="../#gauntlet">SEE THE BEAT PILE</a>');
+      } else {
+        card('Bounty closed', '<p>The bounty window has ended with SAVE LOST ANGELES undefeated. The game is still yours to play.</p>');
+      }
+    }
+
+    function stateOptions(sel) {
+      return '<option value="">Choose your state</option>' + STATES.map(function (s) {
+        return '<option value="' + s[0] + '"' + (sel === s[0] ? ' selected' : '') + '>' + esc(s[1]) + (EXCLUDED.indexOf(s[0]) !== -1 ? ' (not eligible)' : '') + '</option>';
+      }).join('');
+    }
+
+    function enterPanel(me) {
+      card('Enter the bounty', '<div class="bh-who"><span>SIGNED IN AS</span><span class="bh-tag">' + esc(me.gamertag) + '</span></div>' +
+        '<p class="bh-sub">You own the game. Entering is free.</p>' +
+        '<label class="bh-label" for="eState">Your state of residence</label>' +
+        '<select class="bh-input" id="eState">' + stateOptions('') + '</select>' +
+        '<div id="eWarn"></div>' +
+        '<label class="bh-check"><input type="checkbox" id="eAdult"> <span>I am 18 or older (and the age of majority where I live).</span></label>' +
+        '<label class="bh-check"><input type="checkbox" id="eRes"> <span>I am a legal resident of the United States and will play my bounty run from the US.</span></label>' +
+        '<label class="bh-check"><input type="checkbox" id="eRules"> <span>I have read and agree to the <a href="rules/" target="_blank" rel="noopener">Official Rules</a>.</span></label>' +
+        '<button type="button" class="btn btn-solid bh-btn" id="eGo" disabled>ENTER THE BOUNTY</button>' +
+        '<p class="bh-msg" id="eMsg" role="status"></p>');
+      function check() {
+        var st = $('eState').value, bad = EXCLUDED.indexOf(st) !== -1;
+        $('eWarn').innerHTML = bad ? '<p class="bh-warn">Sorry &mdash; the bounty isn&rsquo;t open to residents of this state. You can still play the game.</p>' : '';
+        $('eGo').disabled = !st || bad || !$('eAdult').checked || !$('eRes').checked || !$('eRules').checked;
+      }
+      ['eState', 'eAdult', 'eRes', 'eRules'].forEach(function (id) { $(id).addEventListener('change', check); });
+      $('eGo').addEventListener('click', async function () {
+        var b = this; b.disabled = true; b.textContent = 'ENTERING…'; msg('eMsg', '');
+        var r;
+        try { r = await fn('bounty-enter', { action: 'enter', state: $('eState').value, adult: $('eAdult').checked, resident: $('eRes').checked, rules: RULES }); }
+        catch (e) { r = { status: 0, data: {} }; }
+        if (r.status === 200 && r.data.ok) { await load(); return; }
+        b.textContent = 'ENTER THE BOUNTY'; check();
+        msg('eMsg', (r.data && r.data.error) || 'Couldn’t reach the server — check your connection and try again.');
+      });
+    }
+
+    function claimsHtml(claims) {
+      if (!claims || !claims.length) return '';
+      return '<p class="bh-label" style="margin-top:22px;">Your claims</p>' + claims.map(function (c) {
+        return '<div class="bh-claim"><span class="bh-chip ' + esc(c.status) + '">' + esc(c.status === 'pending' ? 'In review' : c.status) + '</span> ' +
+          '<span class="bh-sub">' + esc(day(c.created_at)) + (c.run_time ? ' · run ' + esc(c.run_time) : '') + '</span>' +
+          '<div class="bh-link" style="margin-top:6px;">' + esc(c.video_url) + '</div>' +
+          (c.status === 'rejected' && c.reject_reason ? '<div style="margin-top:6px;color:var(--red-text);font-weight:600;">Reason: ' + esc(c.reject_reason) + '</div>' : '') +
+          (c.status === 'approved' ? '<div style="margin-top:6px;font-weight:900;">VERIFIED WINNER. Check your email for payout.</div>' : '') +
+          '</div>';
+      }).join('');
+    }
+
+    function enteredPanel(me) {
+      var e = me.entry;
+      var open = S.status === 'open';
+      var html = '<div class="bh-who"><span class="bh-tag">' + esc(me.gamertag) + '</span><span class="bh-in">&#10003; ENTERED ' + esc(day(e.entered_at)) + '</span></div>' +
+        '<p class="bh-sub">Recording tip: start your screen recorder on THIS screen so your gamertag and ENTERED badge are in the first seconds, then tap PLAY.</p>' +
+        '<a class="btn btn-solid bh-btn" style="display:block;text-align:center;" href="../games/save-lost-angeles/">PLAY SAVE LOST ANGELES</a>';
+      if (open) {
+        html += '<p class="bh-label" style="margin-top:26px;">Beat it? Submit your run</p>' +
+          '<label class="bh-label" for="cUrl">Video link (https://)</label>' +
+          '<input class="bh-input" id="cUrl" type="url" inputmode="url" autocapitalize="off" spellcheck="false" maxlength="500" placeholder="https://youtu.be/...">' +
+          '<label class="bh-label" for="cTime">Total time on the results screen (optional)</label>' +
+          '<input class="bh-input" id="cTime" maxlength="20" placeholder="e.g. 1:12:34" autocomplete="off">' +
+          '<label class="bh-label" for="cNotes">Notes for the crew (optional)</label>' +
+          '<textarea class="bh-input" id="cNotes" rows="3" maxlength="1000" placeholder="Anything we should know — e.g. where the results screen is in the video." style="resize:vertical;"></textarea>' +
+          '<label class="bh-check"><input type="checkbox" id="cAttest"> <span>This is ONE unedited recording of me playing the FULL CITY RUN on NATIVE, 1 player, GOLDEN BOY, zero continues, in one sitting, under the <a href="rules/" target="_blank" rel="noopener">Official Rules</a>.</span></label>' +
+          '<button type="button" class="btn btn-solid bh-btn" id="cGo" disabled>SUBMIT MY RUN</button>' +
+          '<p class="bh-msg" id="cMsg" role="status"></p>';
+      } else if (S.status === 'soon') {
+        html += '<p style="margin-top:14px;">Claims open when the bounty opens.</p>';
+      }
+      html += claimsHtml(me.claims);
+      card('You&rsquo;re in', html);
+      if (!open) return;
+      function check() { $('cGo').disabled = !/^https:\/\/\S+\.\S+/i.test($('cUrl').value.trim()) || !$('cAttest').checked; }
+      $('cUrl').addEventListener('input', check);
+      $('cAttest').addEventListener('change', check);
+      $('cGo').addEventListener('click', async function () {
+        var b = this; b.disabled = true; b.textContent = 'SUBMITTING…'; msg('cMsg', '');
+        var r;
+        try { r = await fn('bounty-claim', { video_url: $('cUrl').value.trim(), run_time: $('cTime').value.trim(), notes: $('cNotes').value.trim(), attest: $('cAttest').checked }); }
+        catch (err) { r = { status: 0, data: {} }; }
+        if (r.status === 200 && r.data.ok) { await load(); msg('cMsg', 'Claim received. The crew reviews claims in order — watch this page and your email.', true); return; }
+        b.textContent = 'SUBMIT MY RUN'; check();
+        msg('cMsg', (r.data && r.data.error) || 'Couldn’t reach the server — check your connection and try again.');
+      });
+    }
+
+    function soonSignedInPanel(me) {
+      var owner = me.eligibility === 'ok';
+      var html = '<div class="bh-who"><span>SIGNED IN AS</span><span class="bh-tag">' + esc(me.gamertag || 'no gamertag yet') + '</span></div>' +
+        '<p>The bounty opens soon. ' + (owner ? 'You own the game, so you&rsquo;re ready &mdash; practice NATIVE now.' :
+          me.eligibility === 'not_owner' ? 'Buy the game now to be ready when it opens.' : '') + '</p>';
+      if (me.eligibility !== 'ok' && me.eligibility !== 'not_owner' && me.eligibilityMessage) html += '<p class="bh-warn">' + esc(me.eligibilityMessage) + '</p>';
+      html += me.notify ? '<p class="bh-msg ok">You&rsquo;re on the list. We&rsquo;ll email you when it opens.</p>'
+        : '<button type="button" class="btn btn-solid bh-btn" id="nMe">NOTIFY ME WHEN IT OPENS</button><p class="bh-msg" id="nMsg" role="status"></p>';
+      card('Opens soon', html);
+      if (!me.notify) $('nMe').addEventListener('click', async function () {
+        this.disabled = true;
+        var r; try { r = await fn('bounty-enter', { action: 'notify' }); } catch (e) { r = { status: 0, data: {} }; }
+        if (r.status === 200 && r.data.ok) { msg('nMsg', 'You’re on the list. We’ll email you when it opens.', true); this.remove(); }
+        else { this.disabled = false; msg('nMsg', (r.data && r.data.error) || 'That didn’t save — try again.'); }
+      });
+    }
+
+    function blockedPanel(me) {
+      var el = me.eligibility;
+      if (el === 'not_owner') {
+        card('Own it to enter', '<p>The bounty is for owners of SAVE LOST ANGELES. Get the game ($4.99), then come back and press ENTER THE BOUNTY.</p>' +
+          '<a class="btn btn-solid bh-btn" style="display:block;text-align:center;" href="../games/save-lost-angeles/">GET THE GAME &mdash; $4.99</a>');
+      } else if (el === 'no_gamertag') {
+        card('Pick a gamertag', '<p>' + esc(me.eligibilityMessage) + '</p><a class="btn btn-solid bh-btn" style="display:block;text-align:center;" href="../account/?return=/bounty/">SET MY GAMERTAG</a>');
+      } else {
+        card('Can&rsquo;t win on this account', '<p>' + esc(me.eligibilityMessage || 'This account isn’t eligible for the bounty.') + '</p>' +
+          '<a class="btn btn-line bh-btn" style="display:block;text-align:center;" href="../games/save-lost-angeles/">PLAY THE GAME</a>' + claimsHtml(me.claims));
+      }
+    }
+
+    async function notifyEmail() {
+      var email = $('nEmail').value.trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg('nMsg', 'That email doesn’t look right.'); return; }
+      $('nGo').disabled = true;
+      var r;
+      try { r = await OB.client.from('subscribers').insert({ email: email, source: 'bounty-notify' }); } catch (e) { r = { error: {} }; }
+      if (!r.error || r.error.code === '23505') { msg('nMsg', 'You’re on the list. We’ll email you when it opens.', true); }
+      else { $('nGo').disabled = false; msg('nMsg', 'Couldn’t save that — try again in a minute.'); }
+    }
+
+    // ---------- load ----------
+    async function publicState() {
+      try {
+        var st = await (await fetch('../games/store.json', { cache: 'no-cache' })).json();
+        var g = (st.gauntlet || []).filter(function (x) { return x.slug === SLUG; })[0] || {};
+        var s = String(g.bountyStatus || 'soon');
+        S.status = (s === 'open' || s === 'claimed') ? s : 'soon';
+        var t = Date.parse(g.bountyOpenedAt || '');
+        if (!isNaN(t)) {
+          S.openedAt = new Date(t).toISOString();
+          var end = new Date(t); end.setUTCFullYear(end.getUTCFullYear() + 1); S.endsAt = end.toISOString();
+          if (S.status === 'open' && Date.now() > end.getTime()) S.status = 'ended';
+        }
+      } catch (e) { S.status = 'soon'; }
+      paintBadge();   // show the file's status right away; a verified winner (below) can still override it
+      try {
+        var w = await OB.client.from('bounty_winners').select('gamertag,won_at').eq('game_slug', SLUG).maybeSingle();
+        if (w && w.data) { S.winner = w.data; S.status = 'claimed'; }
+      } catch (e) { }
+    }
+
+    async function load() {
+      S.session = await OB.session();
+      if (!S.session) { paintBadge(); signinPanel(); return; }
+      var r;
+      try { r = await fn('bounty-enter', { action: 'status' }); } catch (e) { r = { status: 0, data: {} }; }
+      if (r.status === 401) { S.session = null; paintBadge(); signinPanel(); return; }
+      if (r.status !== 200 || !r.data.me) {
+        paintBadge();
+        card('Your entry', '<p>Couldn&rsquo;t load your entry right now. Refresh in a minute.</p>');
+        return;
+      }
+      var b = r.data.bounty || {};
+      if (b.status && b.status !== 'unknown') { S.status = b.status; S.openedAt = b.openedAt; S.endsAt = b.endsAt; S.winner = b.winner || S.winner; }
+      var me = S.me = r.data.me;
+      var nav = $('navAccount'); if (nav && me.gamertag) { nav.textContent = me.gamertag; nav.href = '../account/'; }
+      paintBadge();
+      if (S.status === 'claimed' || S.status === 'ended') {
+        closedPanel();
+        if (me.claims && me.claims.length) panel.innerHTML += claimsHtml(me.claims);
+        return;
+      }
+      if (me.entry) { enteredPanel(me); return; }
+      if (S.status !== 'open') { soonSignedInPanel(me); return; }
+      if (me.eligibility === 'ok') { enterPanel(me); return; }
+      blockedPanel(me);
+    }
+
+    if (!window.OB) {
+      paintBadge();
+      card('Your entry', '<p>Sign-in didn&rsquo;t load (a network hiccup or a blocker). Refresh in a minute.</p>');
+      return;
+    }
+    window.OBBounty = { reload: load, state: S };   // re-run hook (tests)
+    publicState().then(function () {
+      paintBadge();
+      load();
+      OB.client.auth.onAuthStateChange(function (ev) {
+        if (ev === 'SIGNED_IN' || ev === 'SIGNED_OUT') setTimeout(load, 0);   // never await inside the auth callback
+      });
+    });
+  })();
+  </script>
+</body>
+</html>

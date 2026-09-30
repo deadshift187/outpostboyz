@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bounty Claims — Admin — Outpost Boyz</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/assets/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    .ad-wrap { max-width: 860px; margin: 0 auto; padding: 40px 16px 80px; }
+    .ad-h { font-family: var(--disp); font-size: clamp(30px, 7vw, 48px); letter-spacing: -1px; text-transform: uppercase; line-height: 1; }
+    .ad-sub { color: var(--grey); font-size: 14px; margin-top: 8px; }
+    .ad-card { border: var(--bw) solid var(--ink); padding: 18px; margin-top: 20px; }
+    .ad-stat { display: flex; flex-wrap: wrap; gap: 8px 18px; font-weight: 900; letter-spacing: .5px; }
+    .ad-claim { border: var(--bw) solid var(--ink); padding: 16px; margin-top: 16px; }
+    .ad-claim.approved { border-color: #1a7a0a; background: #f4fff0; }
+    .ad-claim.rejected { opacity: .75; }
+    .ad-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline; }
+    .ad-tag { font-family: var(--disp); font-size: 22px; overflow-wrap: anywhere; }
+    .ad-chip { display: inline-block; font: 900 11px/1 var(--body); letter-spacing: 1px; padding: 5px 7px; border: 2px solid var(--ink); text-transform: uppercase; }
+    .ad-chip.pending { background: #ffe14d; border-color: #8a6d00; }
+    .ad-chip.approved { background: #39ff14; border-color: #1a7a0a; }
+    .ad-chip.rejected { color: var(--red-text); border-color: var(--red-text); }
+    .ad-chip.warn { background: var(--red-text); color: #fff; border-color: var(--red-text); }
+    .ad-kv { display: grid; grid-template-columns: 130px 1fr; gap: 4px 10px; margin-top: 10px; font-size: 14px; }
+    .ad-kv dt { font-weight: 900; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--grey); padding-top: 2px; }
+    .ad-kv dd { overflow-wrap: anywhere; }
+    .ad-check { display: flex; gap: 10px; align-items: flex-start; margin-top: 8px; font-size: 14px; cursor: pointer; }
+    .ad-check input { width: 22px; height: 22px; flex: none; accent-color: #000; }
+    .ad-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .ad-btn { flex: 1 1 140px; min-height: 46px; padding: 12px 10px; font: 900 13px var(--body); letter-spacing: 1px; border: var(--bw) solid var(--ink); background: var(--ink); color: var(--paper); cursor: pointer; }
+    .ad-btn.ok { background: #39ff14; color: #000; }
+    .ad-btn.no { background: var(--paper); color: var(--red-text); border-color: var(--red-text); }
+    .ad-btn.ghost { background: var(--paper); color: var(--ink); }
+    .ad-btn[disabled] { opacity: .45; cursor: not-allowed; }
+    .ad-msg { margin-top: 10px; font-weight: 600; font-size: 14px; min-height: 1em; }
+    .ad-msg.err { color: var(--red-text); }
+    .ad-reason { width: 100%; border: var(--bw) solid var(--ink); padding: 10px; font: 15px var(--body); margin-top: 10px; border-radius: 0; }
+    .ad-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+    .ad-filter button { min-height: 40px; padding: 8px 12px; border: 2px solid var(--ink); background: var(--paper); font: 900 12px var(--body); letter-spacing: 1px; cursor: pointer; }
+    .ad-filter button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+    .hidden { display: none; }
+    @media (max-width: 520px) { .ad-kv { grid-template-columns: 1fr; } .ad-kv dt { padding-top: 6px; } }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="nav-logo" href="/">OUTPOST&nbsp;BOYZ</a>
+    <div class="nav-links"><a href="/admin/">Game Access</a><a href="/bounty/">Bounty Page</a><a href="/account/">Account</a></div>
+  </nav>
+
+  <div class="ad-wrap">
+    <h1 class="ad-h">Bounty Claims</h1>
+    <p class="ad-sub">Review in order, oldest first. The earliest claim that passes wins. APPROVE only after: full video watched, ID + age checked by email, and you're ready to send the $100 by PayPal.</p>
+
+    <div class="ad-card" id="boxMsg"><p>CHECKING CLEARANCE…</p></div>
+
+    <div class="hidden" id="boxAdmin">
+      <div class="ad-card">
+        <div class="ad-stat" id="stats"></div>
+        <p class="ad-sub" id="switchHelp"></p>
+      </div>
+      <div class="ad-filter" role="group" aria-label="Filter claims">
+        <button type="button" data-f="pending" aria-pressed="true">PENDING</button>
+        <button type="button" data-f="all" aria-pressed="false">ALL</button>
+        <button type="button" data-f="approved" aria-pressed="false">APPROVED</button>
+        <button type="button" data-f="rejected" aria-pressed="false">REJECTED</button>
+      </div>
+      <p class="ad-msg" id="msg" role="status" aria-live="polite"></p>
+      <div id="list"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
+  <script src="/assets/ob-sdk.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    var FN = 'https://duogqviqgmbaynfrhrmq.supabase.co/functions/v1/bounty-admin';
+    var $ = function (id) { return document.getElementById(id); };
+    var data = null, filter = 'pending';
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); }
+    function when(iso) { var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+    function say(html) { $('boxMsg').innerHTML = html; $('boxMsg').classList.remove('hidden'); $('boxAdmin').classList.add('hidden'); }
+    function note(text, err) { $('msg').textContent = text || ''; $('msg').className = 'ad-msg' + (err ? ' err' : ''); }
+    function safeHref(u) { return /^https:\/\//i.test(String(u || '')) ? String(u) : '#'; }
+
+    async function call(body) {
+      var s = await OB.session();
+      if (!s) return { status: 401, data: {} };
+      var r = await fetch(FN, {
+        method: 'POST', cache: 'no-store',
+        headers: { 'Authorization': 'Bearer ' + s.access_token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      var d = {}; try { d = await r.json(); } catch (e) { }
+      return { status: r.status, data: d };
+    }
+
+    var CHECKS = [
+      'Watched the WHOLE video: starts on /bounty/ with this gamertag + ENTERED, no cuts',
+      'Full City Run, run timer visible the whole way, NATIVE, 1 player, GOLDEN BOY',
+      'Results screen shows CONTINUES 0 and RUN row NATIVE · 1P · GOLDEN BOY',
+      'Winner replied by email: legal name, DOB (18+), state (not excluded), address, PayPal, ID photo, signed declaration',
+    ];
+
+    function render() {
+      var b = data.bounty || {};
+      var pending = data.claims.filter(function (c) { return c.status === 'pending'; }).length;
+      $('stats').innerHTML = '<span>STATUS: ' + esc(String(b.status || '?').toUpperCase()) + (b.winner ? ' — WINNER ' + esc(b.winner.gamertag) : '') + '</span>' +
+        '<span>ENTRANTS: ' + data.entries + '</span><span>CLAIMS: ' + data.claims.length + ' (' + pending + ' pending)</span><span>NOTIFY LIST: ' + data.notify + '</span>';
+      $('switchHelp').textContent = 'Open / close the bounty in games/store.json → gauntlet → bountyStatus ("soon" | "open" | "claimed") + bountyOpenedAt ("YYYY-MM-DD"). Approving a claim below flips the site to CLAIMED on its own.';
+
+      var rows = data.claims.filter(function (c) { return filter === 'all' || c.status === filter; });
+      var firstPending = data.claims.filter(function (c) { return c.status === 'pending'; })[0];
+      $('list').innerHTML = rows.map(function (c) {
+        var e = c.entry || {};
+        var warn = c.eligibility_now && c.eligibility_now !== 'ok' ? ' <span class="ad-chip warn">NOW: ' + esc(c.eligibility_now) + '</span>' : '';
+        var first = firstPending && firstPending.id === c.id ? ' <span class="ad-chip">NEXT IN LINE</span>' : '';
+        var h = '<div class="ad-claim ' + esc(c.status) + '" data-id="' + c.id + '">' +
+          '<div class="ad-top"><span class="ad-tag">' + esc(c.gamertag || '(no gamertag)') + '</span>' +
+          '<span><span class="ad-chip ' + esc(c.status) + '">' + esc(c.status) + '</span>' + warn + first + '</span></div>' +
+          '<dl class="ad-kv">' +
+          '<dt>Claim #</dt><dd>' + c.id + ' · ' + esc(when(c.created_at)) + '</dd>' +
+          '<dt>Video</dt><dd><a href="' + esc(safeHref(c.video_url)) + '" target="_blank" rel="noopener noreferrer nofollow">' + esc(c.video_url) + '</a></dd>' +
+          '<dt>Run time</dt><dd>' + esc(c.run_time || '—') + '</dd>' +
+          '<dt>Notes</dt><dd>' + esc(c.notes || '—') + '</dd>' +
+          '<dt>Email</dt><dd>' + (c.email ? '<a href="mailto:' + esc(c.email) + '?subject=' + encodeURIComponent('Your SAVE LOST ANGELES bounty claim #' + c.id) + '">' + esc(c.email) + '</a>' : '—') + '</dd>' +
+          '<dt>State</dt><dd>' + esc(e.state_code || '—') + ' · entered ' + esc(when(e.entered_at)) + ' · rules v' + esc(e.rules_version || '?') + '</dd>' +
+          '<dt>Bought</dt><dd>' + (c.purchase ? esc(when(c.purchase.created_at)) + ' · $' + (c.purchase.amount_cents / 100).toFixed(2) : '<b style="color:var(--red-text)">NO PURCHASE ON FILE</b>') + '</dd>' +
+          (c.reject_reason ? '<dt>Rejected for</dt><dd>' + esc(c.reject_reason) + '</dd>' : '') +
+          (c.reviewed_at ? '<dt>Reviewed</dt><dd>' + esc(when(c.reviewed_at)) + '</dd>' : '') +
+          '</dl>';
+        if (c.status === 'pending') {
+          h += CHECKS.map(function (t, i) { return '<label class="ad-check"><input type="checkbox" data-chk="' + i + '"> <span>' + esc(t) + '</span></label>'; }).join('') +
+            '<label class="sr-only" for="why' + c.id + '">Reject reason</label>' +
+            '<input class="ad-reason" id="why' + c.id + '" maxlength="500" placeholder="Reject reason (the player sees this)">' +
+            '<div class="ad-btns"><button type="button" class="ad-btn ok" data-act="approve" disabled>APPROVE — WINNER</button>' +
+            '<button type="button" class="ad-btn no" data-act="reject">REJECT</button></div>';
+        } else {
+          h += '<div class="ad-btns"><button type="button" class="ad-btn ghost" data-act="reset">RESET TO PENDING</button></div>';
+        }
+        return h + '<p class="ad-msg" data-msg></p></div>';
+      }).join('') || '<p class="ad-sub" style="margin-top:16px;">No ' + (filter === 'all' ? '' : filter + ' ') + 'claims.</p>';
+    }
+
+    async function load() {
+      var r;
+      try { r = await call({ action: 'list' }); } catch (e) { r = { status: 0, data: {} }; }
+      if (r.status === 401) { say('<p><b>Sign in first.</b></p><p class="ad-sub"><a href="/account/?return=/admin/bounty/">Go to sign in</a></p>'); return; }
+      if (r.status === 403) { say('<p><b>Admins only.</b></p><p class="ad-sub">This account can\'t review bounty claims.</p>'); return; }
+      if (r.status !== 200 || !r.data.claims) { say('<p><b>Couldn\'t load claims.</b></p><p class="ad-sub">' + esc(r.data.error || 'Check your connection and refresh.') + '</p>'); return; }
+      data = r.data;
+      $('boxMsg').classList.add('hidden');
+      $('boxAdmin').classList.remove('hidden');
+      render();
+    }
+
+    $('list').addEventListener('change', function (e) {
+      var box = e.target.closest('.ad-claim'); if (!box || !e.target.hasAttribute('data-chk')) return;
+      var all = Array.prototype.every.call(box.querySelectorAll('[data-chk]'), function (x) { return x.checked; });
+      box.querySelector('[data-act="approve"]').disabled = !all;
+    });
+
+    $('list').addEventListener('click', async function (e) {
+      var b = e.target.closest('button[data-act]'); if (!b) return;
+      var box = b.closest('.ad-claim'), id = Number(box.getAttribute('data-id')), act = b.getAttribute('data-act');
+      var m = box.querySelector('[data-msg]');
+      var c = data.claims.filter(function (x) { return x.id === id; })[0] || {};
+      var body = { action: act, claim_id: id };
+      if (act === 'approve' && !confirm('Make ' + (c.gamertag || 'this player') + ' THE winner? This puts their name on the site and closes the bounty.')) return;
+      if (act === 'reject') {
+        body.reason = (box.querySelector('.ad-reason') || {}).value || '';
+        if (body.reason.trim().length < 3) { m.textContent = 'Type a reason first — the player sees it.'; m.className = 'ad-msg err'; return; }
+      }
+      if (act === 'reset' && !confirm('Put claim #' + id + ' back to pending?' + (c.status === 'approved' ? ' This REMOVES the winner from the site.' : ''))) return;
+      b.disabled = true; m.textContent = ''; note('');
+      var r;
+      try { r = await call(body); } catch (err) { r = { status: 0, data: {} }; }
+      if (r.status === 409 && r.data.code === 'earlier' && confirm(r.data.error + '\n\nApprove this one anyway (only if every earlier claim is invalid)?')) {
+        body.skip_earlier = true;
+        try { r = await call(body); } catch (err) { r = { status: 0, data: {} }; }
+      }
+      if (r.status === 200 && r.data.ok) {
+        note(act === 'approve' ? 'Winner recorded. The site now shows CLAIMED. Pay the $100 by PayPal, then set bountyStatus to "claimed" and add the Beat Pile entry in games/store.json.' :
+          act === 'reject' ? 'Claim #' + id + ' rejected.' : 'Claim #' + id + ' is pending again.');
+        await load();
+      } else {
+        b.disabled = false;
+        m.textContent = (r.data && r.data.error) || 'That didn\'t go through — try again.'; m.className = 'ad-msg err';
+      }
+    });
+
+    document.querySelectorAll('.ad-filter button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        filter = btn.getAttribute('data-f');
+        document.querySelectorAll('.ad-filter button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === btn)); });
+        if (data) render();
+      });
+    });
+
+    if (!window.OB) { say('<p><b>Sign-in didn\'t load.</b> Refresh in a minute.</p>'); return; }
+    window.OBBountyAdmin = { reload: load };
+    load();
+  })();
+  </script>
+</body>
+</html>
