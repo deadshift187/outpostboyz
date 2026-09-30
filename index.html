@@ -39,14 +39,24 @@
   .hire-case-head{padding:20px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;border-bottom:var(--bw) solid var(--ink)}
   .hire-case-head p,.hire-body p,.hire-extra p{color:var(--grey);font-size:14px}
   .hire-case h3,.hire-body h3{font-family:var(--disp);font-size:24px;letter-spacing:-1px;line-height:1.05;text-transform:uppercase}
-  .hire-steps{display:grid;grid-template-columns:1fr 1fr}
+  .hire-steps{display:grid;grid-template-columns:1fr}
   .hire-step{margin:0;display:flex;flex-direction:column;min-width:0}
-  .hire-step:nth-child(2){border-left:var(--bw) solid var(--ink)}
-  .hire-step:nth-child(3){grid-column:1/-1;border-top:var(--bw) solid var(--ink)}
-  .hire-pic{aspect-ratio:3/4;overflow:hidden;position:relative;background:#222}
+  .hire-step + .hire-step{border-top:var(--bw) solid var(--ink)}
+  .hire-pic{aspect-ratio:4/3;overflow:hidden;position:relative;background:#222}
   .hire-step:nth-child(3) .hire-pic{aspect-ratio:16/9}
-  @media(min-width:760px){.hire-steps{grid-template-columns:repeat(3,1fr)}.hire-step:nth-child(3){grid-column:auto;border-top:0;border-left:var(--bw) solid var(--ink)}.hire-step:nth-child(3) .hire-pic{aspect-ratio:3/4}}
   .hire-pic img{width:100%;height:100%;object-fit:contain;display:block}
+  .hire-moves{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--ink)}
+  .hire-pic.hire-moves{aspect-ratio:auto}
+  .hire-moves > div{position:relative;overflow:hidden;aspect-ratio:1/1;background:#222}
+  .hire-moves img{object-fit:cover}
+  .hire-move{position:absolute;left:6px;bottom:6px;background:var(--ink);color:var(--paper);font-weight:900;font-size:10px;letter-spacing:1.5px;padding:3px 6px;pointer-events:none}
+  @media(min-width:760px){
+    .hire-steps{grid-template-columns:repeat(3,1fr)}
+    .hire-step + .hire-step{border-top:0;border-left:var(--bw) solid var(--ink)}
+    .hire-pic,.hire-step:nth-child(3) .hire-pic,.hire-pic.hire-moves{aspect-ratio:3/4}
+    .hire-moves{grid-template-rows:1fr 1fr}
+    .hire-moves > div{aspect-ratio:auto}
+  }
   .hire-step figcaption{padding:10px 14px 12px;font-size:13px;color:var(--grey);border-top:2px solid var(--ink)}
   .hire-step figcaption b{display:block;font-family:var(--disp);font-size:15px;color:var(--ink);text-transform:uppercase;font-weight:400}
   .hire-grid{display:grid;grid-template-columns:1fr;gap:24px}
@@ -83,6 +93,13 @@
   .hire-play{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);min-height:44px;padding:0 14px;background:var(--red);color:var(--paper);border:var(--bw) solid var(--ink);font-family:var(--body);font-weight:900;font-size:12px;letter-spacing:1px;cursor:pointer;white-space:nowrap}
   .hire-play:hover{background:var(--ink)}
   .hire-vid.on .hire-play{display:none}
+  .hire-soon{display:flex;align-items:center;justify-content:center;gap:6%;aspect-ratio:3/2;padding:0 7%;background:#111;border-bottom:var(--bw) solid var(--ink)}
+  .hire-soon > div{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;border:2px solid rgba(255,255,255,.5);background:#1b1b1b;color:var(--paper)}
+  .hire-soon .v{width:31%;aspect-ratio:9/16}
+  .hire-soon .h{width:57%;aspect-ratio:16/9}
+  .hire-soon span{font-family:var(--disp);font-size:clamp(11px,2.4vw,17px);line-height:1.1;letter-spacing:-.3px;padding:0 8px}
+  .hire-soon i{position:absolute;top:6px;left:8px;font-style:normal;font-weight:900;font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,.55)}
+  .hire-soon .h::after{content:'';position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--red)}
   .hire-brands > div{display:flex;align-items:center;justify-content:center;aspect-ratio:1/1}
   .hire-brands img{width:100%;height:100%;object-fit:contain;display:block}
   /* learn + something else */
@@ -219,25 +236,29 @@
         <p class="sec-sub">What we make. Something else in mind? Contact us.</p>
       </div>
 
-      <article class="hire-case" id="terry">
+      <article class="hire-case" id="concept-to-playable">
         <div class="hire-case-head">
-          <span class="chip chip-hot">CASE STUDY</span>
-          <h3>Just Terry, concept to playable</h3>
-          <p>Our crewmate Terry, turned into an animated character running around our game DEAD SHIFT.</p>
+          <h3>Concept to playable</h3>
+          <p>From a single concept to a character you can play.</p>
         </div>
         <div class="hire-steps">
           <figure class="hire-step">
-            <div class="hire-pic" style="background:#c4c4c4"><img src="assets/work/terry-design.webp" alt="Character design sheet of Terry" width="600" height="800" loading="lazy" decoding="async"></div>
+            <div class="hire-pic" style="background:#c4c4c4"><img src="assets/work/concept-design.webp" alt="Character design sheet" width="600" height="800" loading="lazy" decoding="async"></div>
             <figcaption><b>01 · The design</b>Outfit and style, locked first.</figcaption>
           </figure>
           <figure class="hire-step">
-            <div class="hire-pic" style="background:#222"><img src="assets/work/terry-model.webp" alt="Rotating 3D model of Terry" width="360" height="480" loading="lazy" decoding="async"></div>
-            <figcaption><b>02 · The model</b>Textured, rigged and animated.</figcaption>
+            <div class="hire-pic hire-moves">
+              <div><img src="assets/work/move-walk.webp" alt="The character walking" width="480" height="480" loading="lazy" decoding="async"><span class="hire-move" aria-hidden="true">WALK</span></div>
+              <div><img src="assets/work/move-run.webp" alt="The character running" width="480" height="480" loading="lazy" decoding="async"><span class="hire-move" aria-hidden="true">RUN</span></div>
+              <div><img src="assets/work/move-crouch.webp" alt="The character crouching" width="480" height="480" loading="lazy" decoding="async"><span class="hire-move" aria-hidden="true">CROUCH</span></div>
+              <div><img src="assets/work/move-jump.webp" alt="The character jumping" width="480" height="480" loading="lazy" decoding="async"><span class="hire-move" aria-hidden="true">JUMP</span></div>
+            </div>
+            <figcaption><b>02 · In motion</b>Walk, run, crouch, jump.</figcaption>
           </figure>
           <figure class="hire-step">
             <div class="hire-pic hire-vid">
-              <video src="assets/work/terry-ingame.mp4" poster="assets/work/terry-ingame.webp" muted loop playsinline preload="none" width="640" height="360" aria-label="Terry running in DEAD SHIFT"></video>
-              <button type="button" class="hire-play" aria-label="Play clip: Terry in DEAD SHIFT"><span aria-hidden="true">&#9654;</span> PLAY</button>
+              <video src="assets/work/concept-ingame.mp4" poster="assets/work/concept-ingame.webp" muted loop playsinline preload="none" width="640" height="360" aria-label="The character running in DEAD SHIFT"></video>
+              <button type="button" class="hire-play" aria-label="Play clip: the character in DEAD SHIFT"><span aria-hidden="true">&#9654;</span> PLAY</button>
             </div>
             <figcaption><b>03 · In the game</b>Playable in DEAD SHIFT.</figcaption>
           </figure>
@@ -283,17 +304,9 @@
 
         <!-- 3. VIDEO LAB -->
         <article class="hire-card">
-          <div class="hire-pair">
-            <div class="hire-vid">
-              <video src="assets/work/lab-raw.mp4" poster="assets/work/lab-raw.webp" muted loop playsinline preload="none" width="360" height="500" aria-label="Raw gameplay capture"></video>
-              <span class="hire-lab l" aria-hidden="true">RAW</span>
-              <button type="button" class="hire-play" aria-label="Play the raw capture"><span aria-hidden="true">&#9654;</span> PLAY</button>
-            </div>
-            <div class="hire-vid">
-              <video src="assets/work/lab-reel.mp4" poster="assets/work/lab-reel.webp" muted loop playsinline preload="none" width="360" height="640" aria-label="Finished promo reel"></video>
-              <span class="hire-lab l" aria-hidden="true">FINISHED</span>
-              <button type="button" class="hire-play" aria-label="Play the finished reel"><span aria-hidden="true">&#9654;</span> PLAY</button>
-            </div>
+          <div class="hire-soon" role="img" aria-label="New work dropping soon">
+            <div class="v"><span>NEW WORK<br>DROPPING<br>SOON</span><i>9:16</i></div>
+            <div class="h"><span>NEW WORK DROPPING SOON</span><i>16:9</i></div>
           </div>
           <div class="hire-body">
             <h3>Video lab</h3>
@@ -303,7 +316,7 @@
               <div><span>Hook pack · 3 shots, ~30 sec</span><b>$499</b></div>
               <div><span>30-sec promo · vertical + wide</span><b>$299</b></div>
             </div>
-            <p class="hire-fine">Above: our own raw capture and the finished reel. You must own the footage or have the rights to it. No real faces without that person's OK.</p>
+            <p class="hire-fine">You must own the footage or have the rights to it. No real faces without that person's OK.</p>
             <a class="btn btn-red btn-sm svc-btn hire-cta" data-svc="renders" href="#hire">SEND FOOTAGE</a>
           </div>
         </article>
@@ -312,7 +325,7 @@
         <article class="hire-card">
           <div class="hire-pair hire-brands">
             <div style="background:#f3efe7"><img src="assets/work/watchpost-owl.webp" alt="WATCHPOST owl logo, wordmark and app icon" width="720" height="312" loading="lazy" decoding="async"></div>
-            <div style="background:#fff"><img src="assets/work/vvs-crest.webp" alt="Vintage Vault Supply crest on a navy crewneck" width="600" height="600" loading="lazy" decoding="async"></div>
+            <div style="background:#f3efe7"><img src="assets/work/vvs-brand.webp" alt="Vintage Vault Supply logo sheet: crest, reversed crest, monogram and brand colors" width="800" height="800" loading="lazy" decoding="async"></div>
           </div>
           <div class="hire-body">
             <h3>Launch kit</h3>
