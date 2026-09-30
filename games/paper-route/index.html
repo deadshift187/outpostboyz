@@ -16,7 +16,7 @@
     padding:calc(42px + var(--sat)) max(10px,var(--sar)) max(12px,var(--sab)) max(10px,var(--sal))}
   .hud{display:flex;align-items:center;justify-content:space-between;gap:6px;font-family:var(--mono);font-size:13px}
   .hud .b{font-weight:800;font-size:16px;font-variant-numeric:tabular-nums}
-  .pill{background:rgba(0,0,0,.28);border:1px solid #ffffff22;border-radius:10px;padding:5px 9px;display:flex;gap:6px;align-items:center;min-width:0}
+  .pill{background:rgba(0,0,0,.28);border:1px solid #ffffff22;border-radius:10px;padding:5px 9px;display:flex;gap:6px;align-items:center;min-width:0;white-space:nowrap}
   .pill .lab{color:var(--dim);font-size:10px;letter-spacing:.1em;text-transform:uppercase}
   .pill.low{border-color:var(--bad)}
   .pill.low .b{color:var(--bad)}
@@ -42,7 +42,12 @@
   .newbest{color:var(--good);font-family:var(--mono);font-weight:800;letter-spacing:.08em}
   .home-btn{position:fixed;top:calc(10px + var(--sat));left:max(10px,var(--sal));z-index:10;font-family:'Press Start 2P',monospace;font-size:8px;color:#7d8da0;
     text-decoration:none;background:rgba(7,10,15,0.7);border:1px solid #1d2a3a;padding:8px 10px}
+  /* phones: the hearts explain themselves, so drop the LIVES label - keeps the HUD on one row as the score grows
+     (it used to wrap the hearts onto a 2nd line, which shrank the street mid-ride) */
+  @media (max-width:430px){.hud{gap:4px}.pill{padding:5px 7px;gap:5px}.pill .lab{font-size:9px;letter-spacing:.05em}.pill .lab.opt{display:none}#lives{letter-spacing:0}}
   @media (max-width:360px){.pill{padding:4px 6px}.pill .lab{font-size:9px;letter-spacing:.04em}.hud .b{font-size:14px}}
+  .home-btn::after{content:'';position:absolute;inset:-8px}
+  @media (pointer:coarse){.kbd-only{display:none}}
   /* phone held sideways: throw buttons flank the street, HUD stacks on the right */
   @media (orientation:landscape) and (max-height:520px){
     .wrap{max-width:none;display:grid;grid-template-columns:1fr auto 1fr;grid-template-rows:auto 1fr;
@@ -68,7 +73,7 @@
     <div class="pill"><span class="lab">Score</span><span class="b" id="score">0</span></div>
     <div class="pill" id="papersPill"><span class="lab">Papers</span><span class="b" id="papers">20</span></div>
     <div class="pill"><span class="lab">Best</span><span class="b" id="best">0</span></div>
-    <div class="pill"><span class="lab">Lives</span><span class="b" id="lives">❤❤❤</span></div>
+    <div class="pill"><span class="lab opt">Lives</span><span class="b" id="lives">❤❤❤</span></div>
   </div>
 
   <div class="stage">
@@ -77,7 +82,7 @@
       <div class="brand">Outpost Boyz</div>
       <h1>PAPER<br>ROUTE '88</h1>
       <p>Deliver papers to the <b style="color:var(--accent)">glowing mailboxes</b>. Dodge cars, cans, and dogs. Grab <b style="color:var(--accent2)">NEWS</b> bundles before you run dry.</p>
-      <p style="font-size:12px">Drag the street to steer · tap <b>◀</b>/<b>▶ THROW</b> as a mailbox rolls by<br>Desktop: A/D or ← → steer · Q/E throw · P pause</p>
+      <p style="font-size:12px">Drag the street to steer · tap <b>◀</b>/<b>▶ THROW</b> as a mailbox rolls by<span class="kbd-only"><br>Desktop: A/D or ← → steer · Q/E throw · P pause</span></p>
       <button class="go" id="startBtn">Start route</button>
     </div>
     <div class="overlay hide" id="paused">
@@ -220,9 +225,13 @@ bindThrow('throwL',-1); bindThrow('throwR',1);
 $('startBtn').addEventListener('click',start);
 $('againBtn').addEventListener('click',start);
 pausedEl.addEventListener('click',resume);
-// iOS ignores user-scalable=no: block pinch / double-tap zoom explicitly
-document.addEventListener('gesturestart',e=>e.preventDefault());
-document.addEventListener('dblclick',e=>e.preventDefault());
+// iOS ignores user-scalable=no: block pinch / double-tap zoom / page drag explicitly.
+// Steering + throwing use pointer events (they fire before touchstart), so a 2nd finger still throws.
+['gesturestart','gesturechange','gestureend'].forEach(n=>document.addEventListener(n,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
+document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+{let lastEnd=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lastEnd<350&&!(e.target.closest&&e.target.closest('a,button')))e.preventDefault();lastEnd=n;},{passive:false});}
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
 
 window.addEventListener('keydown',e=>{
   const k=(e.key||'').toLowerCase();
