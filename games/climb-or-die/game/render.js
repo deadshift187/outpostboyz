@@ -30,7 +30,7 @@ export function howToPhase(t, iv) {
   return t >= 20 + iv / 2 && p < HOWTO_T ? { k: p } : null;
 }
 
-export function createRenderer({ W, H, transparent, getState, fmtH, ropeX }) {
+export function createRenderer({ W, H, transparent, getState, fmtH, ropeX, streamerKeys = true }) {
   let S, ctx, shx = 0, shy = 0;
   const sy = (y) => VIEW_BOT - (y - S.camY) + shy;
   const sx = (x) => x + shx;
@@ -587,7 +587,7 @@ export function createRenderer({ W, H, transparent, getState, fmtH, ropeX }) {
     let title = null, sub = [], col = PAL.bone;
     if (S.over) { title = 'SHIFT OVER'; sub = [`SESSION ${fmtH(S.sessionT)} · SUMMITS ${S.summits}`, 'SEE YOU NEXT SHIFT']; col = PAL.sodium; }
     else if (S.onBreak) { title = 'ON BREAK'; sub = [`${S.heroName} IS ON A SMOKE BREAK`, `GIFTS WAIT IN LINE (${S.held.length}) · ANY KEY RESUMES`]; col = PAL.help; }
-    else if (S.paused) { title = 'PAUSED'; sub = [`GIFTS QUEUED: ${S.held.length} · THEY FIRE 0.5s APART`, 'P RESUME']; }
+    else if (S.paused) { title = 'PAUSED'; sub = [`GIFTS QUEUED: ${S.held.length} · THEY FIRE 0.5s APART`, streamerKeys ? 'P RESUME · F9 PANIC · F10 SETTINGS · F1 KEYS' : 'P RESUME']; }
     if (!title) return;
     ctx.fillStyle = 'rgba(12,9,9,0.78)'; ctx.fillRect(0, VIEW_TOP, W, VIEW_H);
     text(ctx, title, W / 2, 960, { scale: 14, color: col, outline: 6, align: 'center' });
@@ -636,8 +636,7 @@ export function createRenderer({ W, H, transparent, getState, fmtH, ropeX }) {
 
   // first 18 s of a session: where the streamer's safety keys are (small, bottom-left of view)
   function streamerHint() {
-    return; // web edition: the page shows its own how-to (no streamer keys)
-    if (S.sessionT > 18 || S.help || S.settings.open) return; // gone before the first gift legend (20 s)
+    if (!streamerKeys || S.sessionT > 18 || S.help || S.settings.open) return; // gone before the first gift legend (20 s)
     const a = Math.min(1, (18 - S.sessionT) * 2);
     const t = 'STREAMER: F1 KEYS · P PAUSE · F9 PANIC · F10 SETTINGS';
     ctx.globalAlpha = a;

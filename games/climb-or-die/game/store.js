@@ -1,5 +1,5 @@
-// Persistent leaderboard (spec section 4). WEB EDITION: the doc lives in this browser's
-// localStorage (no server); the game keeps base (loaded once) + this session's
+// Persistent leaderboard (spec section 4). The platform owns app/data/climb-or-die.json
+// (GET/POST /api/climb-or-die); the game keeps base (loaded once) + this session's
 // deltas, so every save is idempotent: doc = base + session. Titles are cosmetic only.
 import { PAL } from './consts.js';
 
@@ -12,6 +12,11 @@ export const TITLES = {
   gremlin: { name: 'Gremlin', prefix: 'GREM', color: '#FF9A7A' },
 };
 const today = () => new Date().toISOString().slice(0, 10);
+const strip = (doc) => {
+  const clean = { ...doc, viewers: Object.fromEntries(Object.entries(doc.viewers || {}).map(([id, v]) => { const { _t, ...rest } = v; return [id, rest]; })) };
+  delete clean.mostWanted;
+  return clean;
+};
 const emptyDoc = () => ({ version: 1, summits: 0, bestRunSec: null, viewers: {} });
 
 export function titleFor(v, mostWantedId, id) {
@@ -20,21 +25,48 @@ export function titleFor(v, mostWantedId, id) {
   return v.team === 'sab' ? sabTitle || helpTitle : helpTitle || sabTitle;
 }
 
-const KEY = 'climb-or-die-board';
-const ls = () => { try { return typeof localStorage !== 'undefined' ? localStorage : null; } catch (e) { return null; } };
+/**
+ * Storage backends: { load(): Promise<doc|null>, save(doc, {beacon}): Promise, clip(kind, user, text) }.
+ * remoteBackend() = the streamer app's server (/api/climb-or-die + /api/clip), the default in a browser.
+ */
+export function remoteBackend() {
+  return {
+    async load() { const r = await fetch('/api/climb-or-die', { cache: 'no-store' }); return r.json(); },
+    async save(doc, { beacon = false } = {}) {
+      const body = JSON.stringify(doc);
+      if (beacon && navigator.sendBeacon) navigator.sendBeacon('/api/climb-or-die', new Blob([body], { type: 'application/json' }));
+      else await fetch('/api/climb-or-die', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: body.length < 60000 });
+    },
+    clip(kind, user, text) { fetch('/api/clip', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ts: Date.now(), type: kind, user, note: text }) }).catch(() => {}); },
+  };
+}
 
-export function createStore({ remote = !!ls() } = {}) {
+/** Ready backend for a serverless (web) build: the board lives in localStorage under `key`; clips are a no-op. */
+export function localStorageBackend(key = 'climb-or-die-board') {
+  return {
+    async load() { return JSON.parse(localStorage.getItem(key) || 'null'); },
+    async save(doc) { localStorage.setItem(key, JSON.stringify(doc)); }, // sync inside: survives beforeunload
+    clip() {},
+  };
+}
+
+/** opts.storage = injectable backend (see above). Without one: remoteBackend() in a browser, nothing headless. */
+export function createStore({ remote = typeof window !== 'undefined' && typeof fetch === 'function', storage } = {}) {
+  const backend = storage || (remote ? remoteBackend() : null);
   let base = emptyDoc();
-  let loaded = !remote;
+  let loaded = !backend;
   const st = {
     get base() { return base; },
     get loaded() { return loaded; },
+    get backend() { return backend; },
     async load() {
-      if (!remote) return base;
-      try { const d = JSON.parse(ls().getItem(KEY) || 'null'); if (d && d.viewers) base = d; } catch (e) { /* blocked or corrupt: start empty */ }
+      if (!backend) return base;
+      try { const d = await backend.load(); if (d && d.viewers) base = d; } catch (e) { /* offline / empty: start empty */ }
       loaded = true;
       return base;
     },
+    /** Fold a merged doc into base (new session: the finished session's deltas stay on the board). */
+    adopt(doc) { base = strip(doc); },
     /** base + session deltas -> full doc. */
     merged(session, sessionSummits, bestRunSec) {
       const doc = { version: 1, summits: (base.summits || 0) + sessionSummits, bestRunSec: base.bestRunSec, viewers: {} };
@@ -53,13 +85,14 @@ export function createStore({ remote = !!ls() } = {}) {
       doc.mostWanted = mw;
       return doc;
     },
-    save(doc) {
-      if (!remote || !loaded) return;
-      const clean = { ...doc, viewers: Object.fromEntries(Object.entries(doc.viewers).map(([id, v]) => { const { _t, ...rest } = v; return [id, rest]; })) };
-      delete clean.mostWanted;
-      try { ls().setItem(KEY, JSON.stringify(clean)); } catch (e) { /* quota / private mode: ignore */ }
+    save(doc, { beacon = false } = {}) {
+      if (!backend || !loaded) return;
+      try { Promise.resolve(backend.save(strip(doc), { beacon })).catch(() => {}); } catch (e) { /* ignore */ }
     },
-    clip() { /* web edition: no replay-buffer markers */ },
+    clip(type, user, note) {
+      if (!backend || !backend.clip) return;
+      try { backend.clip(type, user, note); } catch (e) { /* ignore */ }
+    },
   };
   return st;
 }

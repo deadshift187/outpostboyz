@@ -1,18 +1,21 @@
-// Player controls: keyboard + Gamepad API (standard mapping). WEB EDITION: the streamer-only
-// keys (F1 key help, F9 PANIC, F10 settings) are not bound; touch buttons send these same key codes.
+// Streamer controls: keyboard + Gamepad API (standard mapping).
 //   Run A/D or arrows / left stick or d-pad     Jump Space / A (hold = full height)
 //   Dash Shift / X        Brace S or Down / LT (hold)      Climb ladders W or Up / stick up
-//   Grapple E / RB        Pause P / Start      Music mute M
-// Headless (Node) gets a manual input you drive with set() (tests / soak bot).
+//   Grapple E / RB        Pause P / Start      PANIC F9 / Select+Start      Settings F10
+//   Music mute M      Key help F1      (in settings: R resets the selected knob)
+// createInput({ streamerKeys: false }) (web edition): F1/F9/F10 and Select+Start PANIC are unbound
+// (Start alone pauses). Headless (Node) gets a manual input you drive with set() (tests / soak bot).
 
 const KEYS = {
   left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'], up: ['KeyW', 'ArrowUp'], down: ['KeyS', 'ArrowDown'],
-  jump: ['Space'], dash: ['ShiftLeft', 'ShiftRight'], grapple: ['KeyE'], pause: ['KeyP'],
-  mute: ['KeyM'], esc: ['Escape'], enter: ['Enter'],
+  jump: ['Space'], dash: ['ShiftLeft', 'ShiftRight'], grapple: ['KeyE'], pause: ['KeyP'], panic: ['F9'], settings: ['F10'],
+  mute: ['KeyM'], esc: ['Escape'], enter: ['Enter'], help: ['F1'], reset: ['KeyR'],
 };
 const NAMES = Object.keys(KEYS);
 
-export function createInput() {
+export function createInput({ streamerKeys = true } = {}) {
+  const keys = streamerKeys ? KEYS : { ...KEYS, panic: [], settings: [], help: [] };
+  const grab = ['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].concat(streamerKeys ? ['F1', 'F9', 'F10'] : []);
   const held = Object.fromEntries(NAMES.map((n) => [n, false]));
   const prev = { ...held };
   let manual = null, activity = false, padActivity = false;
@@ -21,7 +24,7 @@ export function createInput() {
   if (hasDom) {
     window.addEventListener('keydown', (e) => {
       keyHeld.add(e.code); activity = true;
-      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
+      if (grab.includes(e.code)) e.preventDefault();
     });
     window.addEventListener('keyup', (e) => keyHeld.delete(e.code));
     window.addEventListener('blur', () => keyHeld.clear());
@@ -52,8 +55,9 @@ export function createInput() {
     if (manual) Object.assign(s, manual);
     else {
       const pad = readPads();
-      for (const n of NAMES) s[n] = KEYS[n].some((k) => keyHeld.has(k)) || !!pad[n];
-      if (pad.start) s.pause = true;
+      for (const n of NAMES) s[n] = keys[n].some((k) => keyHeld.has(k)) || !!pad[n];
+      // Select+Start = PANIC, Start alone = pause
+      if (pad.start && pad.select && streamerKeys) s.panic = true; else if (pad.start) s.pause = true;
     }
     const r = { any: activity || padActivity || NAMES.some((n) => s[n]), pad: padActivity };
     for (const n of NAMES) { r[n] = !!s[n]; r[n + 'Pressed'] = !!s[n] && !prev[n]; prev[n] = !!s[n]; }

@@ -120,5 +120,8 @@ export function createSfx(presets, { muted = false } = {}) {
   function stopMusic() { if (music) { clearInterval(music.timer); music = null; } }
   function duck(on) { if (musicBus) musicBus.gain.setTargetAtTime(on ? 0.22 * 0.355 : 0.22, ac.currentTime, 0.08); } // -9 dB
 
-  return { play, loop, startMusic, stopMusic, duck, get ready() { return !!ac; }, setMuted(m) { muted = m; if (m) { stopMusic(); for (const k of [...loops.keys()]) loop(k, false); } } };
+  /** Stop every sustained loop (drone, wind, servo, rotor...) without touching the AudioContext or music. */
+  function stopLoops() { for (const id of loops.values()) clearInterval(id); loops.clear(); }
+
+  return { play, loop, stopLoops, startMusic, stopMusic, duck, get ready() { return !!ac; }, setMuted(m) { muted = m; if (m) { stopMusic(); for (const k of [...loops.keys()]) loop(k, false); } } };
 }

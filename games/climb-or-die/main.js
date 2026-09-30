@@ -46,8 +46,9 @@ function wakeAudio() { for (const ac of acs) if (ac.state === 'suspended') ac.re
 
 // ---------- game + platform pieces ----------
 const giftMap = await fetch('gifts.json').then((r) => r.json()).catch(() => ({}));
-const { createGame } = await import('./game/index.js');
-const game = createGame({ W, H });
+const { createGame, localStorageBackend } = await import('./game/index.js');
+// web edition: board in localStorage, no server pings, streamer-only keys off (official createGame options)
+const game = createGame({ W, H, storage: localStorageBackend('climb-or-die-board'), activityPing: false, streamerKeys: false });
 try { game.onConfig(giftMap); } catch (e) { /* defaults */ }
 const overlay = createOverlay({ W, H, options: { ...game.overlayLayout, hud: false } });
 const S = () => game.dev.S;
@@ -92,10 +93,8 @@ const readyAt = { help: TRAY.help.map(() => 0), sab: TRAY.sab.map(() => 0) };
 let likeReady = 0;
 
 async function startRun() {
-  const st = game.dev.store, s = S();
-  // bank this browser's all-time boards (bots + YOU), then a brand-new session
-  try { st.save(st.merged(s.session, s.summits, s.bestRunSec)); await st.load(); } catch (e) { /* storage blocked */ }
-  game.dev.fresh();
+  // banks the finished session to this browser's board, stops SFX loops, keeps the AudioContext
+  try { game.newSession(); } catch (e) { /* storage blocked */ }
   game.dev.setTeam(YOU.help, 'help');
   game.dev.setTeam(YOU.sab, 'sab');
   overlay.reset();

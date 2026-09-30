@@ -2,12 +2,16 @@
  * GAME ENTRY POINT: CLIMB OR DIE (design/CLIMB-OR-DIE.md). The platform
  * (public/platform/main.js) loads this file and calls createGame():
  *
- *   createGame({ W, H, transparent, sound }) -> {
+ *   createGame({ W, H, transparent, sound, store, storage, mute, activityPing, streamerKeys }) -> {
+ *     (web-edition opts, defaults = streamer app: activityPing true -> gamepad pings /api/activity;
+ *      storage = store.js backend {load,save,clip}, default remote /api/climb-or-die + /api/clip;
+ *      streamerKeys true -> F1/F9/F10 + Select+Start PANIC bound and shown)
  *     onEvent(evt, map)  // every normalized event + its gifts.json mapping; we rewrite
  *                        //   map.label (team-resolved effect name) and map.sound (we synth our own)
  *     update(dt)         // seconds, capped at 1/30
  *     render(ctx)        // 1080x1920; top 520 px kept clear for the host camera
  *     reset()            // sim "reset" button: fresh run
+ *     newSession()       // fresh session (board keeps the old one's deltas); stops loops, keeps the AudioContext
  *     onIdle(s) / onActive(s)   // server idle watchdog -> ON BREAK screen
  *     onConfig(giftMap)  // gifts.json (+ hot reload): reads the "climb-or-die" section
  *     overlayLayout      // where the platform feed / pill / whale banner go
@@ -24,6 +28,7 @@ import { newPlayer, updatePlayer, hit, pBox, boxDist, fallDropM } from './climbe
 import { intake, dispatchEvent, tickDispatch, tickHazards, panic, useGrapple, stallAssist, creditGiven, creditTaken, stat, chip, teamOf, cleanEvent, crewNames, barrageLabel, releaseFolds, EFFECT_NAMES, platformBadge } from './effects.js';
 import { createInput } from './input.js';
 import { createStore, TITLES } from './store.js';
+export { localStorageBackend, remoteBackend } from './store.js';
 import { createSfx } from './sfx.js';
 import { createRenderer } from './render.js';
 
@@ -40,11 +45,11 @@ const CHUNKS = await loadJSON('./tower-chunks.json');
 const SFX_PRESETS = await loadJSON('./sfx-presets.json').catch(() => ({}));
 const GIFTS_CFG = await loadJSON('../gifts.json').then((g) => g['climb-or-die'] || {}).catch(() => ({}));
 
-export function createGame({ W = CW, H = CH, transparent = false, store: storeOpt, mute } = {}) {
+export function createGame({ W = CW, H = CH, transparent = false, store: storeOpt, storage, mute, activityPing = true, streamerKeys = true } = {}) {
   const hasDom = typeof window !== 'undefined';
   const params = hasDom && typeof location !== 'undefined' ? new URLSearchParams(location.search) : new URLSearchParams();
-  const input = createInput();
-  const store = storeOpt || createStore();
+  const input = createInput({ streamerKeys });
+  const store = storeOpt || createStore(storage ? { storage } : undefined);
   const sfx = createSfx(SFX_PRESETS, { muted: mute ?? params.get('mute') === '1' });
   const handlers = [];
   let S;
@@ -200,6 +205,7 @@ export function createGame({ W = CW, H = CH, transparent = false, store: storeOp
     if (inp.any) {
       S.idleT = 0;
       if (S.onBreak) { S.onBreak = false; S.swallow = new Set(ACTION_KEYS.filter((k) => inp[k])); chip(S, 'BACK FROM BREAK', PAL.help); }
+      if (activityPing && inp.pad && hasDom && S.realT - S.padPing > 5) { S.padPing = S.realT; try { fetch('/api/activity').catch(() => {}); } catch (e) { /* ignore */ } }
     } else S.idleT += dt;
     // the key that wakes ON BREAK is swallowed: every action stays masked until it is released
     // (otherwise Space would jump, P would pause, F9 would PANIC on the way back)
@@ -419,9 +425,18 @@ export function createGame({ W = CW, H = CH, transparent = false, store: storeOp
     }
   }
 
-  const renderer = createRenderer({ W, H, transparent, getState: () => S, fmtH, ropeX });
+  const renderer = createRenderer({ W, H, transparent, getState: () => S, fmtH, ropeX, streamerKeys });
   const game = {
     onEvent, update, render: (ctx) => renderer.render(ctx), reset() { const keep = { t: S.t }; sfx.loop('rotor', false); newRun(0); S.t = keep.t; S.summits = 0; }, // (rotor: a reset mid-summit left it looping forever)
+    /** Web edition: fresh session (new timer, run, queues, tonight boards). The finished session is saved
+     *  and folded into the all-time board first. Stops every looping sound; the AudioContext is reused. */
+    newSession() {
+      if (store.loaded) { const doc = store.merged(S.session, S.summits, S.bestRunSec); store.save(doc); store.adopt(doc); }
+      sfx.stopLoops(); sfx.duck(false);
+      const musicOff = S.musicOff;
+      freshSession(); saveClock = 0;
+      S.musicOff = musicOff;
+    },
     onIdle() { S.serverIdle = true; if (!S.over && S.idleT >= 10 && !S.onBreak) { S.onBreak = true; sfx.play('lounge'); } },
     onActive() { S.serverIdle = false; if (S.onBreak) { S.onBreak = false; S.idleT = 0; S.swallow = true; } },
     /** Platform pulls game-made feed lines (BARRAGE credits) once a frame. */
@@ -456,8 +471,6 @@ export function createGame({ W = CW, H = CH, transparent = false, store: storeOp
       warp(m) { const P = S.player; const y = m * 100; const plat = S.platforms.filter((p) => p.alive && p.y <= y && p.kind !== 'net').sort((a, b) => b.y - a.y)[0]; P.y = plat.y; P.x = plat.x + plat.w / 2; P.ground = plat; P.lastGroundY = plat.y; P.vy = 0; P.vx = 0; P.kvx = 0; S.camY = P.y - 380; for (const b of S.beacons) b.banked = b.y <= P.y; S.stall.bestY = P.y; },
       setTeam(user, team) { S.teams.set(user.id, { team, at: -9999, name: user.nickname }); stat(S, user).team = team; },
       summit() { startSummit(); },
-      // web edition: a brand-new session (fresh state, same input/sfx/store; no new AudioContext)
-      fresh() { sfx.loop('rotor', false); freshSession(); },
       card(c) { showCard(c); },
       fmtH,
     },
