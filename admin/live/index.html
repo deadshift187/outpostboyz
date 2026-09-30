@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Live — Admin — Outpost Boyz</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" href="/assets/icons/icon-192.png">
+  <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    .lv-wrap { max-width: 980px; margin: 0 auto; padding: 18px 16px 80px; }
+    .lv-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; }
+    .lv-h { font-family: var(--disp); font-size: clamp(28px, 7vw, 44px); letter-spacing: -1px; text-transform: uppercase; line-height: 1; display: flex; align-items: center; gap: 12px; }
+    .lv-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--red); flex: none; animation: lvPulse 1.6s ease-in-out infinite; }
+    .lv-paused .lv-dot { background: var(--grey); animation: none; }
+    @keyframes lvPulse { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+    .lv-sub { color: var(--grey); font-size: 13px; font-weight: 600; letter-spacing: .3px; }
+    .lv-bar { display: flex; align-items: center; gap: 10px; }
+    .lv-status { font: 600 13px var(--body); color: var(--grey); text-align: right; min-width: 0; }
+    .lv-status b { color: var(--ink); font-variant-numeric: tabular-nums; }
+    .lv-status.err b { color: var(--red-text); }
+    .lv-btn { min-height: 44px; min-width: 88px; padding: 10px 12px; font: 900 13px var(--body); letter-spacing: 1px; border: var(--bw) solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; border-radius: 0; }
+    .lv-btn[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+    .lv-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+    .lv-tile { border: var(--bw) solid var(--ink); padding: 12px 12px 10px; min-width: 0; position: relative; }
+    .lv-tile.money { grid-column: span 2; background: var(--ink); color: var(--paper); }
+    .lv-k { font: 900 11px/1.2 var(--body); letter-spacing: 1.2px; text-transform: uppercase; color: var(--grey); }
+    .lv-tile.money .lv-k { color: #bdbdbd; }
+    .lv-v { font-family: var(--disp); font-size: clamp(30px, 9vw, 52px); line-height: 1.05; letter-spacing: -1px; margin-top: 6px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .lv-tile.money .lv-v { font-size: clamp(38px, 12vw, 64px); color: #39ff14; }
+    .lv-d { font: 600 12px var(--body); color: var(--grey); margin-top: 2px; }
+    .lv-tile.money .lv-d { color: #d9d9d9; }
+
+    .lv-sec { margin-top: 22px; }
+    .lv-sec-h { font-family: var(--disp); font-size: 20px; text-transform: uppercase; letter-spacing: -.3px; border-bottom: var(--bw) solid var(--ink); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .lv-sec-h small { font: 600 12px var(--body); color: var(--grey); letter-spacing: .3px; text-transform: none; }
+    .lv-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+    .lv-cols2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 22px; }
+
+    .lv-spark { border: var(--bw) solid var(--ink); padding: 10px 12px 8px; min-width: 0; }
+    .lv-spark-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .lv-spark-v { font-family: var(--disp); font-size: 26px; font-variant-numeric: tabular-nums; }
+    .lv-read { font: 600 12px var(--body); color: var(--grey); min-height: 1.3em; font-variant-numeric: tabular-nums; }
+    .lv-spark svg { display: block; width: 100%; height: 56px; margin-top: 6px; touch-action: pan-y; cursor: crosshair; }
+    .lv-axis { display: flex; justify-content: space-between; font: 600 10px var(--body); color: var(--grey); margin-top: 2px; }
+
+    .lv-list { list-style: none; margin-top: 6px; }
+    .lv-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 8px 0; border-bottom: 2px solid #e6e6e6; }
+    .lv-list li:last-child { border-bottom: 0; }
+    .lv-name { font-weight: 900; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lv-name small { font-weight: 600; color: var(--grey); font-size: 12px; margin-left: 6px; }
+    .lv-n { font: 900 15px var(--body); font-variant-numeric: tabular-nums; text-align: right; }
+    .lv-meter { grid-column: 1 / -1; height: 6px; background: #eeeeee; }
+    .lv-meter span { display: block; height: 100%; background: var(--ink); border-radius: 0 3px 3px 0; min-width: 2px; }
+    .lv-empty { color: var(--grey); font-size: 14px; padding: 10px 0; }
+
+    .lv-split { display: flex; height: 26px; margin-top: 10px; border: 2px solid var(--ink); }
+    .lv-split span { display: block; height: 100%; }
+    .lv-split .m { background: var(--ink); }
+    .lv-split .d { background: repeating-linear-gradient(135deg, #fff 0 4px, #bbb 4px 6px); border-left: 2px solid var(--paper); }
+    .lv-split-k { display: flex; justify-content: space-between; font: 900 12px var(--body); letter-spacing: .5px; margin-top: 6px; }
+
+    .lv-sale { display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 2px solid #e6e6e6; }
+    .lv-sale:last-child { border-bottom: 0; }
+    .lv-sale time { font: 600 12px var(--body); color: var(--grey); font-variant-numeric: tabular-nums; }
+    .lv-sale.new { animation: lvNew 3s ease-out; }
+    @keyframes lvNew { from { background: #39ff14; } to { background: transparent; } }
+
+    .lv-mini { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+    .lv-mini .lv-tile { padding: 10px; }
+    .lv-mini .lv-v { font-size: 28px; }
+    .lv-mini a { color: inherit; }
+
+    .lv-msg { border: var(--bw) solid var(--ink); padding: 18px; margin-top: 20px; }
+    .hidden { display: none !important; }
+
+    /* new-sale celebration */
+    .lv-party { position: fixed; inset: 0; z-index: 500; pointer-events: none; display: flex; align-items: center; justify-content: center; }
+    .lv-party::before { content: ''; position: absolute; inset: 0; background: #39ff14; animation: lvFlash 1.6s ease-out forwards; }
+    .lv-party div { position: relative; font-family: var(--disp); font-size: clamp(40px, 14vw, 110px); color: #000; background: #39ff14; border: 6px solid #000; padding: 6px 22px; transform: rotate(-4deg); animation: lvPop 2.8s ease-out forwards; text-align: center; line-height: 1; }
+    .lv-party div small { display: block; font: 900 clamp(14px, 4vw, 22px) var(--body); letter-spacing: 1px; margin-top: 6px; }
+    @keyframes lvFlash { 0% { opacity: .85; } 100% { opacity: 0; } }
+    @keyframes lvPop { 0% { transform: scale(.4) rotate(-4deg); opacity: 0; } 12% { transform: scale(1.08) rotate(-4deg); opacity: 1; } 20% { transform: scale(1) rotate(-4deg); } 80% { opacity: 1; } 100% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      .lv-dot { animation: none; }
+      .lv-party::before { animation: none; opacity: .35; }
+      .lv-party div { animation: none; }
+      .lv-sale.new { animation: none; background: #eaffe3; }
+    }
+
+    @media (max-width: 760px) {
+      .lv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .lv-cols { grid-template-columns: 1fr; }
+      .lv-cols2 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 420px) {
+      .lv-bar { width: 100%; justify-content: space-between; }
+      .lv-status { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="nav-logo" href="/">OUTPOST&nbsp;BOYZ</a>
+    <div class="nav-links"><a href="/admin/">Game Access</a><a href="/admin/bounty/">Bounty Claims</a><a href="/account/">Account</a></div>
+  </nav>
+
+  <div class="lv-wrap" id="wrap">
+    <div class="lv-head">
+      <div>
+        <h1 class="lv-h"><span class="lv-dot" aria-hidden="true"></span>Live</h1>
+        <p class="lv-sub">SAVE LOST ANGELES launch · today = LA time</p>
+      </div>
+      <div class="lv-bar">
+        <p class="lv-status" id="status" role="status" aria-live="polite">Loading…</p>
+        <button type="button" class="lv-btn" id="pause" aria-pressed="false">PAUSE</button>
+      </div>
+    </div>
+
+    <div class="lv-msg" id="boxMsg"><p>CHECKING CLEARANCE…</p></div>
+
+    <div class="hidden" id="boxLive">
+      <div class="lv-grid">
+        <div class="lv-tile money"><div class="lv-k">Revenue today</div><div class="lv-v" id="revToday">$0</div><div class="lv-d" id="revSub"></div></div>
+        <div class="lv-tile"><div class="lv-k">Sales today</div><div class="lv-v" id="salesToday">0</div><div class="lv-d" id="salesSub"></div></div>
+        <div class="lv-tile"><div class="lv-k">Signups today</div><div class="lv-v" id="signToday">0</div><div class="lv-d" id="signSub"></div></div>
+        <div class="lv-tile"><div class="lv-k">Views · 5 min</div><div class="lv-v" id="v5">0</div><div class="lv-d">right now</div></div>
+        <div class="lv-tile"><div class="lv-k">Views · 1 hour</div><div class="lv-v" id="v60">0</div><div class="lv-d" id="v60Sub"></div></div>
+        <div class="lv-tile"><div class="lv-k">Views today</div><div class="lv-v" id="vDay">0</div><div class="lv-d" id="vDaySub"></div></div>
+        <div class="lv-tile"><div class="lv-k">SLA boots</div><div class="lv-v" id="boots">0</div><div class="lv-d" id="bootsSub"></div></div>
+      </div>
+
+      <section class="lv-sec" aria-labelledby="hTrend">
+        <h2 class="lv-sec-h" id="hTrend">Last 24 hours <small>per hour · tap a chart</small></h2>
+        <div class="lv-cols">
+          <div class="lv-spark" data-series="views"></div>
+          <div class="lv-spark" data-series="signups"></div>
+          <div class="lv-spark" data-series="sales"></div>
+        </div>
+      </section>
+
+      <section class="lv-sec" aria-labelledby="hTraffic">
+        <h2 class="lv-sec-h" id="hTraffic">Traffic today <small id="trafficSub"></small></h2>
+        <div class="lv-cols2">
+          <div>
+            <div class="lv-k" style="margin-top:12px;">Where they came from</div>
+            <ul class="lv-list" id="refs"></ul>
+          </div>
+          <div>
+            <div class="lv-k" style="margin-top:12px;">Top pages</div>
+            <ul class="lv-list" id="pages"></ul>
+            <div class="lv-k" style="margin-top:14px;">Phone vs desktop</div>
+            <div class="lv-split" id="split" role="img"></div>
+            <div class="lv-split-k" id="splitK"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lv-sec" aria-labelledby="hSales">
+        <h2 class="lv-sec-h" id="hSales">Latest sales <small id="salesAll"></small></h2>
+        <div id="sales"></div>
+      </section>
+
+      <section class="lv-sec" aria-labelledby="hPlays">
+        <h2 class="lv-sec-h" id="hPlays">Plays <small id="playsSub"></small></h2>
+        <ul class="lv-list" id="plays"></ul>
+      </section>
+
+      <section class="lv-sec" aria-labelledby="hBounty">
+        <h2 class="lv-sec-h" id="hBounty">$100 Bounty <small><a href="/admin/bounty/">review claims</a></small></h2>
+        <div class="lv-mini">
+          <div class="lv-tile"><div class="lv-k">Entrants</div><div class="lv-v" id="bEntries">0</div></div>
+          <div class="lv-tile"><div class="lv-k">Pending claims</div><div class="lv-v" id="bPending">0</div></div>
+          <div class="lv-tile"><div class="lv-k">Notify list</div><div class="lv-v" id="bNotify">0</div></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
+  <script src="/assets/ob-sdk.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    var FN = 'https://duogqviqgmbaynfrhrmq.supabase.co/functions/v1/admin-stats';
+    var EVERY = 20; // seconds
+    var $ = function (id) { return document.getElementById(id); };
+    var data = null, prev = null, paused = false, timer = null, countdown = EVERY, lastOk = null, busy = false, failStreak = 0;
+    var money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+    var num = new Intl.NumberFormat('en-US');
+    function usd(c) { var v = (Number(c) || 0) / 100; return v % 1 === 0 && v >= 100 ? money.format(v).replace(/\.00$/, '') : money.format(v); }
+    function n(x) { return num.format(Number(x) || 0); }
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); }
+    function clock(d) { return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' }); }
+    function hm(iso) { var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
+    function hourLbl(iso) { var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleTimeString('en-US', { hour: 'numeric' }).replace(':00', '').replace(' ', '').toLowerCase(); }
+    function ago(iso) {
+      var s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+      if (s < 60) return 'just now'; if (s < 3600) return Math.floor(s / 60) + 'm ago';
+      if (s < 86400) return Math.floor(s / 3600) + 'h ago'; return Math.floor(s / 86400) + 'd ago';
+    }
+    function say(html) { $('boxMsg').innerHTML = html; $('boxMsg').classList.remove('hidden'); $('boxLive').classList.add('hidden'); }
+
+    var REF = [
+      [/(^|\.)instagram\.com$/, 'Instagram'], [/^t\.co$|(^|\.)(x|twitter)\.com$/, 'X / Twitter'], [/(^|\.)tiktok\.com$/, 'TikTok'],
+      [/(^|\.)facebook\.com$|^fb\.me$/, 'Facebook'], [/(^|\.)youtube\.com$|^youtu\.be$/, 'YouTube'], [/(^|\.)reddit\.com$/, 'Reddit'],
+      [/(^|\.)google\.[a-z.]+$/, 'Google'], [/(^|\.)bing\.com$/, 'Bing'], [/(^|\.)linktr\.ee$/, 'Linktree'], [/(^|\.)discord(app)?\.com$/, 'Discord']
+    ];
+    function refName(h) {
+      if (h === 'direct') return { name: 'Direct / in-app', host: 'no referrer' };
+      for (var i = 0; i < REF.length; i++) if (REF[i][0].test(h)) return { name: REF[i][1], host: h };
+      return { name: h, host: '' };
+    }
+
+    // ---------- sparklines (inline SVG, one series each) ----------
+    var SPARK = { views: { t: 'Views', one: 'view' }, signups: { t: 'Signups', one: 'signup' }, sales: { t: 'Sales', one: 'sale' } };
+    function drawSpark(el) {
+      var key = el.getAttribute('data-series'), meta = SPARK[key];
+      var ys = (data.series && data.series[key]) || [], hrs = (data.series && data.series.hours) || [];
+      var sum = ys.reduce(function (a, b) { return a + (Number(b) || 0); }, 0);
+      var max = Math.max.apply(null, ys.concat([1]));
+      var W = 240, H = 56, pad = 4, step = ys.length > 1 ? (W - pad * 2) / (ys.length - 1) : 0;
+      var pts = ys.map(function (y, i) { return [pad + i * step, H - pad - (y / max) * (H - pad * 2)]; });
+      var line = pts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+      var area = pts.length ? 'M' + pts[0][0] + ',' + (H - pad) + ' L' + line.replace(/ /g, ' L') + ' L' + pts[pts.length - 1][0] + ',' + (H - pad) + ' Z' : '';
+      var last = pts[pts.length - 1] || [0, 0];
+      el.innerHTML =
+        '<div class="lv-spark-top"><span class="lv-k">' + meta.t + ' · 24h</span><span class="lv-spark-v">' + n(sum) + '</span></div>' +
+        '<div class="lv-read" data-read></div>' +
+        '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="' + meta.t + ' per hour, last 24 hours, peak ' + max + '">' +
+        '<line x1="0" y1="' + (H - pad) + '" x2="' + W + '" y2="' + (H - pad) + '" stroke="#d6d6d6" stroke-width="1" vector-effect="non-scaling-stroke"/>' +
+        '<path d="' + area + '" fill="#000" fill-opacity=".08"/>' +
+        '<polyline points="' + line + '" fill="none" stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' +
+        '<line data-cross x1="0" y1="0" x2="0" y2="' + H + '" stroke="#000" stroke-width="1" stroke-dasharray="2 2" vector-effect="non-scaling-stroke" visibility="hidden"/>' +
+        '<circle data-pt cx="' + last[0] + '" cy="' + last[1] + '" r="3.5" fill="' + (key === 'sales' ? '#1a7a0a' : '#000') + '" stroke="#fff" stroke-width="1.5" vector-effect="non-scaling-stroke"/>' +
+        '</svg>' +
+        '<div class="lv-axis"><span>' + esc(hourLbl(hrs[0])) + '</span><span>now</span></div>';
+      var svg = el.querySelector('svg'), read = el.querySelector('[data-read]'), cross = el.querySelector('[data-cross]'), dot = el.querySelector('[data-pt]');
+      function show(i, hover) {
+        if (!pts.length) return;
+        i = Math.max(0, Math.min(pts.length - 1, i));
+        var v = ys[i] || 0, p = pts[i];
+        read.textContent = (i === pts.length - 1 && !hover ? 'This hour' : hourLbl(hrs[i]) + ' hour') + ' · ' + n(v) + ' ' + meta.one + (v === 1 ? '' : 's') + ' · peak ' + n(max);
+        dot.setAttribute('cx', p[0]); dot.setAttribute('cy', p[1]);
+        cross.setAttribute('x1', p[0]); cross.setAttribute('x2', p[0]); cross.setAttribute('visibility', hover ? 'visible' : 'hidden');
+      }
+      function at(ev) { var r = svg.getBoundingClientRect(); return Math.round(((ev.clientX - r.left) / r.width * W - pad) / (step || 1)); }
+      svg.addEventListener('pointermove', function (ev) { show(at(ev), true); });
+      svg.addEventListener('pointerdown', function (ev) { show(at(ev), true); });
+      svg.addEventListener('pointerleave', function () { show(pts.length - 1, false); });
+      show(pts.length - 1, false);
+    }
+
+    function listRows(items, label, count) {
+      var top = items.reduce(function (m, x) { return Math.max(m, count(x)); }, 1);
+      return items.map(function (x) {
+        var c = count(x);
+        return '<li><span class="lv-name">' + label(x) + '</span><span class="lv-n">' + n(c) + '</span>' +
+          '<span class="lv-meter" aria-hidden="true"><span style="width:' + Math.max(1, Math.round(c / top * 100)) + '%"></span></span></li>';
+      }).join('');
+    }
+
+    function render() {
+      var d = data, v = d.views || {}, s = d.sales || {}, u = d.signups || {}, p = d.plays || {}, b = d.bounty || {};
+      $('revToday').textContent = usd(s.cents_today);
+      $('revSub').textContent = usd(s.cents_total) + ' all-time · ' + n(s.total) + ' sold';
+      $('salesToday').textContent = n(s.today);
+      $('salesSub').textContent = n(s.h1) + ' in the last hour';
+      $('signToday').textContent = n(u.today);
+      $('signSub').textContent = n(u.h1) + ' last hr · ' + n(u.total) + ' total';
+      $('v5').textContent = n(v.m5);
+      $('v60').textContent = n(v.h1);
+      $('v60Sub').textContent = 'page views';
+      $('vDay').textContent = n(v.today);
+      $('vDaySub').textContent = n(v.sla_page_today) + ' on the SLA page';
+      $('boots').textContent = n(p.sla_boots);
+      var start = window.__lvBoots0;
+      if (start == null) start = window.__lvBoots0 = p.sla_boots || 0;
+      $('bootsSub').textContent = 'all-time · +' + n((p.sla_boots || 0) - start) + ' since open';
+
+      document.querySelectorAll('.lv-spark').forEach(drawSpark);
+
+      // l.instagram.com + instagram.com etc. collapse into one "Instagram" row
+      var byName = {}, refs = [];
+      (v.top_refs || []).forEach(function (r) {
+        var x = refName(r.ref), row = byName[x.name];
+        if (!row) { row = byName[x.name] = { name: x.name, hosts: [], n: 0 }; refs.push(row); }
+        row.n += Number(r.n) || 0;
+        if (x.host && x.host !== x.name) row.hosts.push(x.host);
+      });
+      refs.sort(function (a, b) { return b.n - a.n; });
+      $('refs').innerHTML = refs.length ? listRows(refs, function (r) {
+        return esc(r.name) + (r.hosts.length ? '<small>' + esc(r.hosts.join(', ')) + '</small>' : '');
+      }, function (r) { return r.n; }) : '<li class="lv-empty">No outside traffic yet today.</li>';
+      var pages = v.top_pages || [];
+      $('pages').innerHTML = pages.length ? listRows(pages, function (r) { return esc(r.path); }, function (r) { return r.n; }) : '<li class="lv-empty">No views yet today.</li>';
+      var mob = Number(v.mobile_today) || 0, desk = Number(v.desktop_today) || 0, tot = mob + desk;
+      var mp = tot ? Math.round(mob / tot * 100) : 0;
+      $('split').innerHTML = tot ? '<span class="m" style="width:' + mp + '%"></span><span class="d" style="width:' + (100 - mp) + '%"></span>' : '';
+      $('split').setAttribute('aria-label', tot ? mp + '% phone, ' + (100 - mp) + '% desktop' : 'no views yet');
+      $('splitK').innerHTML = tot ? '<span>PHONE ' + mp + '% · ' + n(mob) + '</span><span>DESKTOP ' + (100 - mp) + '% · ' + n(desk) + '</span>' : '<span class="lv-sub">No views yet today.</span>';
+      $('trafficSub').textContent = n(v.today) + ' views';
+
+      var seenAt = prev && prev.sales ? (((prev.sales.latest || [])[0] || {}).at || '') : null;
+      var latest = s.latest || [];
+      $('salesAll').textContent = n(s.total) + ' all-time · ' + usd(s.cents_total);
+      $('sales').innerHTML = latest.length ? latest.map(function (x, i) {
+        var fresh = seenAt !== null && new Date(x.at) > new Date(seenAt || 0);
+        return '<div class="lv-sale' + (fresh ? ' new' : '') + '"><time datetime="' + esc(x.at) + '" title="' + esc(new Date(x.at).toLocaleString()) + '">' + esc(ago(x.at)) + '<br>' + esc(hm(x.at)) + '</time>' +
+          '<span class="lv-name">' + (x.tag ? esc(x.tag) : '<i style="font-weight:400">no gamertag</i>') + '</span><span class="lv-n">' + usd(x.cents) + '</span></div>';
+      }).join('') : '<p class="lv-empty">No sales yet. They\'ll pop in here.</p>';
+
+      var games = p.games || [];
+      $('plays').innerHTML = games.length ? listRows(games, function (g) {
+        return esc(g.slug.replace(/-/g, ' ').toUpperCase()) + (g.slug === 'save-lost-angeles' ? '<small>boots</small>' : '');
+      }, function (g) { return g.plays; }) : '<li class="lv-empty">No plays yet.</li>';
+      $('playsSub').textContent = 'all-time · ' + n(p.scores_today) + ' scores today';
+
+      $('bEntries').textContent = n(b.entries);
+      $('bPending').textContent = n(b.pending_claims);
+      $('bPending').style.color = b.pending_claims > 0 ? 'var(--red-text)' : '';
+      $('bNotify').textContent = n(b.notify);
+
+      // celebration: a new sale since the last refresh (never on first load)
+      if (prev && prev.sales && (Number(s.total) || 0) > (Number(prev.sales.total) || 0)) {
+        celebrate((Number(s.total) || 0) - (Number(prev.sales.total) || 0), latest[0]);
+      }
+    }
+
+    function celebrate(k, sale) {
+      var old = document.querySelector('.lv-party'); if (old) old.remove();
+      var el = document.createElement('div');
+      el.className = 'lv-party'; el.setAttribute('aria-hidden', 'true');
+      el.innerHTML = '<div>+' + k + ' SALE' + (k === 1 ? '' : 'S') + '<small>' + (sale && sale.tag ? esc(sale.tag) + ' · ' : '') + esc(usd(data.sales.cents_today)) + ' TODAY</small></div>';
+      document.body.appendChild(el);
+      setTimeout(function () { el.remove(); }, 3000);
+      try { if (navigator.vibrate) navigator.vibrate([80, 60, 80]); } catch (e) { }
+      var base = document.title.replace(/^\+\d+ SALES? · /, '');
+      document.title = '+' + k + ' SALE' + (k === 1 ? '' : 'S') + ' · ' + base;
+      setTimeout(function () { document.title = base; }, 15000);
+    }
+
+    function status() {
+      var el = $('status');
+      if (paused) { el.className = 'lv-status'; el.innerHTML = 'PAUSED' + (lastOk ? ' · updated <b>' + clock(lastOk) + '</b>' : ''); return; }
+      if (failStreak) { el.className = 'lv-status err'; el.innerHTML = '<b>Can\'t reach server</b> · retry in ' + countdown + 's' + (lastOk ? '<br>last good ' + clock(lastOk) : ''); return; }
+      el.className = 'lv-status';
+      el.innerHTML = lastOk ? 'Updated <b>' + clock(lastOk) + '</b><br>next in ' + countdown + 's' : 'Loading…';
+    }
+
+    async function call() {
+      var s = await OB.session();
+      if (!s) return { status: 401, data: {} };
+      var r = await fetch(FN, { method: 'POST', cache: 'no-store', headers: { 'Authorization': 'Bearer ' + s.access_token, 'Content-Type': 'application/json' }, body: '{}' });
+      var d = {}; try { d = await r.json(); } catch (e) { }
+      return { status: r.status, data: d };
+    }
+
+    async function load() {
+      if (busy) return; busy = true;
+      var r;
+      try { r = await call(); } catch (e) { r = { status: 0, data: {} }; }
+      busy = false;
+      countdown = EVERY;
+      if (r.status === 401) { stop(); say('<p><b>Sign in first.</b></p><p class="lv-sub"><a href="/account/?return=/admin/live/">Go to sign in</a></p>'); $('status').textContent = ''; return; }
+      if (r.status === 403) { stop(); say('<p><b>Admins only.</b></p><p class="lv-sub">This account can\'t see launch stats.</p>'); $('status').textContent = ''; return; }
+      if (r.status !== 200 || !r.data || !r.data.views) {
+        failStreak++;
+        if (!data) say('<p><b>Couldn\'t load stats.</b></p><p class="lv-sub">' + esc((r.data && r.data.error) || 'Check your connection — retrying.') + '</p>');
+        status(); return;
+      }
+      failStreak = 0;
+      prev = data; data = r.data; lastOk = new Date();
+      $('boxMsg').classList.add('hidden'); $('boxLive').classList.remove('hidden');
+      render(); status();
+    }
+
+    function tick() {
+      if (paused || document.hidden) return;
+      countdown--;
+      if (countdown <= 0) load(); else status();
+    }
+    function stop() { if (timer) clearInterval(timer); timer = null; }
+    function start() { stop(); timer = setInterval(tick, 1000); }
+
+    $('pause').addEventListener('click', function () {
+      paused = !paused;
+      this.setAttribute('aria-pressed', String(paused));
+      this.textContent = paused ? 'RESUME' : 'PAUSE';
+      $('wrap').classList.toggle('lv-paused', paused);
+      if (!paused) { load(); } status();
+    });
+    // Background tab / locked phone: no polling. Coming back refreshes right away.
+    document.addEventListener('visibilitychange', function () { if (!document.hidden && !paused && timer) load(); });
+
+    if (!window.OB) { say('<p><b>Sign-in didn\'t load.</b> Refresh in a minute.</p>'); return; }
+    window.OBLive = { reload: load, celebrate: celebrate };   // re-run hook (after signing in elsewhere, tests)
+    load(); start();
+  })();
+  </script>
+</body>
+</html>
