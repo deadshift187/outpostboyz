@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connect TikTok LIVE</title>
+<style>
+  :root { --bg:#111317; --panel:#1a1d23; --line:#2c3038; --text:#ececec; --dim:#a8adb7; --accent:#FF7A1A; --ok:#3ecf7a; --warn:#ffcc4d; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  main { max-width:760px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.9rem; line-height:1.2; margin:.2em 0 .1em; }
+  h1 span { color:var(--accent); }
+  .sub { color:var(--dim); margin:0 0 24px; }
+  h2 { font-size:1.25rem; margin:32px 0 12px; color:var(--accent); }
+  h3 { font-size:1.05rem; margin:24px 0 8px; }
+  .box { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:16px 0; }
+  .box h2 { margin-top:0; }
+  .need { border-left:5px solid var(--accent); }
+  .trouble { border-left:5px solid var(--warn); }
+  .box ul { margin:0; padding-left:1.2em; }
+  .box li { margin:6px 0; }
+  ol.steps { list-style:none; counter-reset:s; padding:0; margin:0; }
+  ol.steps > li { counter-increment:s; position:relative; padding:4px 0 18px 56px; border-bottom:1px solid var(--line); margin-bottom:18px; }
+  ol.steps > li:last-child { border-bottom:0; }
+  ol.steps > li::before { content:counter(s); position:absolute; left:0; top:0; width:40px; height:40px; border-radius:50%; background:var(--accent); color:#111; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+  ol.steps.b > li::before { content:"B" counter(s); font-size:.95rem; }
+  ol.steps b { color:#fff; }
+  .shot { border:2px dashed #555b66; border-radius:10px; min-height:150px; display:flex; align-items:center; justify-content:center; text-align:center; color:#8a909b; font-size:.9rem; padding:14px; margin:12px 0 4px; background:#15181d; }
+  code, kbd { background:#262a31; border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-size:.92em; }
+  .tip { color:var(--dim); font-size:.95rem; }
+  .ok { color:var(--ok); font-weight:700; }
+  .big { border:2px solid var(--accent); border-radius:10px; padding:10px 14px; margin:12px 0; }
+  .q { font-weight:700; color:#fff; margin-top:12px; }
+  nav { font-size:.9rem; color:var(--dim); margin-top:36px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Connect your <span>TikTok LIVE</span></h1>
+  <p class="sub">Gifts, likes, follows and shares from your viewers change the game while you play. It takes about 10 minutes the first time and 1 minute after that.</p>
+
+  <div class="box need">
+    <h2>What you need</h2>
+    <ul>
+      <li>A <b>Windows PC</b> (on a Mac, use <a href="#planb">Plan B</a>)</li>
+      <li><b>TikFinity</b>, a free app made by a third party, not by us or TikTok</li>
+      <li>A TikTok account that is allowed to go LIVE, and your <b>@username</b></li>
+      <li>The game open in <b>Chrome or Edge</b> (Firefox works too; <b>Safari does not</b>)</li>
+      <li>Your streaming app (TikTok LIVE Studio or OBS). See <a href="put-game-on-stream.html">Put the game on your stream</a></li>
+    </ul>
+  </div>
+
+  <h2>Plan A: TikFinity (easiest)</h2>
+  <ol class="steps">
+    <li>
+      Go to <b>tikfinity.zerody.one</b> and download the <b>Desktop App for Windows</b>. Install it like any other program.
+      <div class="shot">SCREENSHOT: TikFinity download button</div>
+    </li>
+    <li>
+      Open TikFinity, sign in, and type your TikTok <b>@username</b>.
+    </li>
+    <li>
+      <b>Go LIVE on TikTok</b> (LIVE Studio or your phone), then click <b>Connect</b> in TikFinity. It should say it's connected to your LIVE.
+      <p class="tip">Keep TikFinity open the whole time you stream. You can minimize it.</p>
+      <div class="shot">SCREENSHOT: TikFinity showing "connected" with your username</div>
+    </li>
+    <li>
+      Open the game on <b>outpostboyz.com</b>, click <b>LIVE MODE</b>, tick <b>TikTok</b>, then pick <b>Plan A: TikFinity</b>.
+      <div class="shot">SCREENSHOT: game Live mode, TikTok, TikFinity option</div>
+    </li>
+    <li>
+      Click <b>Connect</b>. Your browser will show a small box near the address bar asking if outpostboyz.com can connect to <b>apps on this device</b> or <b>devices on your local network</b>.
+      <div class="big">Click <b>Allow</b>. This lets the game talk to TikFinity on your own computer. It doesn't share anything online.</div>
+      <div class="shot">SCREENSHOT: Chrome permission pop-up with the Allow button circled</div>
+    </li>
+    <li>
+      You'll see <span class="ok">Connected to TikFinity</span>. Click <b>Test a gift</b>, and something should happen in the game.
+    </li>
+    <li>
+      Close the settings panel and play. When viewers send a Rose, tap likes, follow or share, the game reacts.
+    </li>
+  </ol>
+
+  <h2 id="planb">Plan B: Euler Stream key (Mac, or if Plan A won't connect)</h2>
+  <p class="tip">Euler Stream is a free third-party service. You make your own free account and paste its key into the game. The key stays in your browser; we never see it.</p>
+  <ol class="steps b">
+    <li>Go to <b>eulerstream.com</b>, make a free account (the "Community" plan costs $0 and needs no card), and copy your <b>API key</b> from the dashboard.
+      <div class="shot">SCREENSHOT: Euler dashboard with the API key area (blurred)</div>
+    </li>
+    <li>In the game: <b>LIVE MODE</b>, tick <b>TikTok</b>, then pick <b>Plan B: Euler key</b>. Type your TikTok username without the @, and paste the key.</li>
+    <li>Go LIVE on TikTok, then click <b>Connect</b>, then <b>Test a gift</b>.</li>
+  </ol>
+  <p class="tip"><b>Keep your key secret.</b> Don't show the settings screen on stream. If a key ever leaks, make a new one in Euler and delete the old one.</p>
+
+  <div class="box">
+    <h2>Stay within TikTok's rules</h2>
+    <ul>
+      <li><b>Be there.</b> Play, talk and react. TikTok can stop paying streams that run by themselves with nobody present.</li>
+      <li>Gifts are a bonus, so don't beg for them nonstop.</li>
+      <li>Never promise prizes, money or random rewards for gifts.</li>
+      <li>You have to be 18 or older to go LIVE and receive gifts.</li>
+      <li>TikFinity and Euler are unofficial tools. You use them at your own risk.</li>
+    </ul>
+  </div>
+
+  <div class="box trouble">
+    <h2>Troubleshooting</h2>
+    <p class="q">I clicked "Block" by mistake</p>
+    <p>Click the icon at the left of the address bar, then <b>Site settings</b>. Find <b>Local network access</b> (it may be called <b>Apps on device</b>) and set it to <b>Allow</b>. Reload the page.</p>
+    <p class="q">No pop-up appeared, and it says "Can't reach TikFinity"</p>
+    <p>Check that TikFinity is open and connected. Try Chrome or Edge instead of Safari. If the game is inside another website's frame, open it directly on outpostboyz.com.</p>
+    <p class="q">TikFinity is connected, but gifts do nothing</p>
+    <p>Are you capturing the <b>same</b> window you play in? A Link source or Browser Source is a second copy of the game. See <a href="put-game-on-stream.html">Put the game on your stream</a>.</p>
+    <p class="q">Plan B says "not live"</p>
+    <p>Start your TikTok LIVE first, then click Connect. Check the username: no @, no link.</p>
+    <p class="q">Plan B says "key missing" or "too many requests"</p>
+    <p>Paste the key again. The free plan has a daily limit, so try again later or use Plan A.</p>
+    <p class="q">The game freezes when I click on another app</p>
+    <p>Don't minimize the game or cover it completely. Keep it on a second screen, or side by side.</p>
+  </div>
+
+  <nav>Other guides: <a href="twitch.html">Twitch</a> · <a href="youtube.html">YouTube</a> · <a href="put-game-on-stream.html">Put the game on your stream</a></nav>
+</main>
+</body>
+</html>

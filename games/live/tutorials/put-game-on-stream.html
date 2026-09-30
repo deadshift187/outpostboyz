@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game On Stream</title>
+<style>
+  :root { --bg:#111317; --panel:#1a1d23; --line:#2c3038; --text:#ececec; --dim:#a8adb7; --accent:#FF7A1A; --ok:#3ecf7a; --warn:#ffcc4d; --bad:#ff5d5d; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  main { max-width:760px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.9rem; line-height:1.2; margin:.2em 0 .1em; }
+  h1 span { color:var(--accent); }
+  .sub { color:var(--dim); margin:0 0 24px; }
+  h2 { font-size:1.25rem; margin:32px 0 12px; color:var(--accent); }
+  .box { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:16px 0; }
+  .box h2 { margin-top:0; }
+  .need { border-left:5px solid var(--accent); }
+  .trouble { border-left:5px solid var(--warn); }
+  .rule { border:2px solid var(--accent); }
+  .box ul { margin:0; padding-left:1.2em; }
+  .box li { margin:6px 0; }
+  ol.steps { list-style:none; counter-reset:s; padding:0; margin:0; }
+  ol.steps > li { counter-increment:s; position:relative; padding:4px 0 18px 56px; border-bottom:1px solid var(--line); margin-bottom:18px; }
+  ol.steps > li:last-child { border-bottom:0; }
+  ol.steps > li::before { content:counter(s); position:absolute; left:0; top:0; width:40px; height:40px; border-radius:50%; background:var(--accent); color:#111; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+  ol.steps b { color:#fff; }
+  .shot { border:2px dashed #555b66; border-radius:10px; min-height:150px; display:flex; align-items:center; justify-content:center; text-align:center; color:#8a909b; font-size:.9rem; padding:14px; margin:12px 0 4px; background:#15181d; }
+  code, kbd { background:#262a31; border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-size:.92em; }
+  .tip { color:var(--dim); font-size:.95rem; }
+  .yes { color:var(--ok); font-weight:700; }
+  .no { color:var(--bad); font-weight:700; }
+  .tabs { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 0; }
+  .tabs a { background:#262a31; border:1px solid var(--line); border-radius:999px; padding:6px 14px; text-decoration:none; color:var(--text); font-size:.95rem; }
+  .tabs a:hover { border-color:var(--accent); }
+  table { width:100%; border-collapse:collapse; font-size:.95rem; }
+  th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--dim); font-weight:600; }
+  .q { font-weight:700; color:#fff; margin-top:12px; }
+  nav { font-size:.9rem; color:var(--dim); margin-top:36px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Put the game <span>on your stream</span></h1>
+  <p class="sub">Show the game you're playing to your viewers, in OBS, Streamlabs or TikTok LIVE Studio.</p>
+
+  <div class="box need">
+    <h2>What you need</h2>
+    <ul>
+      <li>A Windows or Mac computer. For TikTok with TikFinity, it must be Windows.</li>
+      <li>The game open in <b>Chrome or Edge</b> (Firefox is fine too)</li>
+      <li>One streaming app: <b>OBS Studio</b>, <b>Streamlabs Desktop</b> or <b>TikTok LIVE Studio</b></li>
+      <li>Best: <b>two screens</b>, with the game on one and your streaming app on the other</li>
+    </ul>
+  </div>
+
+  <div class="box rule">
+    <h2>The one rule</h2>
+    <p><span class="yes">DO:</span> capture the <b>browser window you are playing in</b> (Window Capture).</p>
+    <p><span class="no">DON'T:</span> add the game as a <b>Browser Source</b> (OBS, Streamlabs) or a <b>Link source</b> (LIVE Studio).</p>
+    <p class="tip">Why: a Browser Source opens a <b>second copy</b> of the game inside your streaming app. Your viewers would watch copy #2 while you play copy #1, and gifts would go to both.</p>
+  </div>
+
+  <h2>Step 1: pick your shape and pop the game out</h2>
+  <ol class="steps">
+    <li>
+      Open the game, click <b>LIVE MODE</b>, and connect your platform (<a href="twitch.html">Twitch</a>, <a href="tiktok.html">TikTok</a> or <a href="youtube.html">YouTube</a>).
+    </li>
+    <li>
+      Pick your shape:
+      <ul>
+        <li><b>Tall (9:16)</b> for TikTok, YouTube Shorts-style, and phones</li>
+        <li><b>Wide (16:9)</b> for Twitch and regular YouTube</li>
+      </ul>
+    </li>
+    <li>
+      Click <b>Pop out stream window</b>. The game opens in its own clean window (no tabs, no bookmarks) at the right shape. <b>Play in this window.</b>
+      <p class="tip">If nothing opens, allow pop-ups for outpostboyz.com (click the icon at the right end of the address bar).</p>
+      <div class="shot">SCREENSHOT: the popped-out game window, tall version</div>
+    </li>
+  </ol>
+
+  <h2>Step 2: capture it in your app</h2>
+  <div class="tabs"><a href="#obs">OBS Studio</a><a href="#slobs">Streamlabs Desktop</a><a href="#tts">TikTok LIVE Studio</a></div>
+
+  <h2 id="obs">OBS Studio</h2>
+  <ol class="steps">
+    <li>
+      <b>Set your canvas.</b> Go to <b>Settings</b>, then <b>Video</b>.
+      <ul>
+        <li>For TikTok, set Base and Output to <code>1080x1920</code>.</li>
+        <li>For Twitch or YouTube, set both to <code>1920x1080</code>.</li>
+      </ul>
+      Set FPS to 30 or 60, then click OK.
+      <div class="shot">SCREENSHOT: OBS Settings, Video, with 1080x1920</div>
+    </li>
+    <li>
+      Under <b>Sources</b>, click <b>+</b>, then <b>Window Capture</b>, then <b>OK</b>.
+    </li>
+    <li>
+      In <b>Window</b>, pick the game window. It looks like <code>[chrome.exe]: CLIMB OR DIE</code>.
+      Set <b>Capture Method</b> to <b>Windows 10 (1903 and up)</b>. If you see a <b>Capture Audio</b> box, tick it.
+      <div class="shot">SCREENSHOT: Window Capture properties with the right window and capture method</div>
+    </li>
+    <li>
+      Right-click the source, choose <b>Transform</b>, then <b>Fit to screen</b>. The game now fills your canvas.
+    </li>
+    <li>
+      Add your camera and mic. Viewers like to see you react, and TikTok expects you to be there.
+    </li>
+  </ol>
+  <p class="tip">Want both shapes at once? OBS plugins such as Aitum Vertical add a second, tall canvas. That's optional.</p>
+
+  <h2 id="slobs">Streamlabs Desktop</h2>
+  <ol class="steps">
+    <li>
+      For TikTok, go to <b>Settings</b>, then <b>Video</b>, and turn on <b>Dual Output</b>. That gives you a tall 1080x1920 canvas next to the wide one. Otherwise, keep the normal 1920x1080.
+    </li>
+    <li>
+      Click <b>+</b> next to Sources, choose <b>Window Capture</b>, and select the game window.
+      <div class="shot">SCREENSHOT: Streamlabs Window Capture picker</div>
+    </li>
+    <li>
+      Resize the source to fill the canvas. With Dual Output on, make sure it's visible on the <b>Vertical</b> canvas.
+    </li>
+  </ol>
+
+  <h2 id="tts">TikTok LIVE Studio</h2>
+  <ol class="steps">
+    <li>
+      Keep LIVE Studio in <b>portrait</b> (tall) for a normal TikTok LIVE.
+    </li>
+    <li>
+      In your scene, click <b>Add source</b>, then <b>Window capture</b>, and pick the game window.
+      <div class="shot">SCREENSHOT: LIVE Studio "Add source" menu with Window capture</div>
+    </li>
+    <li>
+      Drag the corners so the game fills the frame. Add your camera too.
+    </li>
+    <li>
+      Don't use <b>Link source</b> for the game. It's a second copy, the same problem as a Browser Source.
+    </li>
+  </ol>
+
+  <div class="box">
+    <h2>Keep the game running smoothly</h2>
+    <table>
+      <tr><th>Do</th><th>Why</th></tr>
+      <tr><td>Keep the game window <b>visible</b>: on a second screen, or side by side with your app</td><td>Browsers pause games that are minimized or fully covered, and your stream would freeze</td></tr>
+      <tr><td>Play in the <b>same</b> window you capture</td><td>Anything else is a different copy of the game</td></tr>
+      <tr><td>Close the Live mode settings before going live</td><td>So your keys never show on stream</td></tr>
+      <tr><td>Click <b>Test a gift</b> before you go live</td><td>To check the scene and the connection together</td></tr>
+    </table>
+  </div>
+
+  <div class="box trouble">
+    <h2>Troubleshooting</h2>
+    <p class="q">The capture is black</p>
+    <p>In the Window Capture settings, set Capture Method to <b>Windows 10 (1903 and up)</b>. If it's still black, turn off hardware acceleration in the browser (Settings, System, "Use graphics acceleration") and restart the browser.</p>
+    <p class="q">My game window isn't in the list</p>
+    <p>Make sure the pop-out window is open and not minimized, then close and reopen the source's properties.</p>
+    <p class="q">The game freezes on stream when I click OBS</p>
+    <p>The game window is covered or minimized. Move it so you can see at least part of it, ideally all of it.</p>
+    <p class="q">Black bars around the game</p>
+    <p>Your canvas and your game shape don't match. Pick Tall for a 1080x1920 canvas, or Wide for 1920x1080, then Fit to screen again.</p>
+    <p class="q">Viewers' gifts don't show in the game on stream</p>
+    <p>You're capturing a Browser Source or Link source (a second copy). Delete it and use Window Capture of the window you play in.</p>
+    <p class="q">No game sound on stream</p>
+    <p>Tick <b>Capture Audio</b> in the Window Capture settings if you have it. Otherwise, make sure <b>Desktop Audio</b> is on in your app's mixer.</p>
+    <p class="q">Mac users</p>
+    <p>OBS on Mac uses <b>macOS Screen Capture</b>, set to "Window". Allow screen recording for OBS when macOS asks.</p>
+  </div>
+
+  <nav>Connect guides: <a href="twitch.html">Twitch</a> · <a href="tiktok.html">TikTok</a> · <a href="youtube.html">YouTube</a></nav>
+</main>
+</body>
+</html>

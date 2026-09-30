@@ -1,0 +1,35 @@
+{
+  "_help": "TIGHTROPE gift table + knobs (read by app/game/tightrope.js via /game/tightrope/config.json). Effects resolve by the coin value of ONE gift. Tiers with side 'gift' take their side from giftSides (unlisted gifts fall back to the sender's team); every other tier uses the sender's team (joined free by commenting help/sab; no team = HELP). Every effect is fixed and deterministic: fixed strength, fixed direction rule, fixed duration. No random rolls. knobs = defaults for the F10 settings overlay.",
+  "heroName": "PATCH",
+  "giftSides": { "Rose": "help", "Finger Heart": "help", "TikTok": "sab", "Panda": "sab" },
+  "tiers": [
+    { "min": 1,     "max": 4,     "side": "gift", "help": "STEADY",     "sab": "GUST" },
+    { "min": 5,     "max": 9,     "side": "gift", "help": "CHALK",      "sab": "PIGEON" },
+    { "min": 10,    "max": 99,    "help": "POLE",       "sab": "TWANG" },
+    { "min": 100,   "max": 198,   "help": "CALM",       "sab": "PEEL" },
+    { "min": 199,   "max": 498,   "help": "HARNESS",    "sab": "SHAKE" },
+    { "min": 499,   "max": 698,   "help": "SPOTTER",    "sab": "DRONE" },
+    { "min": 699,   "max": 999,   "help": "LADDER",     "sab": "FOG" },
+    { "min": 1000,  "max": 1499,  "help": "ZIPLINE",    "sab": "STORM" },
+    { "min": 1500,  "max": 4999,  "help": "ANCHOR",     "sab": "CRANE" },
+    { "min": 5000,  "max": 19999, "help": "NET",        "sab": "WRECKING" },
+    { "min": 20000, "max": 29998, "help": "SKYBRIDGE",  "sab": "SUPERCELL" },
+    { "min": 29999, "max": null,  "help": "EXTRACTION", "sab": "OVERSEER" }
+  ],
+  "knobs": {
+    "crowdLikes": 300,
+    "heatCap": 100,
+    "heatDecay": 5,
+    "torqueCap": 0.65,
+    "impulseBudget": 1.6,
+    "telegraphScale": 1.0,
+    "wobble": 1.0,
+    "summitCap": 5,
+    "sessionSoftH": 3,
+    "sessionHardH": 4,
+    "legendIntervalS": 120,
+    "stallAssistS": 90,
+    "idleBreakS": 60,
+    "howToPlay": 1
+  }
+}

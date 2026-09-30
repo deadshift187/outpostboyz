@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- The game code is a straight copy of the live-games web edition in /games/live/ (see /games/live/tightrope/).
+     <base> makes every relative path inside it (./gifts.json, ../shared/, ../game/, ../tutorials/) resolve there. -->
+<base href="/games/live/tightrope/">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<script>
+/* iPhone Safari ignores user-scalable=no: block pinch, double-tap zoom and page scroll / pull-to-refresh during play.
+   The on-screen pad and buttons use pointer events, so they are unaffected. The settings menu and the
+   YOU ARE THE CHAT tray still scroll with one finger; links, buttons and form fields keep their normal taps. */
+(function(){
+  var ok=function(t){ return t&&t.closest&&t.closest('a,button,input,select,textarea,label'); };
+  var scroller=function(t){ return t&&t.closest&&t.closest('#shell .menu,#shell .tray,#shell .handoff'); };
+  ['gesturestart','gesturechange','gestureend'].forEach(function(n){ document.addEventListener(n,function(e){ e.preventDefault(); },{passive:false}); });
+  document.addEventListener('touchstart',function(e){ if(e.touches.length>1||!(ok(e.target)||scroller(e.target)))e.preventDefault(); },{passive:false});
+  document.addEventListener('touchmove',function(e){ if(e.touches.length>1||!scroller(e.target))e.preventDefault(); },{passive:false});
+  var last=0; document.addEventListener('touchend',function(e){ var n=Date.now(); if(n-last<350&&!ok(e.target))e.preventDefault(); last=n; },{passive:false});
+  document.addEventListener('dblclick',function(e){ e.preventDefault(); },{passive:false});
+})();
+</script>
+<title>TIGHTROPE — Outpost Boyz Arcade</title>
+<meta name="description" content="Balance PATCH across skyscraper tightropes while chat sends gusts, pigeons and wrecking cranes. Play solo, with a bot chat, or hook up your own Twitch, TikTok or YouTube live. Free in your browser from Outpost Boyz.">
+<meta name="theme-color" content="#07080c">
+<link rel="canonical" href="https://outpostboyz.com/games/tightrope/">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="TIGHTROPE">
+<meta property="og:site_name" content="Outpost Boyz">
+<meta property="og:type" content="website">
+<meta property="og:title" content="TIGHTROPE — free on Outpost Boyz">
+<meta property="og:description" content="Walk the skyscraper ropes while chat sends gusts, pigeons and wrecking cranes. Solo, bot chat, or your own live stream.">
+<meta property="og:url" content="https://outpostboyz.com/games/tightrope/">
+<meta property="og:image" content="https://outpostboyz.com/games/tightrope/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TIGHTROPE: PATCH balancing on a rope between ruined skyscrapers while chat gifts send gusts and pigeons">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="TIGHTROPE — free on Outpost Boyz">
+<meta name="twitter:description" content="Walk the skyscraper ropes while chat sends gusts, pigeons and wrecking cranes. Solo, bot chat, or your own live stream.">
+<meta name="twitter:image" content="https://outpostboyz.com/games/tightrope/og.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎪</text></svg>">
+<link rel="stylesheet" href="../shared/shell.css">
+<style>
+  html,body{overscroll-behavior:none}
+  canvas{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  #shell .all.ob-home{font:11px "Arial Black",Arial,sans-serif}
+</style>
+</head>
+<body>
+<canvas id="stage" width="1080" height="1920" tabindex="-1" aria-label="TIGHTROPE game"></canvas>
+<script type="module">
+import { boot } from '../shared/shell.js';
+const SLUG = 'tightrope';
+const TITLE = document.title;
+boot('tightrope').then(site).catch((e) => {
+  console.error(e);
+  const d = document.createElement('pre');
+  d.style.cssText = 'position:fixed;inset:auto 16px 16px;color:#ff4d6d;background:#111;padding:12px;border-radius:8px;white-space:pre-wrap;font:13px monospace';
+  d.textContent = 'This game failed to start: ' + (e && e.message || e);
+  document.body.appendChild(d);
+});
+
+// Outpost Boyz site hooks: home link, tab title, scores. The game never depends on any of it.
+function site(shell) {
+  document.title = TITLE;
+  // the menu's "ALL GAMES" link is the home link: only visible while the menu is up, so it never covers play
+  const a = shell.ui && shell.ui.menu.querySelector('a.all');
+  if (a) { a.href = '/'; a.textContent = '◂ OUTPOST BOYZ'; a.classList.add('ob-home'); }
+  // a run ends at the summit (BIRD-9 on the rooftop); the next run starts after the cinematic.
+  // Score = the game's own run score (distance + height + summit bonus). Reported once per run.
+  let reported = null;
+  setInterval(() => {
+    try {
+      const S = window.__platform && window.__platform.game.dev.S;
+      if (!S || !S.cine || !S.run || reported === S.run) return;
+      reported = S.run;
+      const score = Math.round(S.cine.score != null ? S.cine.score : S.run.score) || 0;
+      if (window.OB) {
+        const p = OB.submitScore(SLUG, score); if (p && p.catch) p.catch(() => {});
+        const q = OB.gameOver(SLUG); if (q && q.catch) q.catch(() => {});
+      }
+    } catch (e) { /* offline / blocked: the game never depends on it */ }
+  }, 250);
+}
+</script>
+<!-- Outpost Boyz SDK: scores + play tracking (optional; the game runs fine offline without it) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
+<script src="/assets/ob-sdk.js"></script>
+</body>
+</html>

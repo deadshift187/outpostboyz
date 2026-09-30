@@ -5,8 +5,17 @@
 //   feed:  { x, bottom, lines, lineH, fontPx, maxWidth }   event feed placement
 //   board: false | { x, y }                                top-gifters card (false = hidden)
 //   pill:  { x, y }                                        SIMULATOR/LIVE mode pill
-//   whale: { top, bottom, centerY }                        whale banner backdrop band + center
+//   whale: false | { mode, top, bottom, centerY, duration }  the whale banner (gifts >= whaleThreshold):
+//          false (or mode 'off') = no banner at all; mode 'full' (default) = the big celebration, clipped to
+//          top..bottom around centerY; mode 'compact' = one ~250 px strip (avatar, name, gift x count, coins,
+//          effect) inside the top..bottom band (default: the bottom lane 1640-1920). duration = seconds
+//          per whale (default 4.2; whales queue).
+//   onWhale(info)                                          set by platform/main.js: {phase:'start'|'end', evt,
+//                                                          map, duration, mode, band:{top,bottom}, queued}
 //   hideFeed: () => boolean                                e.g. hide while the game shows a card
+//
+// Feed lines that are too long shrink (down to 24 px) before anything is cut; if a line still doesn't fit at
+// 24 px, the viewer/gift part is shortened and the effect (the text after the arrow) is kept whole.
 
 const FONT = '"Arial Black", "Segoe UI", Arial, sans-serif';
 
@@ -84,7 +93,13 @@ export function createOverlay({ W, H, options = {} }) {
   const FEED = { x: 40, bottom: H - 60, lines: 7, lineH: 68, fontPx: 36, maxWidth: W - 80, ...(options.feed || {}) };
   const BOARD = options.board === false ? null : { x: W - 400, y: 40, ...(options.board || {}) };
   const PILL = { x: 40, y: 40, ...(options.pill || {}) };
-  const WHALE = { top: 0, bottom: H, centerY: H * 0.42, ...(options.whale || {}) };
+  const wOpt = options.whale === false ? { mode: 'off' } : options.whale && typeof options.whale === 'object' ? options.whale : {};
+  const WHALE_MODE = ['off', 'compact', 'full'].includes(wOpt.mode) ? wOpt.mode : 'full';
+  const WHALE = WHALE_MODE === 'compact' ? { top: H - 280, bottom: H, ...wOpt } : { top: 0, bottom: H, centerY: H * 0.42, ...wOpt };
+  if (WHALE.centerY == null) WHALE.centerY = (WHALE.top + WHALE.bottom) / 2;
+  const WHALE_S = Math.max(1, Math.min(10, Number(wOpt.duration) || 4.2));
+  const onWhale = typeof options.onWhale === 'function' ? options.onWhale : null;
+  const FEED_MIN_PX = 24;
   const feed = []; // {text, color, t, user}
   const likeAgg = new Map(); // userId -> feed item (merge like spam)
   const board = new Map(); // userId -> {user, coins}
@@ -94,13 +109,16 @@ export function createOverlay({ W, H, options = {} }) {
   let time = 0;
   const seenPlatforms = new Set();
   const showBadge = (p) => p && (p !== 'tiktok' || seenPlatforms.size > 1);
+  const whaleInfo = (w, phase) => ({ phase, evt: w.evt, map: w.map, duration: WHALE_S, mode: WHALE_MODE, band: { top: WHALE.top, bottom: WHALE.bottom }, queued: whales.length });
 
   const colorFor = (type, map) => map && map.whale ? '#ffd23f'
     : { gift: '#7df9ff', like: '#ff7eb6', follow: '#9dff7d', share: '#b58cff', sub: '#ffb347', comment: '#ffffff', join: '#cccccc' }[type] || '#fff';
 
+  // the effect part of a feed line (" → HELP: LONGER POLE"): kept whole when a line has to be cut
+  const tailOf = (e, m) => (m && m.label && e.type !== 'join' && e.type !== 'comment' ? ` → ${m.label}` : '');
   function describe(e, m) {
     const n = e.user.nickname;
-    const tail = m && m.label ? ` → ${m.label}` : '';
+    const tail = tailOf(e, m);
     const other = e.platform === 'twitch' || e.platform === 'youtube';
     if (other && e.type === 'gift') return `${n}: ${e.gift.name}${tail}`; // "Cheer 100", "Super Chat $5.00", "Gift Sub T1 x5"
     if (e.type === 'share' && e.raid) return `${n} raided with ${Number(e.raid.viewers) || 0} viewers${tail}`;
@@ -125,7 +143,7 @@ export function createOverlay({ W, H, options = {} }) {
       const cur = board.get(e.user.id) || { user: e.user, coins: 0 };
       cur.user = e.user; cur.coins += (e.gift.coins || 0) * (e.gift.count || 1);
       board.set(e.user.id, cur);
-      if (m && m.whale) whales.push({ evt: e, map: m });
+      if (m && m.whale && WHALE_MODE !== 'off') { whales.push({ evt: e, map: m }); while (whales.length > 40) whales.shift(); }
     }
     if (m && m.feed === false) return;
     // Merge like spam / combo streaks from the same user into one live line.
@@ -134,11 +152,11 @@ export function createOverlay({ W, H, options = {} }) {
     if (prev && time - prev.t < 3 && feed.includes(prev)) {
       if (e.type === 'like') prev.likes += e.likeCount; else prev.gifts += e.gift.count;
       const merged = e.type === 'like' ? { ...e, likeCount: prev.likes } : { ...e, gift: { ...e.gift, count: prev.gifts } };
-      prev.text = describe(merged, m); prev.t = time;
+      prev.text = describe(merged, m); prev.tail = tailOf(e, m); prev.t = time;
       feed.splice(feed.indexOf(prev), 1); feed.push(prev);
       return;
     }
-    const item = { text: describe(e, m), color: colorFor(e.type, m), t: time, user: e.user, platform: e.platform, likes: e.likeCount || 0, gifts: e.gift ? e.gift.count : 0 };
+    const item = { text: describe(e, m), tail: tailOf(e, m), color: colorFor(e.type, m), t: time, user: e.user, platform: e.platform, likes: e.likeCount || 0, gifts: e.gift ? e.gift.count : 0 };
     feed.push(item);
     if (aggKey) likeAgg.set(aggKey, item);
     while (feed.length > FEED.lines) feed.shift();
@@ -157,8 +175,8 @@ export function createOverlay({ W, H, options = {} }) {
     // drop stale like/streak aggregation keys (one per viewer otherwise: slow memory growth)
     if (likeAgg.size > 50) for (const [k, it] of likeAgg) if (time - it.t > 3 || !feed.includes(it)) likeAgg.delete(k);
     for (let i = feed.length - 1; i >= 0; i--) if (time - feed[i].t > 10) feed.splice(i, 1);
-    if (whale && time - whale.t > 4.2) whale = null;
-    if (!whale && whales.length) whale = { ...whales.shift(), t: time };
+    if (whale && time - whale.t > WHALE_S) { const w = whale; whale = null; if (onWhale) onWhale(whaleInfo(w, 'end')); }
+    if (!whale && whales.length) { whale = { ...whales.shift(), t: time }; if (onWhale) onWhale(whaleInfo(whale, 'start')); }
   }
 
   function renderFeed(ctx) {
@@ -171,10 +189,16 @@ export function createOverlay({ W, H, options = {} }) {
       const age = time - f.t;
       const a = Math.min(1, age * 6) * Math.min(1, (10 - age) / 1.5);
       ctx.globalAlpha = Math.max(0, a);
-      // game notes with fit:'shrink' (BARRAGE credits) scale down to fit instead of losing their tail
+      // every line scales down to fit (min 24 px) instead of losing its tail (the effect name)
       let fpx = fontPx;
-      if (f.fit === 'shrink') { const w0 = ctx.measureText(f.text).width, avail = maxWidth - r * 2 - 70; if (w0 > avail) { fpx = Math.max(24, Math.floor(fontPx * avail / w0)); ctx.font = `${fpx}px ${FONT}`; } }
-      const text = fitText(ctx, f.text, maxWidth - r * 2 - 70);
+      const avail = maxWidth - r * 2 - 70, w0 = ctx.measureText(f.text).width;
+      if (w0 > avail) { fpx = Math.max(Math.min(FEED_MIN_PX, fontPx), Math.floor(fontPx * avail / w0)); ctx.font = `${fpx}px ${FONT}`; }
+      let text = f.text;
+      if (ctx.measureText(text).width > avail) {
+        // still too long at the minimum size: shorten the viewer/gift part, keep the effect whole
+        const tail = f.tail && text.endsWith(f.tail) && ctx.measureText(f.tail).width < avail * 0.7 ? f.tail : '';
+        text = tail ? fitText(ctx, text.slice(0, -tail.length), avail - ctx.measureText(tail).width) + tail : fitText(ctx, text, avail);
+      }
       const w = ctx.measureText(text).width + r * 2 + 70;
       ctx.fillStyle = 'rgba(0,0,0,0.55)'; rr(ctx, x, y - pillH / 2, w, pillH, pillH / 2); ctx.fill();
       drawAvatar(ctx, f.user, x + pillH / 2 + 1, y, r);
@@ -207,10 +231,51 @@ export function createOverlay({ W, H, options = {} }) {
     });
   }
 
+  function renderWhaleCompact(ctx, a, age) {
+    const e = whale.evt, m = whale.map;
+    const top = WHALE.top, h = WHALE.bottom - WHALE.top;
+    const sh = Math.min(h, 250), y0 = top + (h - sh) / 2, cy = y0 + sh / 2;
+    ctx.save();
+    ctx.globalAlpha = a;
+    ctx.beginPath(); ctx.rect(0, top, W, h); ctx.clip();
+    ctx.fillStyle = 'rgba(8,6,2,0.92)'; ctx.fillRect(0, y0, W, sh);
+    ctx.fillStyle = '#ffd23f'; ctx.fillRect(0, y0, W, 6); ctx.fillRect(0, y0 + sh - 6, W, 6);
+    const sx = ((age * 900) % (W + 400)) - 200; // a sweeping shine
+    const gr = ctx.createLinearGradient(sx - 160, 0, sx + 160, 0);
+    gr.addColorStop(0, 'rgba(255,210,63,0)'); gr.addColorStop(0.5, 'rgba(255,210,63,0.16)'); gr.addColorStop(1, 'rgba(255,210,63,0)');
+    ctx.fillStyle = gr; ctx.fillRect(0, y0 + 6, W, sh - 12);
+    const s = 1 + Math.max(0, 0.25 - age) * 1.2;
+    ctx.translate(40, cy); ctx.scale(s, s); ctx.translate(-40, -cy); // pop from the left edge (nothing is pushed off-screen)
+    const ar = Math.min(78, sh * 0.32);
+    drawAvatar(ctx, e.user, 40 + ar, cy, ar);
+    const tx = 40 + ar * 2 + 28, tw = W - tx - 36;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.font = `44px ${FONT}`; ctx.fillStyle = '#fff';
+    ctx.fillText(fitText(ctx, e.user.nickname, tw), tx, cy - sh * 0.29);
+    const g = `${e.gift.name.toUpperCase()}${e.gift.count > 1 && !/ X\d+$/.test(e.gift.name.toUpperCase()) ? ' x' + e.gift.count : ''}`;
+    ctx.font = `72px ${FONT}`;
+    const gw = ctx.measureText(g).width;
+    if (gw > tw) ctx.font = `${Math.max(40, Math.floor(72 * tw / gw))}px ${FONT}`;
+    ctx.fillStyle = '#ffd23f'; ctx.strokeStyle = '#000'; ctx.lineWidth = 8;
+    const gt = fitText(ctx, g, tw); ctx.strokeText(gt, tx, cy + 4); ctx.fillText(gt, tx, cy + 4);
+    ctx.font = `36px ${FONT}`; ctx.fillStyle = '#7df9ff';
+    const coins = `${(e.gift.coins * e.gift.count).toLocaleString()} COINS`;
+    ctx.fillText(coins, tx, cy + sh * 0.31);
+    if (m.label) {
+      const cw = ctx.measureText(coins + '   ').width, room = tw - cw;
+      const lw = ctx.measureText(m.label).width;
+      if (lw > room) ctx.font = `${Math.max(24, Math.floor(36 * room / lw))}px ${FONT}`;
+      ctx.fillStyle = '#ff5aa0';
+      ctx.fillText(fitText(ctx, m.label, room), tx + cw, cy + sh * 0.31);
+    }
+    ctx.restore();
+  }
+
   function renderWhale(ctx) {
     if (!whale) return;
     const age = time - whale.t;
-    const inA = Math.min(1, age * 4), outA = Math.min(1, (4.2 - age) * 3);
+    const inA = Math.min(1, age * 4), outA = Math.min(1, (WHALE_S - age) * 3);
+    if (WHALE_MODE === 'compact') return renderWhaleCompact(ctx, Math.max(0, Math.min(inA, outA)), age);
     const a = Math.max(0, Math.min(inA, outA));
     const e = whale.evt, m = whale.map;
     ctx.save();
@@ -273,7 +338,10 @@ export function createOverlay({ W, H, options = {} }) {
     render(ctx) { renderBoard(ctx); renderFeed(ctx); renderStatus(ctx); renderWhale(ctx); },
     setStatus: (s) => (status = { ...status, ...s }),
     seedLeaderboard(rows) { board.clear(); for (const r of rows || []) board.set(r.user.id, { ...r }); },
-    reset() { board.clear(); feed.length = 0; whales.length = 0; whale = null; },
+    reset() { const w = whale; board.clear(); feed.length = 0; whales.length = 0; whale = null; if (w && onWhale) onWhale(whaleInfo(w, 'end')); },
     get whaleActive() { return !!whale; },
+    /** The banner on screen now (null if none): {mode, band:{top,bottom}, until (s left), queued, user}. */
+    get whaleBanner() { return whale ? { mode: WHALE_MODE, band: { top: WHALE.top, bottom: WHALE.bottom }, until: Math.max(0, WHALE_S - (time - whale.t)), queued: whales.length, user: whale.evt.user.nickname } : null; },
+    whaleMode: WHALE_MODE,
   };
 }

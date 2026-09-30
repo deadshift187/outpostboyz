@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connect YouTube Live</title>
+<style>
+  :root { --bg:#111317; --panel:#1a1d23; --line:#2c3038; --text:#ececec; --dim:#a8adb7; --accent:#FF7A1A; --ok:#3ecf7a; --warn:#ffcc4d; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  main { max-width:760px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.9rem; line-height:1.2; margin:.2em 0 .1em; }
+  h1 span { color:var(--accent); }
+  .sub { color:var(--dim); margin:0 0 24px; }
+  h2 { font-size:1.25rem; margin:32px 0 12px; color:var(--accent); }
+  .box { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:16px 0; }
+  .box h2 { margin-top:0; }
+  .need { border-left:5px solid var(--accent); }
+  .trouble { border-left:5px solid var(--warn); }
+  .box ul { margin:0; padding-left:1.2em; }
+  .box li { margin:6px 0; }
+  ol.steps { list-style:none; counter-reset:s; padding:0; margin:0; }
+  ol.steps > li { counter-increment:s; position:relative; padding:4px 0 18px 56px; border-bottom:1px solid var(--line); margin-bottom:18px; }
+  ol.steps > li:last-child { border-bottom:0; }
+  ol.steps > li::before { content:counter(s); position:absolute; left:0; top:0; width:40px; height:40px; border-radius:50%; background:var(--accent); color:#111; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+  ol.steps b { color:#fff; }
+  .part { color:var(--dim); text-transform:uppercase; letter-spacing:.08em; font-size:.8rem; margin:28px 0 8px; }
+  .shot { border:2px dashed #555b66; border-radius:10px; min-height:150px; display:flex; align-items:center; justify-content:center; text-align:center; color:#8a909b; font-size:.9rem; padding:14px; margin:12px 0 4px; background:#15181d; }
+  code, kbd { background:#262a31; border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-size:.92em; word-break:break-all; }
+  .tip { color:var(--dim); font-size:.95rem; }
+  .ok { color:var(--ok); font-weight:700; }
+  .q { font-weight:700; color:#fff; margin-top:12px; }
+  nav { font-size:.9rem; color:var(--dim); margin-top:36px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Connect your <span>YouTube Live</span></h1>
+  <p class="sub">Super Chats, Super Stickers and memberships change the game while you play. First time takes about 10 minutes (you make a free "key" once), then 1 minute.</p>
+
+  <div class="box need">
+    <h2>What you need</h2>
+    <ul>
+      <li>The <b>Google account</b> you use for YouTube</li>
+      <li>A <b>free YouTube API key</b>. Part 1 below shows how to make one. It's free, and you won't be charged.</li>
+      <li>Your live stream set to <b>Public</b>. Super Chats don't work on unlisted, private or "made for kids" streams.</li>
+      <li>The game open in <b>Chrome, Edge or Firefox</b> on your computer</li>
+      <li>Your streaming app. See <a href="put-game-on-stream.html">Put the game on your stream</a></li>
+    </ul>
+  </div>
+
+  <p class="tip">Why a key? YouTube only shares live chat with apps that have a key. Using your <b>own</b> key means you get your own daily limit, and your key only works on outpostboyz.com.</p>
+
+  <div class="part">Part 1: make your key (one time only)</div>
+  <ol class="steps">
+    <li>
+      Go to <b>console.cloud.google.com</b> and sign in. If it asks, agree to the terms and create a project. Name it anything, for example <code>outpost-live</code>.
+      <div class="shot">SCREENSHOT: Google Cloud "New project" screen</div>
+    </li>
+    <li>
+      In the search bar at the top, type <b>YouTube Data API v3</b>, open it, and click <b>Enable</b>.
+      <div class="shot">SCREENSHOT: YouTube Data API v3 page with the Enable button</div>
+    </li>
+    <li>
+      Open the menu, go to <b>APIs &amp; Services</b>, then <b>Credentials</b>. Click <b>+ Create credentials</b>, then <b>API key</b>. A key that starts with <code>AIza</code> appears.
+      <div class="shot">SCREENSHOT: "API key created" box</div>
+    </li>
+    <li>
+      <b>Lock the key</b> so nobody else can use it. Click <b>Edit API key</b> (or the key's name).
+      <ul>
+        <li>Under <b>Application restrictions</b>, pick <b>Websites</b>. Add <code>outpostboyz.com/*</code> and also <code>*.outpostboyz.com/*</code>.</li>
+        <li>Under <b>API restrictions</b>, pick <b>Restrict key</b> and tick only <b>YouTube Data API v3</b>.</li>
+        <li>Click <b>Save</b>.</li>
+      </ul>
+      <p class="tip">The lock can take a few minutes to start working.</p>
+      <div class="shot">SCREENSHOT: key restrictions filled in (Websites + YouTube Data API v3)</div>
+    </li>
+    <li>
+      Click <b>Show key</b> and <b>copy</b> it. Keep it somewhere safe, like a password manager.
+    </li>
+  </ol>
+
+  <div class="part">Part 2: connect the game (every stream)</div>
+  <ol class="steps" start="6" style="counter-reset:s 5">
+    <li>
+      <b>Start your YouTube live stream</b> (Public) and copy its link, for example <code>youtube.com/live/abc123...</code>. Your channel <code>@handle</code> also works once you're live.
+    </li>
+    <li>
+      Open the game on <b>outpostboyz.com</b>, click <b>LIVE MODE</b>, open <b>LIVE SETUP</b> and tick <b>YouTube</b>.
+      <div class="shot">SCREENSHOT: game Live mode with YouTube fields (key + stream link)</div>
+    </li>
+    <li>
+      Paste your <b>key</b> and your <b>stream link</b>, then click <b>Connect</b>. You should see <span class="ok">Found "your stream title", LIVE now</span>.
+      <p class="tip">The game remembers your key in this browser only, so next time you just paste the new stream link.</p>
+    </li>
+    <li>
+      Click <b>Test a Super Chat</b>. Something should happen in the game.
+    </li>
+    <li>
+      Close the settings panel and play. Super Chats, Super Stickers, new members and gifted memberships change the game. Chat messages give small boosts.
+    </li>
+  </ol>
+
+  <div class="box trouble">
+    <h2>Troubleshooting</h2>
+    <p class="q">"API key not valid"</p>
+    <p>Copy the key again. It starts with <code>AIza</code> and has no spaces.</p>
+    <p class="q">"This key is blocked for this website" (or "referrer blocked")</p>
+    <p>Check step 4. Both <code>outpostboyz.com/*</code> and <code>*.outpostboyz.com/*</code> must be there, spelled exactly. Wait 5 minutes, then try again.</p>
+    <p class="q">"YouTube Data API has not been used" or "disabled"</p>
+    <p>Do step 2 again: search for YouTube Data API v3 and click Enable.</p>
+    <p class="q">"Not live yet" or "stream ended"</p>
+    <p>Start the stream first. Paste the link of <b>today's</b> stream, not an old one.</p>
+    <p class="q">Chat works but no Super Chats come in</p>
+    <p>Your stream must be Public and not marked "made for kids", and Super Chat must be turned on for your channel.</p>
+    <p class="q">"Daily limit reached"</p>
+    <p>Your key's free daily allowance ran out. It resets the next day (Pacific time). Very long streams can hit it, so reconnect less often.</p>
+    <p class="q">Is there a way without a key?</p>
+    <p>No. YouTube doesn't let websites read live chat without one.</p>
+    <p class="q">House rules</p>
+    <p>Super Chats change the game only. Never run a "Super Chat to win" contest. YouTube contests must be free to enter.</p>
+  </div>
+
+  <nav>Other guides: <a href="twitch.html">Twitch</a> · <a href="tiktok.html">TikTok</a> · <a href="put-game-on-stream.html">Put the game on your stream</a></nav>
+</main>
+</body>
+</html>

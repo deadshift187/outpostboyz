@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connect Twitch</title>
+<style>
+  :root { --bg:#111317; --panel:#1a1d23; --line:#2c3038; --text:#ececec; --dim:#a8adb7; --accent:#FF7A1A; --ok:#3ecf7a; --warn:#ffcc4d; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  main { max-width:760px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.9rem; line-height:1.2; margin:.2em 0 .1em; }
+  h1 span { color:var(--accent); }
+  .sub { color:var(--dim); margin:0 0 24px; }
+  h2 { font-size:1.25rem; margin:32px 0 12px; color:var(--accent); }
+  .box { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:16px 0; }
+  .box h2 { margin-top:0; }
+  .need { border-left:5px solid var(--accent); }
+  .trouble { border-left:5px solid var(--warn); }
+  .box ul { margin:0; padding-left:1.2em; }
+  .box li { margin:6px 0; }
+  ol.steps { list-style:none; counter-reset:s; padding:0; margin:0; }
+  ol.steps > li { counter-increment:s; position:relative; padding:4px 0 18px 56px; border-bottom:1px solid var(--line); margin-bottom:18px; }
+  ol.steps > li:last-child { border-bottom:0; }
+  ol.steps > li::before { content:counter(s); position:absolute; left:0; top:0; width:40px; height:40px; border-radius:50%; background:var(--accent); color:#111; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+  ol.steps b { color:#fff; }
+  .shot { border:2px dashed #555b66; border-radius:10px; min-height:150px; display:flex; align-items:center; justify-content:center; text-align:center; color:#8a909b; font-size:.9rem; padding:14px; margin:12px 0 4px; background:#15181d; }
+  code, kbd { background:#262a31; border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-size:.92em; }
+  .tip { color:var(--dim); font-size:.95rem; }
+  .ok { color:var(--ok); font-weight:700; }
+  table { width:100%; border-collapse:collapse; font-size:.95rem; }
+  th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--dim); font-weight:600; }
+  .q { font-weight:700; color:#fff; margin-top:12px; }
+  nav { font-size:.9rem; color:var(--dim); margin-top:36px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Connect your <span>Twitch</span> channel</h1>
+  <p class="sub">Your viewers' Bits, subs and raids will change the game while you play. About 2 minutes.</p>
+
+  <div class="box need">
+    <h2>What you need</h2>
+    <ul>
+      <li>Your <b>Twitch channel name</b>, the part after <code>twitch.tv/</code></li>
+      <li>An Outpost Boyz game open in <b>Chrome, Edge or Firefox</b> on your computer</li>
+      <li>Your streaming app (OBS, Streamlabs...). See <a href="put-game-on-stream.html">Put the game on your stream</a></li>
+      <li>Optional: you logged in to Twitch in the same browser (only for follows and channel points)</li>
+    </ul>
+  </div>
+
+  <h2>Steps</h2>
+  <ol class="steps">
+    <li>
+      Open the game on <b>outpostboyz.com</b> and click <b>LIVE MODE</b> on the start screen.
+      <div class="shot">SCREENSHOT: game start screen with the LIVE MODE button circled</div>
+    </li>
+    <li>
+      Tick <b>Twitch</b> (you can have TikTok and YouTube on at the same time).
+      <div class="shot">SCREENSHOT: LIVE SETUP with the Twitch row ticked</div>
+    </li>
+    <li>
+      Type your <b>channel name</b>, only the name. For <code>twitch.tv/coolgamer</code>, type <code>coolgamer</code>.
+    </li>
+    <li>
+      Click <b>Connect</b>. After a few seconds you'll see <span class="ok">Connected to #yourname</span>.
+      <p class="tip">No password is needed for this part. The game only reads your chat; it never posts anything.</p>
+      <div class="shot">SCREENSHOT: green "Connected" status</div>
+    </li>
+    <li>
+      Click <b>Test a cheer</b>. Something should happen in the game. That means everything works.
+    </li>
+    <li>
+      <b>Coming later: follows and channel points.</b> They need a Twitch account login, which this version of the game doesn't have yet; everything else works without it. When it arrives you'll click <b>Connect Twitch account</b>. Twitch opens a page asking to let "Outpost Boyz Live" see your followers and channel point redemptions. Check that it is really <b>twitch.tv</b> in the address bar, then click <b>Authorize</b>. You come straight back to the game.
+      <p class="tip">You'll need to do this again now and then when Twitch logs it out. The game will tell you.</p>
+      <div class="shot">SCREENSHOT: Twitch "Authorize" page</div>
+    </li>
+    <li>
+      Close the settings panel and start playing. Your viewers can now cheer, sub, gift subs and raid to change the game.
+    </li>
+  </ol>
+
+  <div class="box">
+    <h2>What your viewers can do</h2>
+    <table>
+      <tr><th>Viewer does</th><th>Needs step 6 (coming later)?</th></tr>
+      <tr><td>Cheer Bits</td><td>No</td></tr>
+      <tr><td>Sub, resub, gift subs</td><td>No</td></tr>
+      <tr><td>Raid you</td><td>No</td></tr>
+      <tr><td>Chat (small boosts)</td><td>No</td></tr>
+      <tr><td>Follow</td><td>Yes</td></tr>
+      <tr><td>Redeem channel points</td><td>Yes</td></tr>
+    </table>
+  </div>
+
+  <div class="box trouble">
+    <h2>Troubleshooting</h2>
+    <p class="q">"Couldn't find a Twitch chat"</p>
+    <p>Check the spelling. Use only letters, numbers and underscores, and no <code>@</code> or link.</p>
+    <p class="q">It says Connected, but cheers do nothing</p>
+    <p>Did you capture the <b>same</b> window you're playing in? A Browser Source is a second copy of the game. See <a href="put-game-on-stream.html">Put the game on your stream</a>.</p>
+    <p class="q">Follows or channel points stopped working</p>
+    <p>They aren't in this version yet (see step 6). Later: Twitch logged the game out; click <b>Connect Twitch account</b> again. If it says "missing permission", you logged in with the wrong account. Use the channel owner's account.</p>
+    <p class="q">"Couldn't reach Twitch chat"</p>
+    <p>Check your internet, or a work or school firewall. Try another network.</p>
+    <p class="q">The game freezes when I click on OBS</p>
+    <p>Don't minimize the game or cover it completely. Keep it on a second screen, or side by side.</p>
+    <p class="q">House rules</p>
+    <p>Bits change the game only. Never offer prizes, money or random rewards for Bits. Twitch doesn't allow Bits as a bet or wager.</p>
+  </div>
+
+  <nav>Other guides: <a href="tiktok.html">TikTok</a> · <a href="youtube.html">YouTube</a> · <a href="put-game-on-stream.html">Put the game on your stream</a></nav>
+</main>
+</body>
+</html>

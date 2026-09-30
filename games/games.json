@@ -58,14 +58,24 @@
       "added": "2026-09-29"
     },
     {
-      "slug": "climb-or-die",
-      "title": "CLIMB OR DIE",
-      "tagline": "You're the streamer. The chat decides if you live. Climb 250 m before the chopper leaves.",
+      "slug": "stacked",
+      "title": "STACKED",
+      "tagline": "Climb THE STACK while chat drops planks to help you or bolts to knock you off.",
       "icon": "🧗",
       "color": "#ffb347",
-      "controls": "TAP TO JUMP",
+      "controls": "RUN / JUMP / DASH",
       "badge": "NEW",
       "added": "2026-09-29"
+    },
+    {
+      "slug": "tightrope",
+      "title": "TIGHTROPE",
+      "tagline": "Walk the skyscraper ropes while chat sends gusts, pigeons and wrecking cranes.",
+      "icon": "🎪",
+      "color": "#c9a46a",
+      "controls": "LEAN / WALK / CROUCH",
+      "badge": "NEW",
+      "added": "2026-09-30"
     },
     {
       "slug": "coming-soon-1",
