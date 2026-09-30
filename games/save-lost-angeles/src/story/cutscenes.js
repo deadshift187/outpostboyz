@@ -405,7 +405,8 @@
   ];
 
   // ---------------- the scene ----------------
-  const CS = { t: 0, pt: 0, idx: 0, panels: null, p: null, done: false };
+  const CS = { t: 0, pt: 0, idx: 0, panels: null, p: null, done: false, loading: false, prog: 0 };
+  const LOAD_MAX = 8;   // seconds: never hold the story longer than this on a slow connection
   function finish() {
     if (CS.done) return; CS.done = true;
     const then = CS.p && CS.p.then;
@@ -416,19 +417,36 @@
       CS.p = p || {}; CS.t = 0; CS.pt = 0; CS.idx = 0; CS.done = false;
       const id = CS.p.id || 'cold';
       CS.panels = id === 'cold' ? COLD : id === 'ending' ? ENDING : id === 'world' ? worldCard(CS.p.w || 1, false) : id === 'worldclear' ? worldCard(CS.p.w || 1, true) : COLD;
-      LA.preload(ART);
-      const cam = CS.panels[0].camX; if (cam != null) ui.warmCity(cam, 3);
+      // Hold the clock until the panels' art has arrived: art draws nothing until decoded, so on a fresh
+      // web visit the fire/firefighter panels used to play out empty before their images downloaded.
+      const cam = CS.panels[0].camX, C = LA.city;
+      const keys = ART.concat(cam != null && C && C.ready ? C.artKeysForRange(cam - 300, cam + LA.view.VW * 3) : []);
+      CS.loading = true; CS.prog = 0;
+      const token = CS.p;
+      LA.preload(keys, (f) => { CS.prog = f; }).then(() => { if (CS.p === token) CS.loading = false; });
       ui.music(id === 'ending' ? 'credits' : id === 'cold' ? 'story' : 'map');
     },
     update(dt) {
-      CS.t += dt; CS.pt += dt;
+      CS.t += dt;
       const inp = ui.read();
       if (CS.t > 0.5 && inp.any) { ui.sfx('select'); finish(); return; }
+      if (CS.loading && CS.t < LOAD_MAX) return;   // panels start once their art is in
+      if (CS.loading) CS.loading = false;
+      CS.pt += dt;
       const P = CS.panels[CS.idx];
       if (CS.pt >= P.dur) { CS.idx++; CS.pt = 0; if (CS.idx >= CS.panels.length) { finish(); return; } ui.sfx('menu'); }
     },
     draw(ctx) {
       const VW = LA.view.VW, VH = LA.view.VH;
+      if (CS.loading) {   // simple loading card while the art downloads
+        ctx.fillStyle = '#0b0d14'; ctx.fillRect(0, 0, VW, VH);
+        const w = Math.min(320, VW * 0.6), x = (VW - w) / 2, y = VH / 2;
+        ui.text(ctx, 'LOADING LOS ANGELES…', VW / 2, y - 18, { size: 12, weight: '800', mono: true, col: '#ffcc3a', align: 'center' });
+        ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(x, y, w, 6);
+        ctx.fillStyle = '#ffcc3a'; ctx.fillRect(x, y, w * CS.prog, 6);
+        if (CS.t > 0.5) ui.text(ctx, 'ANY BUTTON TO SKIP', VW - 24, VH - 20, { size: 10, weight: '800', mono: true, col: 'rgba(255,255,255,.75)', align: 'right' });
+        return;
+      }
       const P = CS.panels[Math.min(CS.idx, CS.panels.length - 1)], t = CS.pt;
       ctx.save(); P.draw(ctx, t); ctx.restore();
       if (!P.noCap && P.cap) {
