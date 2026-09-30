@@ -22,18 +22,18 @@
       {"v":1000,"c":"This scientist published the theory of general relativity in 1915.","a":"Albert Einstein","accept":["einstein"]}
     ]},
     {"name":"MAKE SOME NOISE","tag":"music","diff":"easy","clues":[
-      {"v":200,"c":"The 'King of Pop'.","a":"Michael Jackson"},
+      {"v":200,"c":"The 'King of Pop'.","a":"Michael Jackson","accept":["mj","jackson"]},
       {"v":400,"c":"British band behind the album 'Abbey Road'.","a":"The Beatles","accept":["beatles"]},
-      {"v":600,"c":"Singer of 'Rolling in the Deep' and '25'.","a":"Adele"},
+      {"v":600,"c":"Singer of 'Rolling in the Deep' and '25'.","a":"Adele","accept":["adele adkins"]},
       {"v":800,"c":"Rapper behind 'The Marshall Mathers LP'.","a":"Eminem","accept":["slim shady","marshall mathers"]},
       {"v":1000,"c":"This composer went deaf yet wrote his Ninth Symphony.","a":"Beethoven","accept":["ludwig van beethoven","bethoven"]}
     ]},
     {"name":"SPORTS CENTER","tag":"sports","diff":"easy","clues":[
       {"v":200,"c":"The sport played at Wimbledon.","a":"tennis"},
-      {"v":400,"c":"NBA legend who wore #23 for the Bulls.","a":"Michael Jordan","accept":["jordan"]},
+      {"v":400,"c":"NBA legend who wore #23 for the Bulls.","a":"Michael Jordan","accept":["jordan","mj","air jordan"]},
       {"v":600,"c":"Country that has won the most FIFA World Cups.","a":"Brazil"},
       {"v":800,"c":"'The Greatest', born Cassius Clay.","a":"Muhammad Ali","accept":["ali","mohammed ali","mohamed ali","muhammed ali"]},
-      {"v":1000,"c":"This horse race is called the most exciting two minutes in sports.","a":"the Kentucky Derby","accept":["kentucky derby"]}
+      {"v":1000,"c":"This horse race is called the most exciting two minutes in sports.","a":"the Kentucky Derby","accept":["kentucky derby","the derby","run for the roses"]}
     ]},
     {"name":"THE HUMAN BODY","tag":"science","diff":"medium","clues":[
       {"v":200,"c":"The largest organ of the human body.","a":"the skin","accept":["skin"]},
@@ -43,9 +43,9 @@
       {"v":1000,"c":"The smallest bone in the human body, found in the ear.","a":"the stapes","accept":["stapes","stirrup"]}
     ]},
     {"name":"US PRESIDENTS","tag":"history","diff":"medium","clues":[
-      {"v":200,"c":"The first US president.","a":"George Washington","accept":["washington"]},
-      {"v":400,"c":"He issued the Emancipation Proclamation.","a":"Abraham Lincoln","accept":["lincoln"]},
-      {"v":600,"c":"The only president to serve more than two terms.","a":"Franklin Roosevelt","accept":["fdr","franklin d roosevelt","franklin delano roosevelt","f d r"]},
+      {"v":200,"c":"The first US president.","a":"George Washington","accept":["washington","president washington"]},
+      {"v":400,"c":"He issued the Emancipation Proclamation.","a":"Abraham Lincoln","accept":["lincoln","abe lincoln","honest abe","abe"]},
+      {"v":600,"c":"The only president to serve more than two terms.","a":"Franklin Roosevelt","accept":["fdr","franklin d roosevelt","franklin delano roosevelt","f d r","franklin delano","roosevelt"]},
       {"v":800,"c":"He resigned in 1974 over the Watergate scandal.","a":"Richard Nixon","accept":["nixon"]},
       {"v":1000,"c":"This president was a former actor and 'the Great Communicator'.","a":"Ronald Reagan","accept":["reagan"]}
     ]},
@@ -54,10 +54,10 @@
       {"v":400,"c":"The 1969 mission that first landed humans on the Moon.","a":"Apollo 11","accept":["apollo eleven"]},
       {"v":600,"c":"The red planet.","a":"Mars"},
       {"v":800,"c":"The galaxy that contains our solar system.","a":"the Milky Way","accept":["milky way"]},
-      {"v":1000,"c":"This telescope, launched in 2021, is Hubble's successor.","a":"the James Webb","accept":["james webb","jwst","webb","james webb space telescope"]}
+      {"v":1000,"c":"This telescope, launched in 2021, is Hubble's successor.","a":"the James Webb","accept":["james webb","jwst","webb","james webb space telescope","webb telescope","james webb telescope"]}
     ]},
     {"name":"ANIMAL KINGDOM","tag":"nature","diff":"medium","clues":[
-      {"v":200,"c":"The largest land animal.","a":"the elephant","accept":["elephant","african elephant"]},
+      {"v":200,"c":"The largest land animal.","a":"the elephant","accept":["elephant","african elephant","african bush elephant"]},
       {"v":400,"c":"The fastest land animal.","a":"the cheetah","accept":["cheetah"]},
       {"v":600,"c":"The only mammal capable of true flight.","a":"the bat","accept":["bat"]},
       {"v":800,"c":"A group of these big cats is called a pride.","a":"lions","accept":["lion"]},
@@ -73,8 +73,8 @@
     {"name":"WORLD GEOGRAPHY","tag":"geography","diff":"medium","clues":[
       {"v":200,"c":"The longest river in the world by most measures.","a":"the Nile","accept":["nile"]},
       {"v":400,"c":"The only country that is also a continent.","a":"Australia"},
-      {"v":600,"c":"The largest desert on Earth (it's cold).","a":"Antarctica","accept":["the antarctic"]},
-      {"v":800,"c":"The tallest mountain above sea level.","a":"Mount Everest","accept":["everest"]},
+      {"v":600,"c":"The largest desert on Earth (it's cold).","a":"Antarctica","accept":["the antarctic","antarctic desert"]},
+      {"v":800,"c":"The tallest mountain above sea level.","a":"Mount Everest","accept":["everest","sagarmatha","chomolungma"]},
       {"v":1000,"c":"This sea between Israel and Jordan is Earth's lowest land point.","a":"the Dead Sea","accept":["dead sea"]}
     ]},
     {"name":"MYTHOLOGY","tag":"culture","diff":"medium","clues":[
@@ -82,17 +82,17 @@
       {"v":400,"c":"Norse god of thunder.","a":"Thor","accept":["thor odinson"]},
       {"v":600,"c":"Egyptian god of the dead, shown with a jackal head.","a":"Anubis"},
       {"v":800,"c":"In Greek myth, this Titan gave fire to humanity.","a":"Prometheus"},
-      {"v":1000,"c":"The Hindu god of destruction in the Trimurti.","a":"Shiva","accept":["siva"]}
+      {"v":1000,"c":"The Hindu god of destruction in the Trimurti.","a":"Shiva","accept":["siva","lord shiva"]}
     ]},
     {"name":"TECH & INVENTIONS","tag":"tech","diff":"medium","clues":[
       {"v":200,"c":"He co-founded Apple with Steve Wozniak.","a":"Steve Jobs","accept":["jobs"]},
       {"v":400,"c":"This company's search engine handles most of the world's queries.","a":"Google"},
       {"v":600,"c":"He's credited with inventing the World Wide Web in 1989.","a":"Tim Berners-Lee","accept":["berners-lee","berners lee","tim berners lee"]},
       {"v":800,"c":"The 'father of the computer', he designed the Analytical Engine.","a":"Charles Babbage","accept":["babbage"]},
-      {"v":1000,"c":"This 1970s protocol suite lets the internet's networks talk — two acronyms.","a":"TCP/IP","accept":["tcp ip","tcpip"]}
+      {"v":1000,"c":"This 1970s protocol suite lets the internet's networks talk — two acronyms.","a":"TCP/IP","accept":["tcp ip","tcpip","tcp slash ip","internet protocol suite","tcp and ip"]}
     ]},
     {"name":"SHAKESPEARE","tag":"literature","diff":"hard","clues":[
-      {"v":200,"c":"'To be or not to be' is spoken by this Danish prince.","a":"Hamlet"},
+      {"v":200,"c":"'To be or not to be' is spoken by this Danish prince.","a":"Hamlet","accept":["prince hamlet"]},
       {"v":400,"c":"These star-crossed lovers are from Verona.","a":"Romeo and Juliet","accept":["romeo & juliet"]},
       {"v":600,"c":"This Scottish play features three witches and 'is this a dagger'.","a":"Macbeth"},
       {"v":800,"c":"The Moor of Venice, deceived by Iago.","a":"Othello"},
@@ -103,18 +103,18 @@
       {"v":400,"c":"The most abundant element in the universe.","a":"hydrogen"},
       {"v":600,"c":"The number of elements on the modern periodic table, ending with oganesson.","a":"118","accept":["one hundred eighteen","a hundred eighteen","one hundred and eighteen","one eighteen"]},
       {"v":800,"c":"This element, symbol Fe, makes up much of Earth's core.","a":"iron"},
-      {"v":1000,"c":"This scientist created the periodic table in 1869.","a":"Dmitri Mendeleev","accept":["mendeleev","mendeleyev","mendeleiev","mendelev"]}
+      {"v":1000,"c":"This scientist created the periodic table in 1869.","a":"Dmitri Mendeleev","accept":["mendeleev","mendeleyev","mendeleiev","mendelev","dmitri mendeleyev","dmitry mendeleev"]}
     ]},
     {"name":"DEEP HISTORY","tag":"history","diff":"hard","clues":[
       {"v":200,"c":"Egyptian queen allied with both Caesar and Mark Antony.","a":"Cleopatra"},
       {"v":400,"c":"This wall fell in 1989.","a":"the Berlin Wall","accept":["berlin wall"]},
       {"v":600,"c":"The empire founded and ruled by Genghis Khan.","a":"the Mongol Empire","accept":["mongol empire","mongol","mongols"]},
-      {"v":800,"c":"The first emperor of a unified China.","a":"Qin Shi Huang","accept":["qin shi huang","qin shi huangdi","chin shi huang","shi huangdi","qin"]},
-      {"v":1000,"c":"This 1648 set of treaties ended the Thirty Years' War.","a":"the Peace of Westphalia","accept":["westphalia","peace of westphalia"]}
+      {"v":800,"c":"The first emperor of a unified China.","a":"Qin Shi Huang","accept":["qin shi huang","qin shi huangdi","chin shi huang","shi huangdi","qin","shi huang di","qin shi huang di","qin shihuang","emperor qin"]},
+      {"v":1000,"c":"This 1648 set of treaties ended the Thirty Years' War.","a":"the Peace of Westphalia","accept":["westphalia","peace of westphalia","treaty of westphalia","treaties of westphalia"]}
     ]},
     {"name":"WORLD LANGUAGES","tag":"culture","diff":"hard","clues":[
       {"v":200,"c":"The most spoken native language in the world.","a":"Mandarin","accept":["mandarin chinese","chinese"]},
-      {"v":400,"c":"'Robot' entered English from a 1920 play in this language.","a":"Czech"},
+      {"v":400,"c":"'Robot' entered English from a 1920 play in this language.","a":"Czech","accept":["czech language"]},
       {"v":600,"c":"This language isolate of northern Spain and southwest France is unrelated to any other known language.","a":"Basque","accept":["euskara"]},
       {"v":800,"c":"This constructed language was created by L. L. Zamenhof in 1887.","a":"Esperanto"},
       {"v":1000,"c":"The writing system of ancient Mesopotamia, pressed into clay.","a":"cuneiform","accept":["cuniform"]}
@@ -129,15 +129,15 @@
     {"name":"OBSCURE SCIENCE","tag":"science","diff":"insane","clues":[
       {"v":200,"c":"The study of the very cold.","a":"cryogenics","accept":["cryophysics","cryogenic"]},
       {"v":400,"c":"This SI unit measures luminous intensity.","a":"the candela","accept":["candela"]},
-      {"v":600,"c":"This particle, nicknamed the 'God particle', was confirmed at CERN in 2012.","a":"the Higgs boson","accept":["higgs boson","higgs"]},
+      {"v":600,"c":"This particle, nicknamed the 'God particle', was confirmed at CERN in 2012.","a":"the Higgs boson","accept":["higgs boson","higgs","higgs particle"]},
       {"v":800,"c":"The rarest naturally occurring element on Earth.","a":"astatine"},
       {"v":1000,"c":"This 'fifth state of matter' is created near absolute zero.","a":"a Bose-Einstein condensate","accept":["bose-einstein condensate","bose einstein condensate","bose einstein","bec"]}
     ]},
     {"name":"PHILOSOPHY","tag":"culture","diff":"insane","clues":[
-      {"v":200,"c":"'I think, therefore I am' was written by this Frenchman.","a":"Rene Descartes","accept":["descartes"]},
+      {"v":200,"c":"'I think, therefore I am' was written by this Frenchman.","a":"Rene Descartes","accept":["descartes","rené descartes"]},
       {"v":400,"c":"He wrote 'Thus Spoke Zarathustra' and declared 'God is dead'.","a":"Friedrich Nietzsche","accept":["nietzsche","nietzche","nietsche","nitzsche"]},
       {"v":600,"c":"This Greek was Plato's teacher and drank hemlock.","a":"Socrates"},
-      {"v":800,"c":"His 'categorical imperative' anchors deontological ethics.","a":"Immanuel Kant","accept":["kant"]},
+      {"v":800,"c":"His 'categorical imperative' anchors deontological ethics.","a":"Immanuel Kant","accept":["kant","emmanuel kant"]},
       {"v":1000,"c":"This philosopher's 'veil of ignorance' argues for justice as fairness.","a":"John Rawls","accept":["rawls"]}
     ]},
     {"name":"WORLD CUISINE","tag":"food","diff":"easy","clues":[
@@ -173,7 +173,7 @@
       {"v":400,"c":"This espresso drink, named for the hooded robes of Italian friars, is topped with thick milk foam.","a":"cappuccino","accept":["capuccino","cappucino","capucino"]},
       {"v":600,"c":"This English ritual, credited to the Duchess of Bedford, serves tea with scones and finger sandwiches around 4 p.m.","a":"afternoon tea","accept":["high tea"]},
       {"v":800,"c":"Green, black, and oolong tea all come from the leaves of this single plant.","a":"Camellia sinensis","accept":["tea plant","camellia"]},
-      {"v":1000,"c":"This caffeine-free red-bush herbal tea is native to South Africa.","a":"rooibos","accept":["rooibos tea","roibos","rooibus","roybos"]}
+      {"v":1000,"c":"This caffeine-free red-bush herbal tea is native to South Africa.","a":"rooibos","accept":["rooibos tea","roibos","rooibus","roybos","red bush tea","redbush","redbush tea","red bush"]}
     ]},
     {"name":"COCKTAILS","tag":"food","diff":"medium","clues":[
       {"v":200,"c":"This cocktail muddles rum, lime, mint, and sugar.","a":"mojito"},
@@ -192,7 +192,7 @@
     {"name":"SPICES & HERBS","tag":"food","diff":"medium","clues":[
       {"v":200,"c":"This spice, ground from the inner bark of a tree, is sprinkled on apple pie and snickerdoodles.","a":"cinnamon"},
       {"v":400,"c":"This green herb is the star of pesto.","a":"basil"},
-      {"v":600,"c":"This flavoring comes from the seed pod of an orchid and is a classic ice cream flavor.","a":"vanilla"},
+      {"v":600,"c":"This flavoring comes from the seed pod of an orchid and is a classic ice cream flavor.","a":"vanilla","accept":["vanilla bean","vanilla beans"]},
       {"v":800,"c":"This bright yellow root spice gives curry its color and is prized as an anti-inflammatory.","a":"turmeric","accept":["tumeric"]},
       {"v":1000,"c":"The world's most expensive spice by weight comes from crocus-flower stigmas.","a":"saffron"}
     ]},
@@ -204,9 +204,9 @@
       {"v":1000,"c":"This sweet almond cream, named for an Italian marquis, fills the French 'galette des rois'.","a":"frangipane","accept":["frangipani","frangipan"]}
     ]},
     {"name":"FAST FOOD CHAINS","tag":"food","diff":"easy","clues":[
-      {"v":200,"c":"This chain's mascot is Ronald McDonald.","a":"McDonald's","accept":["mcdonalds"]},
+      {"v":200,"c":"This chain's mascot is Ronald McDonald.","a":"McDonald's","accept":["mcdonalds","mickey ds","mcdonald","mickey d"]},
       {"v":400,"c":"'Finger Lickin' Good' was the slogan of this fried chicken chain.","a":"KFC","accept":["kentucky fried chicken"]},
-      {"v":600,"c":"This chain's Whopper goes up against the Big Mac.","a":"Burger King"},
+      {"v":600,"c":"This chain's Whopper goes up against the Big Mac.","a":"Burger King","accept":["bk"]},
       {"v":800,"c":"This Seattle coffee chain sells the Frappuccino and the Pumpkin Spice Latte.","a":"Starbucks"},
       {"v":1000,"c":"This chain's slogan was 'Think Outside the Bun'.","a":"Taco Bell"}
     ]},
@@ -234,8 +234,8 @@
     {"name":"BREAKFAST FOODS","tag":"food","diff":"easy","clues":[
       {"v":200,"c":"These are cooked scrambled, fried, or poached.","a":"eggs","accept":["egg"]},
       {"v":400,"c":"This cured pork strip is a breakfast staple, often served crispy.","a":"bacon"},
-      {"v":600,"c":"These flat cakes are stacked and drizzled with maple syrup.","a":"pancakes","accept":["pancake"]},
-      {"v":800,"c":"This breakfast item gets its grid pattern from a special iron; a Belgian favorite.","a":"waffle","accept":["waffles"]},
+      {"v":600,"c":"These flat cakes are stacked and drizzled with maple syrup.","a":"pancakes","accept":["pancake","hotcakes","flapjacks","hot cakes"]},
+      {"v":800,"c":"This breakfast item gets its grid pattern from a special iron; a Belgian favorite.","a":"waffle","accept":["waffles","belgian waffle","belgian waffles"]},
       {"v":1000,"c":"This hot breakfast bowl of rolled grains, a Scottish staple, is often topped with fruit or brown sugar.","a":"oatmeal","accept":["porridge","oats"]}
     ]},
     {"name":"ANCIENT ALIENS","tag":"weird","diff":"hard","clues":[
@@ -253,21 +253,21 @@
       {"v":1000,"c":"This pilot's 1947 sighting near Mount Rainier gave us the term 'flying saucers'; his last name was ___.","a":"Arnold","accept":["kenneth arnold","arnold"]}
     ]},
     {"name":"UNSOLVED MYSTERIES","tag":"weird","diff":"hard","clues":[
-      {"v":200,"c":"This triangle in the Atlantic is blamed for missing ships and planes.","a":"the Bermuda Triangle","accept":["bermuda triangle"]},
+      {"v":200,"c":"This triangle in the Atlantic is blamed for missing ships and planes.","a":"the Bermuda Triangle","accept":["bermuda triangle","devils triangle"]},
       {"v":400,"c":"This unidentified 1888 London serial killer was never caught.","a":"Jack the Ripper","accept":["the ripper"]},
-      {"v":600,"c":"This aviator vanished over the Pacific in 1937 trying to fly around the world.","a":"Amelia Earhart","accept":["earhart"]},
-      {"v":800,"c":"This English colony vanished, leaving only the carved word 'CROATOAN'.","a":"Roanoke","accept":["lost colony of roanoke","roanoke colony"]},
+      {"v":600,"c":"This aviator vanished over the Pacific in 1937 trying to fly around the world.","a":"Amelia Earhart","accept":["earhart","amelia"]},
+      {"v":800,"c":"This English colony vanished, leaving only the carved word 'CROATOAN'.","a":"Roanoke","accept":["lost colony of roanoke","roanoke colony","the lost colony","lost colony"]},
       {"v":1000,"c":"This cipher-sending serial killer taunted 1960s-70s San Francisco police and was never caught.","a":"the Zodiac Killer","accept":["zodiac","zodiac killer"]}
     ]},
     {"name":"CRYPTIDS","tag":"weird","diff":"medium","clues":[
       {"v":200,"c":"This large, hairy, ape-like creature supposedly roams North American forests.","a":"Bigfoot","accept":["sasquatch"]},
-      {"v":400,"c":"This Scottish lake monster is nicknamed 'Nessie'.","a":"the Loch Ness Monster","accept":["loch ness monster","nessie"]},
+      {"v":400,"c":"This Scottish lake monster is nicknamed 'Nessie'.","a":"the Loch Ness Monster","accept":["loch ness monster","nessie","loch ness"]},
       {"v":600,"c":"This Himalayan 'Abominable Snowman' supposedly leaves giant footprints in the snow.","a":"the Yeti","accept":["yeti","abominable snowman"]},
       {"v":800,"c":"This red-eyed winged creature terrorized a West Virginia town in the 1960s.","a":"Mothman","accept":["moth man"]},
       {"v":1000,"c":"This livestock-draining creature's name is Spanish for 'goat sucker'.","a":"the Chupacabra","accept":["chupacabra","chupacabras"]}
     ]},
     {"name":"CONSPIRACY THEORIES","tag":"weird","diff":"hard","clues":[
-      {"v":200,"c":"Some claim this 1969 event was faked on a Hollywood soundstage.","a":"the Moon landing","accept":["moon landing","apollo 11"]},
+      {"v":200,"c":"Some claim this 1969 event was faked on a Hollywood soundstage.","a":"the Moon landing","accept":["moon landing","apollo 11","moon landings","apollo moon landing","landing on the moon"]},
       {"v":400,"c":"Believers in this theory reject the globe for a disc-shaped planet.","a":"Flat Earth","accept":["flat earth","the earth is flat"]},
       {"v":600,"c":"This secret society, symbolized by an all-seeing eye, is a staple of conspiracy lore.","a":"the Illuminati","accept":["illuminati"]},
       {"v":800,"c":"The claim that jet vapor trails are secret chemicals gives us this portmanteau.","a":"chemtrails"},
@@ -275,7 +275,7 @@
     ]},
     {"name":"ANCIENT WONDERS","tag":"history","diff":"medium","clues":[
       {"v":200,"c":"This ring of giant standing stones sits on England's Salisbury Plain.","a":"Stonehenge"},
-      {"v":400,"c":"The only surviving Ancient Wonder of the World is this Egyptian structure.","a":"the Great Pyramid of Giza","accept":["great pyramid","pyramid of giza","great pyramid of giza"]},
+      {"v":400,"c":"The only surviving Ancient Wonder of the World is this Egyptian structure.","a":"the Great Pyramid of Giza","accept":["great pyramid","pyramid of giza","great pyramid of giza","pyramids of giza","the pyramids","pyramid","giza pyramid","pyramid of khufu","great pyramid of khufu"]},
       {"v":600,"c":"This ancient Incan city sits high in the Peruvian Andes.","a":"Machu Picchu","accept":["machu pichu","machu piccu"]},
       {"v":800,"c":"This ancient Jordanian city is carved into rose-colored rock.","a":"Petra"},
       {"v":1000,"c":"These giant carved stone heads on a remote Pacific island were made by the Rapa Nui.","a":"the Moai","accept":["moai","easter island heads","easter island statues","moais","moai statues"]}
@@ -302,17 +302,17 @@
       {"v":1000,"c":"This deep-blue stone was historically ground into ultramarine paint: 'lapis ___'.","a":"lazuli","accept":["lapis lazuli"]}
     ]},
     {"name":"CROWN JEWELS","tag":"jewelry","diff":"hard","clues":[
-      {"v":200,"c":"The British Crown Jewels are kept in this London fortress.","a":"the Tower of London","accept":["tower of london"]},
+      {"v":200,"c":"The British Crown Jewels are kept in this London fortress.","a":"the Tower of London","accept":["tower of london","the tower"]},
       {"v":400,"c":"This ornamental staff, carried by a monarch, symbolizes authority.","a":"scepter","accept":["sceptre"]},
       {"v":600,"c":"This jeweled ball topped with a cross is the 'sovereign's ___'.","a":"orb"},
       {"v":800,"c":"This gem-encrusted Easter egg series was crafted for Russian tsars by a famous jeweler's house.","a":"Faberge","accept":["fabergé","faberge","faberge eggs","faberge egg"]},
-      {"v":1000,"c":"The 530-carat 'Star of Africa', the largest clear cut diamond, was cut from this famous rough stone.","a":"the Cullinan","accept":["cullinan"]}
+      {"v":1000,"c":"The 530-carat 'Star of Africa', the largest clear cut diamond, was cut from this famous rough stone.","a":"the Cullinan","accept":["cullinan","cullinan diamond"]}
     ]},
     {"name":"FASHION DESIGNERS","tag":"fashion","diff":"medium","clues":[
-      {"v":200,"c":"This French designer freed women from corsets and created the 'little black dress'.","a":"Coco Chanel","accept":["chanel","coco chanel"]},
+      {"v":200,"c":"This French designer freed women from corsets and created the 'little black dress'.","a":"Coco Chanel","accept":["chanel","coco chanel","gabrielle chanel"]},
       {"v":400,"c":"This late German designer with a white ponytail led Chanel for decades.","a":"Karl Lagerfeld","accept":["lagerfeld"]},
       {"v":600,"c":"This Italian designer was murdered outside his Miami mansion in 1997.","a":"Gianni Versace","accept":["versace","gianni versace"]},
-      {"v":800,"c":"This British 'enfant terrible' designer, known for shock runway shows, died in 2010.","a":"Alexander McQueen","accept":["mcqueen","alexander mcqueen"]},
+      {"v":800,"c":"This British 'enfant terrible' designer, known for shock runway shows, died in 2010.","a":"Alexander McQueen","accept":["mcqueen","alexander mcqueen","lee mcqueen"]},
       {"v":1000,"c":"This American designer is famous for the jersey wrap dress: Diane von ___.","a":"Furstenberg","accept":["diane von furstenberg","von furstenberg","fürstenberg","von fürstenberg","furstenburg","von furstenburg","dvf"]}
     ]},
     {"name":"FASHION HOUSES","tag":"fashion","diff":"medium","clues":[
@@ -330,7 +330,7 @@
       {"v":1000,"c":"This Italian brand's 'Galleria' bag is a hit, and 'The Devil Wears' its name.","a":"Prada"}
     ]},
     {"name":"COINS & CURRENCY","tag":"money","diff":"medium","clues":[
-      {"v":200,"c":"This copper-colored U.S. one-cent coin, which the Mint stopped making for circulation in 2025, features Lincoln.","a":"the penny","accept":["penny","one cent","one cent coin"]},
+      {"v":200,"c":"This copper-colored U.S. one-cent coin, which the Mint stopped making for circulation in 2025, features Lincoln.","a":"the penny","accept":["penny","one cent","one cent coin","cent","one cent piece"]},
       {"v":400,"c":"This currency is used by most European Union countries.","a":"the euro","accept":["euro"]},
       {"v":600,"c":"The study and collection of coins is called this.","a":"numismatics","accept":["numismatic","coin collecting"]},
       {"v":800,"c":"This Japanese currency uses the symbol ¥.","a":"the yen","accept":["yen"]},
@@ -346,16 +346,16 @@
     {"name":"ITALY","tag":"geography","diff":"medium","clues":[
       {"v":200,"c":"This city, home to the Colosseum, is Italy's capital.","a":"Rome","accept":["roma"]},
       {"v":400,"c":"This Italian city is famous for its canals and gondolas.","a":"Venice","accept":["venezia"]},
-      {"v":600,"c":"This Italian tower is famous for leaning.","a":"the Leaning Tower of Pisa","accept":["leaning tower of pisa","tower of pisa","pisa"]},
-      {"v":800,"c":"This tiny country, the world's smallest, sits entirely within Rome.","a":"Vatican City","accept":["vatican","vatican city"]},
+      {"v":600,"c":"This Italian tower is famous for leaning.","a":"the Leaning Tower of Pisa","accept":["leaning tower of pisa","tower of pisa","pisa","leaning tower","tower of pizza","leaning tower of pizza"]},
+      {"v":800,"c":"This tiny country, the world's smallest, sits entirely within Rome.","a":"Vatican City","accept":["vatican","vatican city","holy see","vatican city state","the vatican"]},
       {"v":1000,"c":"This southern Italian volcano buried Pompeii in 79 AD.","a":"Mount Vesuvius","accept":["vesuvius","vesuvio"]}
     ]},
     {"name":"LONDON","tag":"geography","diff":"medium","clues":[
       {"v":200,"c":"This clock tower's great bell is nicknamed 'Big Ben'.","a":"Elizabeth Tower","accept":["big ben"]},
       {"v":400,"c":"This London river is spanned by Tower Bridge.","a":"the Thames","accept":["thames","river thames","temz"]},
       {"v":600,"c":"This palace is the British monarch's official London residence.","a":"Buckingham Palace","accept":["buckingham"]},
-      {"v":800,"c":"Londoners affectionately call their underground metro this.","a":"the Tube","accept":["tube","the underground","underground"]},
-      {"v":1000,"c":"This giant Ferris wheel on the Thames' South Bank was built for the millennium.","a":"the London Eye","accept":["london eye"]}
+      {"v":800,"c":"Londoners affectionately call their underground metro this.","a":"the Tube","accept":["tube","the underground","underground","london underground"]},
+      {"v":1000,"c":"This giant Ferris wheel on the Thames' South Bank was built for the millennium.","a":"the London Eye","accept":["london eye","millennium wheel"]}
     ]},
     {"name":"THE VICTORIAN ERA","tag":"history","diff":"hard","clues":[
       {"v":200,"c":"This long-reigning queen gave her name to the Victorian era.","a":"Queen Victoria","accept":["victoria"]},
@@ -368,7 +368,7 @@
       {"v":200,"c":"This British band led the '60s 'British Invasion' with 'I Want to Hold Your Hand'.","a":"The Beatles","accept":["beatles"]},
       {"v":400,"c":"This AMC drama follows 1960s Madison Avenue ad man Don Draper.","a":"Mad Men"},
       {"v":600,"c":"This 1969 music festival defined the hippie era in upstate New York.","a":"Woodstock"},
-      {"v":800,"c":"This U.S. president was assassinated in Dallas in 1963.","a":"John F. Kennedy","accept":["jfk","kennedy","john f kennedy"]},
+      {"v":800,"c":"This U.S. president was assassinated in Dallas in 1963.","a":"John F. Kennedy","accept":["jfk","kennedy","john f kennedy","john kennedy","jack kennedy"]},
       {"v":1000,"c":"'Turn on, tune in, drop out' was the mantra of this Harvard-professor-turned-psychedelic-guru.","a":"Timothy Leary","accept":["leary"]}
     ]},
     {"name":"EMO & SOUNDCLOUD RAP","tag":"music","diff":"medium","clues":[
@@ -387,24 +387,24 @@
     ]},
     {"name":"FAMOUS LANDMARKS","tag":"geography","diff":"easy","clues":[
       {"v":200,"c":"This iron tower is the symbol of Paris.","a":"the Eiffel Tower","accept":["eiffel tower"]},
-      {"v":400,"c":"This green statue in New York Harbor was a gift from France.","a":"the Statue of Liberty","accept":["statue of liberty"]},
-      {"v":600,"c":"This ancient defensive structure snakes for thousands of miles across China.","a":"the Great Wall of China","accept":["great wall","great wall of china"]},
+      {"v":400,"c":"This green statue in New York Harbor was a gift from France.","a":"the Statue of Liberty","accept":["statue of liberty","lady liberty"]},
+      {"v":600,"c":"This ancient defensive structure snakes for thousands of miles across China.","a":"the Great Wall of China","accept":["great wall","great wall of china","chinese wall","wall of china"]},
       {"v":800,"c":"This white marble mausoleum in India was built by an emperor for his late wife.","a":"the Taj Mahal","accept":["taj mahal"]},
-      {"v":1000,"c":"This statue of Jesus stands atop Rio de Janeiro's Corcovado mountain: 'Christ the ___'.","a":"Redeemer","accept":["christ the redeemer"]}
+      {"v":1000,"c":"This statue of Jesus stands atop Rio de Janeiro's Corcovado mountain: 'Christ the ___'.","a":"Redeemer","accept":["christ the redeemer","cristo redentor","christ the redeemer statue"]}
     ]},
     {"name":"U.S. HISTORY","tag":"history","diff":"medium","clues":[
       {"v":200,"c":"This 1776 document declared the American colonies free from Britain.","a":"the Declaration of Independence","accept":["declaration of independence"]},
-      {"v":400,"c":"This president delivered the Gettysburg Address in 1863.","a":"Abraham Lincoln","accept":["lincoln"]},
-      {"v":600,"c":"The 1849 California ___ Rush drew fortune-seekers west.","a":"Gold","accept":["gold rush"]},
+      {"v":400,"c":"This president delivered the Gettysburg Address in 1863.","a":"Abraham Lincoln","accept":["lincoln","abe lincoln","honest abe","abe"]},
+      {"v":600,"c":"The 1849 California ___ Rush drew fortune-seekers west.","a":"Gold","accept":["gold rush","california gold rush"]},
       {"v":800,"c":"This 1920 amendment gave American women the right to vote.","a":"the 19th Amendment","accept":["19th amendment","nineteenth amendment","nineteenth","19th"]},
       {"v":1000,"c":"This 1803 deal with France doubled the size of the United States.","a":"the Louisiana Purchase","accept":["louisiana purchase"]}
     ]},
     {"name":"WORLD HISTORY","tag":"history","diff":"hard","clues":[
       {"v":200,"c":"This wall dividing a German city fell in 1989.","a":"the Berlin Wall","accept":["berlin wall"]},
-      {"v":400,"c":"This French general crowned himself emperor in 1804.","a":"Napoleon","accept":["napoleon bonaparte"]},
+      {"v":400,"c":"This French general crowned himself emperor in 1804.","a":"Napoleon","accept":["napoleon bonaparte","bonaparte","napoleon i","emperor napoleon"]},
       {"v":600,"c":"This ancient trade network linked China to the Mediterranean: the 'Silk ___'.","a":"Road","accept":["silk road"]},
-      {"v":800,"c":"This 1215 English charter first limited the power of the king.","a":"the Magna Carta","accept":["magna carta"]},
-      {"v":1000,"c":"This empire, ruled from Constantinople, was the eastern remnant of Rome.","a":"the Byzantine Empire","accept":["byzantine empire","byzantium"]}
+      {"v":800,"c":"This 1215 English charter first limited the power of the king.","a":"the Magna Carta","accept":["magna carta","magna charta"]},
+      {"v":1000,"c":"This empire, ruled from Constantinople, was the eastern remnant of Rome.","a":"the Byzantine Empire","accept":["byzantine empire","byzantium","eastern roman empire","byzantines"]}
     ]},
     {"name":"STATE CAPITALS","tag":"geography","diff":"medium","clues":[
       {"v":200,"c":"This is the capital of California — not Los Angeles.","a":"Sacramento"},
@@ -414,8 +414,8 @@
       {"v":1000,"c":"This is the capital of Illinois — not Chicago.","a":"Springfield"}
     ]},
     {"name":"COUNTRIES","tag":"geography","diff":"easy","clues":[
-      {"v":200,"c":"This largest country by area spans Europe and Asia.","a":"Russia"},
-      {"v":400,"c":"This country is home to the Great Wall and the giant panda.","a":"China"},
+      {"v":200,"c":"This largest country by area spans Europe and Asia.","a":"Russia","accept":["russian federation"]},
+      {"v":400,"c":"This country is home to the Great Wall and the giant panda.","a":"China","accept":["prc","peoples republic of china"]},
       {"v":600,"c":"This boot-shaped country is famous for pasta and pizza.","a":"Italy"},
       {"v":800,"c":"This country is both a continent and known for kangaroos.","a":"Australia"},
       {"v":1000,"c":"This small Himalayan kingdom famously measures 'Gross National Happiness'.","a":"Bhutan"}
@@ -424,7 +424,7 @@
       {"v":200,"c":"Green plants make food from sunlight through this process.","a":"photosynthesis"},
       {"v":400,"c":"This largest land animal has a trunk and tusks.","a":"the elephant","accept":["elephant"]},
       {"v":600,"c":"This colorful arc appears in the sky after rain.","a":"a rainbow","accept":["rainbow"]},
-      {"v":800,"c":"The tallest trees on Earth are these California giants.","a":"redwoods","accept":["redwood","sequoia","sequoias"]},
+      {"v":800,"c":"The tallest trees on Earth are these California giants.","a":"redwoods","accept":["redwood","sequoia","sequoias","giant sequoia","coast redwood","coast redwoods","giant sequoias"]},
       {"v":1000,"c":"This reef off Australia is the world's largest living structure.","a":"the Great Barrier Reef","accept":["great barrier reef"]}
     ]},
     {"name":"WEATHER","tag":"science","diff":"medium","clues":[
@@ -435,15 +435,15 @@
       {"v":1000,"c":"This Pacific warming pattern, Spanish for 'the boy', disrupts global weather.","a":"El Nino","accept":["el niño","el nino","el ninyo"]}
     ]},
     {"name":"DINOSAURS","tag":"science","diff":"easy","clues":[
-      {"v":200,"c":"This 'tyrant lizard king' is abbreviated T. rex.","a":"Tyrannosaurus rex","accept":["t rex","t. rex","tyrannosaurus","trex"]},
+      {"v":200,"c":"This 'tyrant lizard king' is abbreviated T. rex.","a":"Tyrannosaurus rex","accept":["t rex","t. rex","tyrannosaurus","trex","tyrannosaur"]},
       {"v":400,"c":"This dinosaur has three horns and a big bony frill.","a":"Triceratops"},
       {"v":600,"c":"This long-necked giant, whose name means 'thunder lizard', was reinstated as a valid genus in 2015.","a":"Brontosaurus","accept":["bronto"]},
       {"v":800,"c":"These flying reptiles of the dinosaur age were not actually dinosaurs at all.","a":"pterosaurs","accept":["pterosaur","pterodactyl","pterodactyls","terodactyl","pteranodon"]},
       {"v":1000,"c":"The asteroid that doomed the dinosaurs left this buried crater on Mexico's Yucatan Peninsula.","a":"Chicxulub","accept":["chicxulub crater","chixculub","chixulub","chicxulib","cheek shoe lube"]}
     ]},
     {"name":"THE DEEP SEA","tag":"nature","diff":"medium","clues":[
-      {"v":200,"c":"This eight-armed sea creature can change color and squirt ink.","a":"the octopus","accept":["octopus"]},
-      {"v":400,"c":"This deep-diving toothed whale, the species behind 'Moby-Dick', battles giant squid.","a":"the sperm whale","accept":["cachalot"]},
+      {"v":200,"c":"This eight-armed sea creature can change color and squirt ink.","a":"the octopus","accept":["octopus","octopi","octopuses"]},
+      {"v":400,"c":"This deep-diving toothed whale, the species behind 'Moby-Dick', battles giant squid.","a":"the sperm whale","accept":["cachalot","sperm whale"]},
       {"v":600,"c":"This deep-sea fish dangles a glowing lure to attract prey.","a":"the anglerfish","accept":["anglerfish","angler fish","angler"]},
       {"v":800,"c":"The deepest ocean trench in the Pacific is the ___ Trench.","a":"Mariana","accept":["mariana trench","marianas trench","marianas"]},
       {"v":1000,"c":"The biological production of light by deep-sea creatures is called this.","a":"bioluminescence"}
@@ -465,12 +465,12 @@
     {"name":"FAMOUS SCIENTISTS","tag":"science","diff":"hard","clues":[
       {"v":200,"c":"This wild-haired physicist gave us E=mc².","a":"Albert Einstein","accept":["einstein"]},
       {"v":400,"c":"This naturalist proposed evolution by natural selection in 'On the Origin of Species'.","a":"Charles Darwin","accept":["darwin"]},
-      {"v":600,"c":"This Polish-French scientist won Nobel Prizes in physics and chemistry for radioactivity.","a":"Marie Curie","accept":["curie","marie sklodowska curie"]},
+      {"v":600,"c":"This Polish-French scientist won Nobel Prizes in physics and chemistry for radioactivity.","a":"Marie Curie","accept":["curie","marie sklodowska curie","madame curie"]},
       {"v":800,"c":"This scientist's laws of motion and gravity were said to be sparked by a falling apple.","a":"Isaac Newton","accept":["newton"]},
       {"v":1000,"c":"This chemist's X-ray images were key to discovering DNA's double helix; Rosalind ___.","a":"Franklin","accept":["rosalind franklin"]}
     ]},
     {"name":"ISLANDS","tag":"geography","diff":"medium","clues":[
-      {"v":200,"c":"This U.S. state is a chain of Pacific islands.","a":"Hawaii"},
+      {"v":200,"c":"This U.S. state is a chain of Pacific islands.","a":"Hawaii","accept":["hawaiian islands"]},
       {"v":400,"c":"This Italian island at the 'toe' of the boot is home to Mount Etna.","a":"Sicily","accept":["sicilia"]},
       {"v":600,"c":"This largest island in the world is an autonomous territory of Denmark.","a":"Greenland"},
       {"v":800,"c":"This Indonesian resort island starts with a 'B'.","a":"Bali"},
@@ -491,8 +491,8 @@
       {"v":1000,"c":"This ocean, named for a subcontinent, laps Australia's western coast.","a":"the Indian Ocean","accept":["indian ocean","indian"]}
     ]},
     {"name":"MOUNTAINS & VOLCANOES","tag":"geography","diff":"medium","clues":[
-      {"v":200,"c":"This tallest mountain on Earth rises in the Himalayas.","a":"Mount Everest","accept":["everest"]},
-      {"v":400,"c":"This snow-capped Japanese volcano is a national symbol: Mount ___.","a":"Fuji","accept":["mount fuji","fuji"]},
+      {"v":200,"c":"This tallest mountain on Earth rises in the Himalayas.","a":"Mount Everest","accept":["everest","sagarmatha","chomolungma"]},
+      {"v":400,"c":"This snow-capped Japanese volcano is a national symbol: Mount ___.","a":"Fuji","accept":["mount fuji","fuji","fujiyama","fujisan","fuji san"]},
       {"v":600,"c":"This mountain range runs down the western spine of South America.","a":"the Andes","accept":["andes"]},
       {"v":800,"c":"This Tanzanian peak is Africa's tallest.","a":"Mount Kilimanjaro","accept":["kilimanjaro","kilamanjaro","killimanjaro"]},
       {"v":1000,"c":"This Sicilian volcano is Europe's most active: Mount ___.","a":"Etna","accept":["mount etna","etna"]}
@@ -506,17 +506,17 @@
     ]},
     {"name":"THE ROYAL FAMILY","tag":"history","diff":"medium","clues":[
       {"v":200,"c":"This queen was Britain's longest-reigning monarch until her death in 2022.","a":"Queen Elizabeth II","accept":["elizabeth ii","queen elizabeth","elizabeth"]},
-      {"v":400,"c":"This king took the throne after Elizabeth II.","a":"King Charles III","accept":["charles","king charles","charles iii"]},
-      {"v":600,"c":"This 'People's Princess' died in a 1997 Paris car crash.","a":"Princess Diana","accept":["diana","princess di"]},
-      {"v":800,"c":"This American actress married Prince Harry in 2018.","a":"Meghan Markle","accept":["meghan","meghan markle","markle"]},
+      {"v":400,"c":"This king took the throne after Elizabeth II.","a":"King Charles III","accept":["charles","king charles","charles iii","prince charles"]},
+      {"v":600,"c":"This 'People's Princess' died in a 1997 Paris car crash.","a":"Princess Diana","accept":["diana","princess di","lady di","lady diana","diana spencer","princess of wales","diana princess of wales"]},
+      {"v":800,"c":"This American actress married Prince Harry in 2018.","a":"Meghan Markle","accept":["meghan","meghan markle","markle","duchess of sussex"]},
       {"v":1000,"c":"This Scottish castle was Queen Elizabeth II's beloved summer retreat: ___ Castle.","a":"Balmoral","accept":["balmoral castle"]}
     ]},
     {"name":"WORLD WAR II","tag":"history","diff":"hard","clues":[
       {"v":200,"c":"This German dictator led the Nazis during WWII.","a":"Adolf Hitler","accept":["hitler"]},
-      {"v":400,"c":"This June 6, 1944 Allied invasion of Normandy is known as ___.","a":"D-Day","accept":["d day","d-day"]},
+      {"v":400,"c":"This June 6, 1944 Allied invasion of Normandy is known as ___.","a":"D-Day","accept":["d day","d-day","operation overlord","normandy landings"]},
       {"v":600,"c":"This 1941 Japanese attack drew the U.S. into the war: ___ Harbor.","a":"Pearl","accept":["pearl harbor"]},
       {"v":800,"c":"This British PM rallied his nation through WWII with defiant speeches.","a":"Winston Churchill","accept":["churchill"]},
-      {"v":1000,"c":"These two Japanese cities were struck by atomic bombs in 1945.","a":"Hiroshima and Nagasaki","accept":["hiroshima","nagasaki","hiroshima and nagasaki"]}
+      {"v":1000,"c":"These two Japanese cities were struck by atomic bombs in 1945.","a":"Hiroshima and Nagasaki","accept":["hiroshima","nagasaki","hiroshima and nagasaki","nagasaki and hiroshima"]}
     ]},
     {"name":"FAMOUS WOMEN IN HISTORY","tag":"history","diff":"medium","clues":[
       {"v":200,"c":"This nurse, 'the Lady with the Lamp', founded modern nursing.","a":"Florence Nightingale","accept":["nightingale"]},
@@ -533,7 +533,7 @@
       {"v":1000,"c":"Mickey's first released cartoon with synchronized sound showed him whistling at a riverboat's wheel: 'Steamboat ___'.","a":"Willie","accept":["steamboat willie"]}
     ]},
     {"name":"REALITY TV","tag":"pop culture","diff":"easy","clues":[
-      {"v":200,"c":"This famous family's show was 'Keeping Up with the ___'.","a":"Kardashians"},
+      {"v":200,"c":"This famous family's show was 'Keeping Up with the ___'.","a":"Kardashians","accept":["keeping up with the kardashians","kardashian"]},
       {"v":400,"c":"On this dating show, one single man hands out roses to women: 'The ___'.","a":"Bachelor","accept":["the bachelor"]},
       {"v":600,"c":"Simon Cowell judged this singing competition that launched Kelly Clarkson: 'American ___'.","a":"Idol","accept":["american idol"]},
       {"v":800,"c":"On this show, contestants stranded in the wild vote each other off.","a":"Survivor"},
@@ -541,20 +541,20 @@
     ]},
     {"name":"AWARD SHOWS","tag":"pop culture","diff":"medium","clues":[
       {"v":200,"c":"These gold statuettes are film's top honor, given by the Academy.","a":"the Oscars","accept":["oscars","academy awards","oscar","academy award"]},
-      {"v":400,"c":"These gramophone-shaped trophies honor the best in music.","a":"the Grammys","accept":["grammys","grammy"]},
-      {"v":600,"c":"These awards honor the best in television.","a":"the Emmys","accept":["emmys","emmy"]},
+      {"v":400,"c":"These gramophone-shaped trophies honor the best in music.","a":"the Grammys","accept":["grammys","grammy","grammy awards"]},
+      {"v":600,"c":"These awards honor the best in television.","a":"the Emmys","accept":["emmys","emmy","emmy awards"]},
       {"v":800,"c":"These awards honor Broadway theater.","a":"the Tonys","accept":["tonys","tony awards","tony"]},
       {"v":1000,"c":"Winning an Emmy, Grammy, Oscar, and Tony earns this four-letter status.","a":"EGOT","accept":["e g o t","e got","egot status"]}
     ]},
     {"name":"CELEBRITY COUPLES","tag":"pop culture","diff":"medium","clues":[
-      {"v":200,"c":"Jay-Z is married to this superstar singer of 'Single Ladies'.","a":"Beyonce","accept":["beyoncé","beyonce"]},
+      {"v":200,"c":"Jay-Z is married to this superstar singer of 'Single Ladies'.","a":"Beyonce","accept":["beyoncé","beyonce","beyonce knowles","queen bey"]},
       {"v":400,"c":"'Brangelina' paired Brad Pitt with this actress.","a":"Angelina Jolie","accept":["angelina jolie","jolie","angelina"]},
-      {"v":600,"c":"'Bennifer' reunited Ben Affleck with this singer-actress.","a":"Jennifer Lopez","accept":["jlo","jennifer lopez","j lo"]},
+      {"v":600,"c":"'Bennifer' reunited Ben Affleck with this singer-actress.","a":"Jennifer Lopez","accept":["jlo","jennifer lopez","j lo","lopez"]},
       {"v":800,"c":"This pop superstar's romance with Chiefs star Travis Kelce boosted NFL ratings.","a":"Taylor Swift","accept":["taylor swift","taylor"]},
-      {"v":1000,"c":"'Kimye' paired Kim Kardashian with this rapper.","a":"Kanye West","accept":["kanye","ye","kanye west"]}
+      {"v":1000,"c":"'Kimye' paired Kim Kardashian with this rapper.","a":"Kanye West","accept":["kanye","ye","kanye west","west"]}
     ]},
     {"name":"ART","tag":"culture","diff":"medium","clues":[
-      {"v":200,"c":"This Italian genius painted the Mona Lisa.","a":"Leonardo da Vinci","accept":["da vinci","leonardo"]},
+      {"v":200,"c":"This Italian genius painted the Mona Lisa.","a":"Leonardo da Vinci","accept":["da vinci","leonardo","leonardo davinci"]},
       {"v":400,"c":"This Dutch painter cut off part of his ear and painted 'The Starry Night'.","a":"Vincent van Gogh","accept":["van gogh"]},
       {"v":600,"c":"This Spanish co-founder of Cubism painted 'Guernica'.","a":"Pablo Picasso","accept":["picasso"]},
       {"v":800,"c":"This pop artist silkscreened Campbell's Soup cans and Marilyn Monroe.","a":"Andy Warhol","accept":["warhol"]},
@@ -575,14 +575,14 @@
       {"v":1000,"c":"The preservatives BHA and BHT are added to fatty foods to keep them from doing this.","a":"going rancid","accept":["rancid","spoiling","oxidizing","rancidity","go rancid","oxidation","oxidize","spoil"]}
     ]},
     {"name":"PHARMACEUTICALS","tag":"health","diff":"hard","clues":[
-      {"v":200,"c":"This common pain reliever and blood thinner comes from willow bark.","a":"aspirin"},
+      {"v":200,"c":"This common pain reliever and blood thinner comes from willow bark.","a":"aspirin","accept":["acetylsalicylic acid"]},
       {"v":400,"c":"This class of painkillers, including OxyContin, drove a deadly addiction epidemic.","a":"opioids","accept":["opioid","oxycodone","opiates"]},
       {"v":600,"c":"Ozempic and Wegovy belong to this blockbuster class of weight-loss/diabetes drugs.","a":"GLP-1","accept":["glp-1","glp 1","semaglutide","glp-1 agonists","glp one","glp one agonists","glp 1 agonists"]},
       {"v":800,"c":"This 1950s morning-sickness drug caused severe birth defects and was pulled from the market.","a":"thalidomide"},
       {"v":1000,"c":"When a drug's patent does this, cheaper 'generic' versions are allowed to compete.","a":"expires","accept":["expiration","patent expires","goes off patent","runs out","expire"]}
     ]},
     {"name":"BOTOX & FILLERS","tag":"health","diff":"medium","clues":[
-      {"v":200,"c":"This brand-name wrinkle-smoothing injectable is made from a purified bacterial toxin.","a":"Botox"},
+      {"v":200,"c":"This brand-name wrinkle-smoothing injectable is made from a purified bacterial toxin.","a":"Botox","accept":["botulinum toxin"]},
       {"v":400,"c":"Botox is derived from this bacterium's toxin: 'botulinum ___'.","a":"toxin","accept":["botulinum toxin","clostridium botulinum"]},
       {"v":600,"c":"These injectable gels plump lips and cheeks: dermal ___.","a":"fillers","accept":["filler","dermal fillers"]},
       {"v":800,"c":"Botox smooths skin by temporarily paralyzing these.","a":"muscles","accept":["muscle"]},
@@ -600,12 +600,12 @@
       {"v":400,"c":"This dystopian George Orwell novel introduced 'Big Brother'.","a":"1984","accept":["nineteen eighty-four","nineteen eighty four"]},
       {"v":600,"c":"This Harper Lee novel confronts racism in the South: 'To Kill a ___'.","a":"Mockingbird","accept":["to kill a mockingbird"]},
       {"v":800,"c":"This F. Scott Fitzgerald novel's title millionaire throws lavish Long Island parties: 'The Great ___'.","a":"Gatsby","accept":["the great gatsby"]},
-      {"v":1000,"c":"This Herman Melville novel chases a white whale.","a":"Moby-Dick","accept":["moby dick"]}
+      {"v":1000,"c":"This Herman Melville novel chases a white whale.","a":"Moby-Dick","accept":["moby dick","the whale"]}
     ]},
     {"name":"FAMOUS AUTHORS","tag":"literature","diff":"medium","clues":[
-      {"v":200,"c":"This British author wrote the 'Harry Potter' series.","a":"J.K. Rowling","accept":["jk rowling","rowling"]},
+      {"v":200,"c":"This British author wrote the 'Harry Potter' series.","a":"J.K. Rowling","accept":["jk rowling","rowling","joanne rowling"]},
       {"v":400,"c":"This horror author wrote 'It', 'The Shining', and 'Carrie'.","a":"Stephen King","accept":["king","stephen king"]},
-      {"v":600,"c":"This English playwright wrote 'Hamlet' and 'Macbeth'.","a":"William Shakespeare","accept":["shakespeare"]},
+      {"v":600,"c":"This English playwright wrote 'Hamlet' and 'Macbeth'.","a":"William Shakespeare","accept":["shakespeare","the bard"]},
       {"v":800,"c":"This English author wrote 'Pride and Prejudice' and 'Emma'.","a":"Jane Austen","accept":["austen","jane austin","austin"]},
       {"v":1000,"c":"This Colombian Nobel laureate wrote 'One Hundred Years of Solitude'.","a":"Gabriel Garcia Marquez","accept":["garcia marquez","marquez","gabriel garcía márquez","garcía márquez","márquez","gabo"]}
     ]},
@@ -614,17 +614,17 @@
       {"v":400,"c":"A word meaning the opposite of another is called this.","a":"an antonym","accept":["antonym"]},
       {"v":600,"c":"This 'dead' language of ancient Rome is the root of the Romance languages.","a":"Latin"},
       {"v":800,"c":"A word or phrase that reads the same backward is called this.","a":"a palindrome","accept":["palindrome"]},
-      {"v":1000,"c":"This term names a word that is its own opposite, like 'sanction' or 'cleave'.","a":"a contronym","accept":["contronyms","contranym","contranyms","janus word","janus words"]}
+      {"v":1000,"c":"This term names a word that is its own opposite, like 'sanction' or 'cleave'.","a":"a contronym","accept":["contronyms","contranym","contranyms","janus word","janus words","auto antonym","autoantonym"]}
     ]},
     {"name":"FAMOUS QUOTES","tag":"culture","diff":"hard","clues":[
       {"v":200,"c":"'I have a ___' — Martin Luther King Jr.'s 1963 speech.","a":"dream","accept":["i have a dream"]},
       {"v":400,"c":"'One small step for man...' was spoken by this astronaut in 1969.","a":"Neil Armstrong","accept":["armstrong"]},
       {"v":600,"c":"'Houston, we've had a problem' was radioed from this ill-fated 1970 lunar mission.","a":"Apollo 13","accept":["apollo thirteen"]},
-      {"v":800,"c":"'Elementary, my dear ___' is linked to Sherlock Holmes.","a":"Watson"},
+      {"v":800,"c":"'Elementary, my dear ___' is linked to Sherlock Holmes.","a":"Watson","accept":["doctor watson","john watson"]},
       {"v":1000,"c":"'Veni, vidi, vici' — 'I came, I saw, I conquered' — was declared by this Roman.","a":"Julius Caesar","accept":["caesar","julius caesar","ceasar"]}
     ]},
     {"name":"BUSINESS & BRANDS","tag":"business","diff":"medium","clues":[
-      {"v":200,"c":"This tech company makes the iPhone.","a":"Apple"},
+      {"v":200,"c":"This tech company makes the iPhone.","a":"Apple","accept":["apple inc"]},
       {"v":400,"c":"This retail giant, founded by Jeff Bezos, started as an online bookstore.","a":"Amazon"},
       {"v":600,"c":"This search engine's name became a verb for looking things up.","a":"Google"},
       {"v":800,"c":"This Swedish flat-pack furniture giant is famous for meatballs and Allen wrenches.","a":"IKEA"},
@@ -646,14 +646,14 @@
     ]},
     {"name":"TRANSPORTATION","tag":"tech","diff":"easy","clues":[
       {"v":200,"c":"This two-wheeled, pedal-powered vehicle is also called a 'bike'.","a":"bicycle","accept":["bike"]},
-      {"v":400,"c":"The Wright Brothers made the first powered flight in one of these in 1903.","a":"airplane","accept":["plane","airplane","aeroplane"]},
+      {"v":400,"c":"The Wright Brothers made the first powered flight in one of these in 1903.","a":"airplane","accept":["plane","airplane","aeroplane","wright flyer"]},
       {"v":600,"c":"This Elon Musk company makes popular electric cars.","a":"Tesla"},
       {"v":800,"c":"This fast Japanese train is nicknamed the 'bullet train'.","a":"the Shinkansen","accept":["shinkansen","bullet train"]},
       {"v":1000,"c":"This supersonic passenger jet, retired in 2003, crossed the Atlantic in under 4 hours.","a":"the Concorde","accept":["concorde"]}
     ]},
     {"name":"WORLD LEADERS","tag":"history","diff":"hard","clues":[
-      {"v":200,"c":"This Indian leader led nonviolent resistance to British rule.","a":"Mahatma Gandhi","accept":["gandhi","gandi","mohandas gandhi"]},
-      {"v":400,"c":"This South African leader was imprisoned 27 years, then became president.","a":"Nelson Mandela","accept":["mandela"]},
+      {"v":200,"c":"This Indian leader led nonviolent resistance to British rule.","a":"Mahatma Gandhi","accept":["gandhi","gandi","ghandi","mohandas gandhi","mohandas karamchand gandhi"]},
+      {"v":400,"c":"This South African leader was imprisoned 27 years, then became president.","a":"Nelson Mandela","accept":["mandela","madiba"]},
       {"v":600,"c":"This British PM was known as the 'Iron Lady'.","a":"Margaret Thatcher","accept":["thatcher"]},
       {"v":800,"c":"This Cuban revolutionary led the island nation for nearly five decades.","a":"Fidel Castro","accept":["castro","fidel castro"]},
       {"v":1000,"c":"This Soviet leader's 'glasnost' and 'perestroika' helped end the Cold War.","a":"Mikhail Gorbachev","accept":["gorbachev","gorbachov"]}
@@ -666,11 +666,11 @@
       {"v":1000,"c":"Everest was first summited in 1953 by Edmund Hillary and this Sherpa: Tenzing ___.","a":"Norgay","accept":["tenzing norgay","tenzing"]}
     ]},
     {"name":"THE 1980s","tag":"pop culture","diff":"medium","clues":[
-      {"v":200,"c":"This 'King of Pop' released 'Thriller' in 1982.","a":"Michael Jackson"},
+      {"v":200,"c":"This 'King of Pop' released 'Thriller' in 1982.","a":"Michael Jackson","accept":["mj","jackson"]},
       {"v":400,"c":"This cube-shaped color puzzle became an '80s craze.","a":"the Rubik's Cube","accept":["rubiks cube","rubik's cube","rubiks","rubik's"]},
       {"v":600,"c":"This Nintendo console revived home gaming in the '80s: the Nintendo ___ System.","a":"Entertainment","accept":["nintendo entertainment system","nes","n e s"]},
       {"v":800,"c":"This 1986 disaster saw a Soviet nuclear plant melt down.","a":"Chernobyl"},
-      {"v":1000,"c":"The 1985 charity single 'We Are the World' raised money for famine relief on this continent.","a":"Africa"}
+      {"v":1000,"c":"The 1985 charity single 'We Are the World' raised money for famine relief on this continent.","a":"Africa","accept":["ethiopia"]}
     ]},
     {"name":"THE 1990s","tag":"pop culture","diff":"medium","clues":[
       {"v":200,"c":"This friends-in-NYC sitcom debuted in 1994.","a":"Friends"},
@@ -707,6 +707,6 @@
     {"cat":"SCIENCE","c":"This element, atomic number 6, is the basis of all known life.","a":"carbon"},
     {"cat":"LITERATURE","c":"This author created Sherlock Holmes.","a":"Arthur Conan Doyle","accept":["conan doyle","doyle","sir arthur conan doyle"]},
     {"cat":"ART","c":"This Norwegian painter's 1893 work 'The Scream' shows a figure against a blood-red sky.","a":"Edvard Munch","accept":["munch","edward munch"]},
-    {"cat":"MUSIC","c":"Beethoven's symphony famous for its 'da-da-da-DUM' four-note opening is this number.","a":"the Fifth","accept":["fifth","five","5","5th","number five","number 5","fifth symphony","symphony no 5"]}
+    {"cat":"MUSIC","c":"Beethoven's symphony famous for its 'da-da-da-DUM' four-note opening is this number.","a":"the Fifth","accept":["fifth","five","5","5th","number five","number 5","fifth symphony","symphony no 5","beethovens fifth","symphony number five"]}
   ]
 }

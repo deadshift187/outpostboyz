@@ -57,6 +57,15 @@
   .btn.ghost{background:transparent;color:var(--ink);border:2px solid #24344f}
   .note{color:var(--dim);font-size:12px;margin-top:8px;max-width:520px;margin-left:auto;margin-right:auto}
   .count{font-family:var(--disp);font-size:20px;color:var(--gold)}
+  .today{margin:6px auto 0;max-width:520px}
+  .todaycats{color:var(--dim);font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-top:8px;line-height:1.5}
+  .suggest{margin:4px 0 0}
+  .suggest .passbtn{margin-top:0}
+  .suggestform{display:flex;flex-direction:column;gap:8px;max-width:420px;margin:8px auto 0}
+  .suggestform[hidden]{display:none}
+  .suggestform input{background:var(--panel);border:2px solid #24344f;border-radius:10px;padding:11px 13px;font-size:16px;color:var(--ink);font-family:var(--body);width:100%}
+  .suggestform input:focus{outline:none;border-color:var(--gold)}
+  .suggestform .sgsend{font-size:16px;padding:11px 22px}
 
   /* board */
   #board{display:none}
@@ -123,9 +132,25 @@
       <p class="sub" style="margin-top:8px">Build your board — or go random. Answer out loud.</p>
       <div><span class="voicebox">🎙️ Voice mode <span class="toggle on" id="vtoggle"><span class="dot"></span></span></span></div>
 
-      <div style="margin-top:6px"><span class="sub">Pick your categories — we fill the rest</span> &nbsp;<span class="count" id="count">0/6</span></div>
+      <div class="today">
+        <button class="btn" id="todayBtn" disabled>📅 TODAY'S BOARD</button>
+        <div class="todaycats" id="todayCats">Same 6 categories for everyone today</div>
+      </div>
+
+      <div style="margin-top:18px"><span class="sub">Or pick your categories — we fill the rest</span> &nbsp;<span class="count" id="count">0/6</span></div>
       <div class="filters" id="filters"></div>
       <div class="picker" id="picker"><p class="note">Loading categories…</p></div>
+
+      <div class="suggest">
+        <button class="passbtn" id="suggestLink" type="button">Don't see your category? Suggest one</button>
+        <form id="suggestForm" class="suggestform" hidden novalidate>
+          <input id="sgCat" maxlength="60" placeholder="Category (e.g. 90s Cartoons)" autocomplete="off" aria-label="Category name">
+          <input id="sgNote" maxlength="280" placeholder="Anything to add? (optional)" autocomplete="off" aria-label="Note (optional)">
+          <input id="sgEmail" type="email" maxlength="120" placeholder="Email for a heads-up when it's added (optional)" autocomplete="email" aria-label="Email (optional)">
+          <div><button class="btn sgsend" type="submit" id="sgSend">SEND</button><button class="passbtn" type="button" id="sgCancel">cancel</button></div>
+        </form>
+        <div class="note" id="sgMsg" aria-live="polite"></div>
+      </div>
 
       <div class="barbtns">
         <button class="btn ghost" id="randomBtn" disabled>🎲 RANDOM BOARD</button>
@@ -151,7 +176,7 @@
     <div id="answerStage">
       <div class="answerline" id="heard"></div>
       <button class="mic" id="micBtn">🎙️</button>
-      <div class="typerow"><input id="typeInput" placeholder="What is ..." autocomplete="off"><button class="btn" id="submitBtn" style="font-size:15px;padding:13px 18px">ANSWER</button></div>
+      <div class="typerow"><input id="typeInput" placeholder="What is ..." autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"><button class="btn" id="submitBtn" style="font-size:15px;padding:13px 18px">ANSWER</button></div>
       <div class="hint" id="clueHint">Tap the mic and say your answer — or type it.</div>
       <button class="passbtn" id="passBtn">PASS — SHOW ANSWER</button>
     </div>
@@ -202,7 +227,7 @@ function loadBank(){
     ALL=((d&&d.categories)||[]).filter(c=>c&&c.name&&Array.isArray(c.clues)&&c.clues.some(q=>q&&q.c&&q.a));
     FINALS=((d&&d.finals)||[]).filter(f=>f&&f.c&&f.a);
     if(!ALL.length)throw new Error('no categories');
-    loaded=true;$('randomBtn').disabled=false;renderFilters();renderPicker();
+    loaded=true;$('randomBtn').disabled=false;renderFilters();renderPicker();updateToday();
   }).catch(()=>{
     $('picker').innerHTML='<p class="note">Couldn\'t load the categories — check your connection. <button class="filt" id="retryBtn" style="margin-left:6px">RETRY</button></p>';
     const rb=$('retryBtn');if(rb)rb.onclick=loadBank;
@@ -213,9 +238,41 @@ loadBank();
 // Which categories have real host audio recorded. Random boards & auto-fill
 // prefer these so the game sounds fully-voiced with whatever's done so far.
 // VOICED stays null if the manifest can't load -> we just try the .mp3 and fall back to TTS.
-let VOICED=null;
-fetch('audio/manifest.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw 0;return r.json();}).then(m=>{VOICED=new Set((m&&m.voiced)||[]);}).catch(()=>{});
-function shuffle(list){const a=[...list];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+let VOICED=null,voicedSettled=false;
+fetch('audio/manifest.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw 0;return r.json();}).then(m=>{VOICED=new Set((m&&m.voiced)||[]);}).catch(()=>{}).then(()=>{voicedSettled=true;updateToday();});
+function shuffle(list,rnd){rnd=rnd||Math.random;const a=[...list];for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ---------- TODAY'S BOARD: the same 6 categories (and Final) for everyone on a given LA calendar day ---------- */
+// No server: seeded by the date in America/Los_Angeles, drawn from the voiced categories first.
+function laDay(){
+  try{return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
+  catch(e){return new Date(Date.now()-8*3600e3).toISOString().slice(0,10);}
+}
+function seededRng(str){ // cyrb-style string hash -> mulberry32
+  let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19;}
+  let a=h>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
+}
+function todaysBoard(){
+  const day=laDay(),rnd=seededRng('rtb-daily-'+day);
+  const byName=[...ALL].sort((a,b)=>a.name<b.name?-1:a.name>b.name?1:0);   // stable input order for everyone
+  const voiced=byName.filter(c=>isVoiced(c.name)),rest=byName.filter(c=>!isVoiced(c.name));
+  const pick=shuffle(voiced,rnd).slice(0,6);
+  if(pick.length<6)pick.push(...shuffle(rest,rnd).slice(0,6-pick.length));
+  const final=FINALS.length?FINALS[Math.floor(seededRng('rtb-final-'+day)()*FINALS.length)]:null;
+  return {day,cats:pick.map(c=>c.name),final};
+}
+let dailyFinal=null; // set only while a TODAY'S BOARD game is running
+function updateToday(){
+  if(!loaded||!voicedSettled)return;
+  const t=todaysBoard();
+  $('todayCats').textContent=t.cats.join(' · ');
+  $('todayBtn').disabled=!t.cats.length;
+}
+$('todayBtn').onclick=()=>{
+  if(!loaded||phase!=='menu')return;
+  const t=todaysBoard();
+  selected=t.cats.slice();dailyFinal=t.final;start();
+};
 function isVoiced(name){return !!(VOICED&&VOICED.has(name));}
 function voicedFirst(list){return shuffle(list).sort((a,b)=>(isVoiced(b.name)?1:0)-(isVoiced(a.name)?1:0));}
 
@@ -244,9 +301,30 @@ function toggle(name){
 }
 $('randomBtn').onclick=()=>{
   if(!loaded||phase!=='menu')return;
-  selected=voicedFirst(ALL).slice(0,6).map(c=>c.name);start();
+  selected=voicedFirst(ALL).slice(0,6).map(c=>c.name);dailyFinal=null;start();
 };
-$('playBtn').onclick=()=>start();
+$('playBtn').onclick=()=>{dailyFinal=null;start();};
+
+/* ---------- "Suggest a category": tiny inline form -> Supabase trivia_requests (insert-only, rate-limited) ---------- */
+let sgBusy=false;
+function sgMsg(t){$('sgMsg').textContent=t||'';}
+$('suggestLink').onclick=()=>{const f=$('suggestForm');f.hidden=!f.hidden;sgMsg('');if(!f.hidden)try{$('sgCat').focus({preventScroll:true});}catch(e){}};
+$('sgCancel').onclick=()=>{$('suggestForm').hidden=true;sgMsg('');};
+$('suggestForm').onsubmit=async e=>{
+  e.preventDefault();if(sgBusy)return;
+  const cat=$('sgCat').value.replace(/\s+/g,' ').trim(),note=$('sgNote').value.trim(),email=$('sgEmail').value.trim();
+  if(cat.length<2){sgMsg('Type a category name first.');return;}
+  if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){sgMsg('That email looks off — fix it or leave it blank.');return;}
+  const ob=window.OB;if(!ob||!ob.client){sgMsg('Couldn\'t send right now — try again later.');return;}
+  sgBusy=true;$('sgSend').disabled=true;sgMsg('Sending…');
+  let err=null;
+  try{const r=await ob.client.from('trivia_requests').insert({category:cat.slice(0,60),note:note?note.slice(0,280):null,email:email?email.slice(0,120):null});err=r&&r.error;}
+  catch(x){err=x||true;}
+  sgBusy=false;$('sgSend').disabled=false;
+  if(err){sgMsg(/rate_limited/.test(String(err.message||''))?'Got your ideas — that\'s plenty for now. Thanks!':'Couldn\'t send right now — try again later.');return;}
+  $('suggestForm').reset();$('suggestForm').hidden=true;
+  sgMsg('Thanks! "'+cat+'" is on the list.');
+};
 function setVoice(on){voiceOn=on;$('vtoggle').classList.toggle('on',on);if(!on)stopAllAudio();}
 document.querySelector('.voicebox').onclick=()=>setVoice(!voiceOn); // the whole pill is the tap target
 $('vtoggle').setAttribute('role','switch');$('vtoggle').tabIndex=0;
@@ -316,10 +394,17 @@ function startListen(){
   r.onresult=e=>{
     if(recog!==r)return;
     finalText='';interim='';alts=[];
-    for(let i=0;i<e.results.length;i++){const res=e.results[i];if(res.isFinal)finalText+=res[0].transcript;else interim+=res[0].transcript;}
+    // Pieces are joined WITH a space ("great wall" + "of china", not "great wallof china"), and engines that
+    // re-send the growing phrase as a new result ("the great" | "the great wall of china") keep only the longest.
+    const fin=[],mid=[];
+    const add=(arr,t)=>{t=String(t||'').trim();if(!t)return;const k=t.toLowerCase(),p=arr.length?arr[arr.length-1].toLowerCase():null;
+      if(p!==null&&k.startsWith(p)){arr[arr.length-1]=t;return;}if(p!==null&&p.startsWith(k))return;arr.push(t);};
+    for(let i=0;i<e.results.length;i++){const res=e.results[i];add(res.isFinal?fin:mid,res[0].transcript);}
+    finalText=fin.join(' ');interim=mid.join(' ');
     // When the whole answer is a single final result, judge every alternative the engine offers.
     const finals=Array.prototype.filter.call(e.results,x=>x.isFinal);
-    if(finals.length===1){for(let k=0;k<finals[0].length;k++)alts.push(finals[0][k].transcript);}
+    const lastF=finals[finals.length-1];
+    if(lastF&&(finals.length===1||fin.length===1)){for(let k=0;k<lastF.length;k++)alts.push(lastF[k].transcript);}
     $('heard').textContent=(finalText||interim||'…');
   };
   r.onerror=e=>{
@@ -367,8 +452,17 @@ document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault
 
 /* ---------- answer judging (pure functions; unit-tested in a node harness) ---------- */
 /*JUDGE-START*/
+// FAIRNESS RULES (Jeopardy-style leniency, still no hedging):
+//  - case, punctuation, accents, hyphens/spaces, "&"/"and" and the articles the/a/an NEVER matter (anywhere)
+//  - numbers as digits or words ("1969" = "nineteen sixty nine"), ordinals ("19th" = "nineteenth"), roman ("II" = "2" = "the second")
+//  - abbreviations: Mt/Mount, St/Saint, Dr/Doctor, Ft/Fort, Jr/Junior, Lil/Little, US/USA/United States, UK, NYC
+//  - plural/singular ("rubies"="ruby", "tacos"="taco"), joined/split words ("super man"="superman")
+//  - people: full name, last name alone, "last first" / "last, first", titles (Queen/President/Sir...)
+//  - fill-in-the-blank clues: the whole phrase counts ("Keeping Up with the Kardashians")
+//  - small typos / speech mis-hearings, and a few common homophones ("can't"->Kant, "check"->Czech)
+//  - still WRONG: two answers ("paris or london", "paris and rome", "sydney canberra") and different answers
 const NUMW={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
-// "two hundred and six"->206, "one hundred eighteen"->118, "nineteen eighty four"->1984, "apollo eleven"->"apollo 11"
+// "two hundred and six"->206, "one hundred eighteen"->118, "nineteen eighty four"->1984, "nineteen oh five"->1905, "apollo eleven"->"apollo 11"
 function wordsToDigits(ws){
   const out=[];let i=0;
   while(i<ws.length){
@@ -387,19 +481,23 @@ function wordsToDigits(ws){
       }else if(w==='hundred'){cur=(cur||1)*100;lastUnit=false;j++;}
       else if(w==='thousand'){total+=(cur||1)*1000;cur=0;lastUnit=false;j++;}
       else if(w==='and'&&!lastUnit&&j+1<ws.length&&(ws[j+1] in NUMW)){j++;}
+      else if(w==='oh'&&lastUnit&&j+1<ws.length&&NUMW[ws[j+1]]>0&&NUMW[ws[j+1]]<10){parts.push(total+cur);parts.push(0);total=0;cur=0;lastUnit=false;j++;}
       else break;
     }
     parts.push(total+cur);out.push(parts.join(''));i=j;
   }
   return out;
 }
-const ABBR={mt:'mount',st:'saint',dr:'doctor'};
+const ABBR={mt:'mount',st:'saint',dr:'doctor',ft:'fort',jr:'junior',lil:'little',vs:'versus'};
+// Speech engines (and phone autocorrect) write these for the answer word. Applied to guess AND answer, so they're equal.
+const HOMO={cant:'kant',check:'czech',rolls:'rawls',leer:'lear',led:'lead',grate:'great',see:'sea',wail:'whale',wails:'whales',rode:'road',rowed:'road',
+  heals:'heels',idle:'idol',purl:'pearl',son:'sun',roam:'rome',tee:'tea',bred:'bread',piece:'peace',prints:'prince',carrot:'carat',carrots:'carats',toot:'tut'};
 const IWORDS=/^(think|guess|believe|bet|know|mean|reckon|would|say|am|m|dunno)$/;
 const ORD=['','first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth','eleventh','twelfth','thirteenth','fourteenth','fifteenth','sixteenth','seventeenth','eighteenth','nineteenth','twentieth'];
 const ordWord=x=>{const m=/^(\d+)(?:st|nd|rd|th)$/.exec(x);return m&&ORD[+m[1]]?ORD[+m[1]]:x;}; // "5th"->"fifth"
 function normalize(s){
   s=String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-  s=s.replace(/π/g,' pi ').replace(/&/g,' and ').replace(/['’‘`]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  s=s.replace(/\u03c0/g,' pi ').replace(/&/g,' and ').replace(/['\u2019\u2018`\u02bb]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
   if(!s)return '';
   let w=s.split(' ');
   // glue runs of single letters: "j k rowling"->"jk rowling", "a u"->"au", "f d r"->"fdr"
@@ -412,27 +510,51 @@ function normalize(s){
       if(k-i>=2){m.push(w.slice(i,k).join(''));i=k;}else m.push(w[i++]);
     }else m.push(w[i++]);
   }
-  w=wordsToDigits(m).map(x=>ABBR[x]||ordWord(x));
-  // "elizabeth the first" -> "elizabeth i", "charles the third" -> "charles iii"
-  return w.join(' ').replace(/(\S) the (first|second|third)\b/g,(_,p,o)=>p+' '+({first:'i',second:'ii',third:'iii'})[o]);
+  w=wordsToDigits(m).map(x=>HOMO[x]||ABBR[x]||ordWord(x));
+  return w.join(' ')
+    // "elizabeth the first" -> "elizabeth i", "charles the third" -> "charles iii"
+    .replace(/(\S) the (first|second|third)\b/g,(_,p,o)=>p+' '+({first:'i',second:'ii',third:'iii'})[o])
+    .replace(/\b(?:united states of america|united states|usa|us)\b/g,'usa')
+    .replace(/\b(?:united kingdom|uk)\b/g,'uk')
+    .replace(/\b(?:new york city|nyc)\b/g,'nyc')
+    .replace(/\bno (\d)/g,'number $1');             // "symphony no 5" = "symphony number 5"
 }
-const LEAD=/^(?:(?:um+|uh+|uhm+|er+|erm+|hmm+|ah+|oh+|ok|okay|so|well|yeah|like|i think|i believe|i guess|i bet|i know|i would say|id say|i say|im pretty sure|im sure|pretty sure|maybe|probably|perhaps|definitely|my answer is|the answer is|answer|is it|was it|is that|could it be|it could be|would it be|it must be|must be|its gotta be|gotta be|it has to be|has to be|its|it is|it was|thats|that is|that would be|what is|whats|what are|whatre|what was|what were|who is|whos|who are|who was|who were|where is|wheres|where are|where was|when is|which is|how about|the letter|letter|the number|number)\s+)+/;
-const TRAIL=/(?:\s+(?:right|i think|i guess|i believe|maybe|please|question mark|or something|probably|yeah|final answer))+$/;
+const LEAD=/^(?:(?:um+|uh+|uhm+|er+|erm+|hm+|mm+|ah+|oh+|ok|okay|so|well|yeah|like|i think|i believe|i guess|i bet|i know|i would say|id say|i say|i said|im gonna say|im going to say|gonna say|going to say|ill say|ill go with|lets go with|im going with|going with|go with|i want to say|i wanna say|id have to say|i would have to say|im pretty sure|im sure|pretty sure|maybe|probably|perhaps|definitely|my answer is|the answer is|answer|is it|was it|is that|could it be|it could be|would it be|it must be|must be|its gotta be|gotta be|it has to be|has to be|its|it is|it was|thats|that is|that would be|what is|whats|what are|whatre|what was|what were|who is|whos|who are|who was|who were|where is|wheres|where are|where was|when is|which is|how about|the letter|letter|the number|number)\s+)+/;
+const TRAIL=/(?:\s+(?:right|i think|i guess|i believe|i hope|maybe|please|question mark|or something|probably|yeah|for sure|final answer|is my answer|is my final answer|is the answer))+$/;
 function stripFill(s){return s.replace(LEAD,'').replace(TRAIL,'').trim();}
 function dearticle(s){return s.replace(/^(?:the|a|an)\s+/,'');}
+const ARTS=new Set(['the','a','an']);
+function noArt(s){return s.split(' ').filter(w=>!ARTS.has(w)).join(' ');}   // "christ redeemer" = "christ the redeemer"
 function singular(s){return s.split(' ').map(w=>w.length>=4&&/s$/.test(w)&&!/ss$/.test(w)?w.slice(0,-1):w).join(' ');}
+// second plural rule: "rubies"->"ruby", "tomatoes"->"tomato", "peaches"->"peach"
+function singular2(s){return s.split(' ').map(w=>w.length>=5&&/ies$/.test(w)?w.slice(0,-3)+'y':w.length>=5&&/(?:ches|shes|sses|xes|zes|oes)$/.test(w)?w.slice(0,-2):w).join(' ');}
 const collapse=s=>s.replace(/ /g,'');
-function lev(a,b){if(a===b)return 0;let p=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){const c=[i];for(let j=1;j<=b.length;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c;}return p[b.length];}
+// edit distance; a swap of two neighbouring letters ("eiffle"/"eiffel") counts as ONE edit
+function lev(a,b){
+  if(a===b)return 0;const n=a.length,m=b.length;if(!n||!m)return n||m;
+  const d=[];for(let i=0;i<=n;i++){d.push(new Array(m+1).fill(0));d[i][0]=i;}for(let j=0;j<=m;j++)d[0][j]=j;
+  for(let i=1;i<=n;i++)for(let j=1;j<=m;j++){
+    const c=a[i-1]===b[j-1]?0:1;
+    d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+c);
+    if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])d[i][j]=Math.min(d[i][j],d[i-2][j-2]+1);
+  }
+  return d[n][m];
+}
 // Speech engines spell some very short answers differently.
-const SPOKEN={pi:['pie','pye'],e:['ee'],'2':['to','too'],x:['ex'],au:['ay you','a you']};
-// Last-name-only answers ("jordan" for Michael Jordan) are OK when the clue is about a person.
-const PERSON=/\b(who|he|she|his|her|him|king of pop|president|singer|rapper|superstar|pop star|painter|composer|scientist|physicist|explorer|inventor|emperor|this (?:[\w'-]+ ){0,2}(man|woman|guy|lady|person|singer|rapper|artist|actor|actress|president|leader|scientist|physicist|chemist|biologist|author|writer|poet|playwright|novelist|designer|explorer|inventor|founder|composer|philosopher|painter|sculptor|star|superstar|icon|legend|boxer|athlete|player|musician|model|director|queen|king|prince|princess|emperor|pharaoh|dictator|general|astronaut|comedian|host|mathematician|economist|activist|mogul|chef|entrepreneur))\b/i;
+const SPOKEN={pi:['pie','pye'],pie:['pi','pye'],e:['ee'],'2':['to','too'],x:['ex'],au:['ay you','a you']};
+// The clue is about a person: last name alone / reversed name / a title in front are fine.
+const PERSON=/\b(who|he|she|his|her|him|king of pop|president|singer|rapper|superstar|pop star|painter|composer|scientist|physicist|explorer|inventor|emperor|this (?:[\w'-]+ ){0,2}(man|woman|guy|lady|person|singer|rapper|artist|actor|actress|president|leader|scientist|physicist|chemist|biologist|naturalist|author|writer|poet|playwright|novelist|designer|explorer|inventor|founder|composer|philosopher|painter|sculptor|star|superstar|icon|legend|boxer|athlete|player|musician|model|director|queen|king|prince|princess|emperor|pharaoh|dictator|general|astronaut|aviator|nurse|pilot|revolutionary|laureate|frenchman|greek|german|pm|comedian|host|mathematician|economist|activist|mogul|chef|entrepreneur))\b/i;
+const TITLES=new Set('king queen prince princess sir dame lady lord madame saint pope president emperor empress tsar czar pharaoh general captain doctor professor mister mr mrs ms miss'.split(' '));
 // Generic words allowed around a correct answer (see rule 3 in matchOne).
 const SOFT=new Set(('the a an of city country state river ocean sea mountain mountains mount planet island islands desert '+
   'band group movie film book novel show series tv game company brand bones elements element degrees years year days percent '+
   'amendment number letter animal bird fish language dance drink cocktail pasta sauce dish gas metal coin dollars cents '+
   'president saint sir lord lady doctor mr mrs ms general emperor pope empire dynasty tree flower plant '+
   'fruit spice herb gem gemstone stone disease chemical drug instrument sport team monster').split(' ')); // never put a word here that is itself an answer in questions.json
+// Little linking words allowed AFTER an answer before a clue word: "great wall in china", "canberra in australia"
+const PREP=new Set(['in','on','at','from','of']);
+// Short connecting words inside names/titles that may carry a 1-letter typo: "statue ox liberty", "dia de lox muertos"
+const FUNC=new Set(['of','and','von','van','de','da','du','la','le','los','las','del','der','on','in']);
 const JOINERS=new Set(['or','and','nor','but','not','no','versus','vs']);
 // Words of the clue text + category ("france's" -> "frances" + "france"), minus joiners.
 function clueWords(clue){
@@ -445,63 +567,113 @@ function clueWords(clue){
   });
   return s;
 }
+const ROMAN={i:1,ii:2,iii:3,iv:4,v:5,vi:6,vii:7,viii:8};
 function acceptForms(clue){
   const raw=[clue.a].concat(Array.isArray(clue.accept)?clue.accept:[]).filter(x=>x!=null&&String(x).trim());
   const out=new Set();
-  raw.forEach(x=>{const n=normalize(x);if(!n)return;const d=dearticle(n);[n,d,singular(d)].forEach(f=>f&&out.add(f));});
+  raw.forEach(x=>{
+    const n=normalize(x);if(!n)return;const d=dearticle(n);
+    const fs=[n,d,singular(d),singular2(d)];
+    const na=noArt(n);if(na&&collapse(na).length>=3)fs.push(na,singular(na),singular2(na));
+    // "elizabeth ii" also as "elizabeth 2" / "elizabeth second"
+    const rm=/^([a-z ]*[a-z]) (i|ii|iii|iv|v|vi|vii|viii)$/.exec(d);
+    if(rm){const k=ROMAN[rm[2]];fs.push(rm[1]+' '+k,rm[1]+' '+ORD[k]);}
+    fs.forEach(f=>f&&out.add(f));
+  });
   return [...out];
+}
+// Fill-in-the-blank clues: the whole phrase around the blank counts, e.g. "keeping up with the kardashians",
+// "california gold rush", "elementary my dear watson". Only a contiguous piece of that phrase that CONTAINS
+// the answer, never with "or"/"and" lists in it.
+function blankMatch(cw,clue){
+  const c=String(clue.c||'');const bi=c.search(/_{2,}/);if(bi<0)return false;
+  if(cw.some(x=>JOINERS.has(x)))return false;
+  let s0=0,s1=c.length;                                   // the clause that holds the blank
+  c.replace(/[:;\u2014\u2013]/g,(ch,i)=>{if(i<bi)s0=i+1;else if(i>bi&&s1===c.length)s1=i;return ch;});
+  const pre=noArt(normalize(c.slice(s0,bi))),post=noArt(normalize(c.slice(bi,s1).replace(/^_+/,'')));
+  const ans=noArt(dearticle(normalize(clue.a)));if(!ans)return false;
+  const P=(pre?pre.split(' '):[]),aw=ans.split(' '),Q=(post?post.split(' '):[]);
+  const F=P.concat(aw,Q),k=P.length,g=cw.join(' ');
+  for(let i=0;i<=k;i++)for(let j=k+aw.length;j<=F.length;j++){
+    if(j-i<=aw.length)continue;
+    const piece=F.slice(i,j).join(' ');
+    if(piece===g||singular(piece)===singular(g)||collapse(piece)===collapse(g))return true;
+  }
+  return false;
 }
 function matchOne(guess,A,clue){
   const n=normalize(guess);if(!n)return false;
   const core=dearticle(stripFill(n));
-  const G=[...new Set([n,stripFill(n),dearticle(n),core,singular(core)])].filter(Boolean);
-  // 1) exact (spaces ignored: "a u"="au", "berners lee"="bernerslee")
-  for(const a of A){const ca=collapse(a);for(const x of G){if(x===a||collapse(x)===ca)return true;}}
+  const nac=noArt(core);
+  const G=[...new Set([n,stripFill(n),dearticle(n),core,singular(core),singular2(core),nac,singular(nac),singular2(nac)])].filter(Boolean);
+  // 1) exact (spaces ignored: "a u"="au", "berners lee"="bernerslee", "super man"="superman")
+  //    (a stray single letter can't be glued onto the END: "octopus e" is not "octopuse"; "i pod" = "ipod" is fine)
+  const glueOK=(x,a)=>{const xt=x.split(' '),t=xt[xt.length-1];return xt.length<2||t.length>1||a.split(' ').includes(t);};
+  for(const a of A){const ca=collapse(a);for(const x of G){if(x===a||(collapse(x)===ca&&glueOK(x,a)))return true;}}
   if(!core)return false;
   const cg=collapse(core);
   // 2) speech spellings of tiny answers
   for(const a of A){const al=SPOKEN[collapse(a)];if(al&&(al.includes(core)||al.includes(cg)))return true;}
+  const person=PERSON.test(String(clue.c||''));
   // 3) answer plus generic filler nouns ("the nile river", "206 bones", "president lincoln", "fifth amendment").
   //    Any other extra word rejects it: "brown bear"!="bear", "bose einstein condensate"!="einstein", "paris or rome".
   //    Words from the clue's own text / category may also FOLLOW the answer ("paris france" for "...is France's
-  //    capital", "everest mountain"). Lists and hedges stay wrong: "paris or london", "paris and rome", "sydney canberra".
-  const cw=core.split(' ');
+  //    capital", "everest mountain", "great wall in china"). Before the answer: filler nouns, a title when the
+  //    clue is about a person ("queen elizabeth"), or a possessive of a clue word ("beethovens fifth").
+  //    Lists and hedges stay wrong: "paris or london", "paris and rome", "sydney canberra".
+  const cw=(nac||core).split(' ');
   const ctx=clueWords(clue);
-  for(const a of A){
+  // possessive names the clue itself uses: "Beethoven's symphony..." -> "beethovens fifth"
+  const poss=new Set();String(clue.c||'').replace(/([A-Z][A-Za-z\u00c0-\u024f.-]*)['\u2019]s/g,(_,w)=>{const x=collapse(normalize(w));if(x.length>=3)poss.add(x+'s');return _;});
+  const posClue=x=>poss.has(x);
+  for(const a0 of A){
+    const a=noArt(a0)||a0;
     const ca=collapse(a),aw=a.split(' ');
     if(!(/^\d+$/.test(ca)||ca.length>=3))continue;       // tiny answers ("e","au","x") must match exactly
     if(cw.length<=aw.length||cw.length-aw.length>3)continue;
     for(let i=0;i+aw.length<=cw.length;i++){
-      if(cw.slice(i,i+aw.length).join(' ')!==a)continue;
+      const mid=cw.slice(i,i+aw.length).join(' ');
+      if(mid!==a&&singular(mid)!==singular(a))continue;
       const before=cw.slice(0,i),after=cw.slice(i+aw.length);
       if(before.concat(after).some(x=>JOINERS.has(x)))continue;
-      if(!before.every(x=>SOFT.has(x)))continue;
-      if(after.every(x=>SOFT.has(x)||ctx.has(x)||ctx.has(singular(x))))return true;
+      if(!before.every(x=>SOFT.has(x)||(person&&TITLES.has(x))||posClue(x)))continue;
+      if(after.every(x=>SOFT.has(x)||PREP.has(x)||ctx.has(x)||ctx.has(singular(x))))return true;
     }
   }
-  // 4) surname only, for people
-  if(cw.length===1&&core.length>=4&&PERSON.test(String(clue.c||''))){
-    const main=dearticle(normalize(clue.a)).split(' ');
-    if(main.length>=2&&main.length<=4&&main[main.length-1]===core&&/^[a-z ]+$/.test(main.join(' ')))return true;
+  // 3b) fill-in-the-blank: the whole phrase ("keeping up with the kardashians", "christ the redeemer")
+  if(blankMatch(cw,clue))return true;
+  // 4) people: last name alone ("jordan"), reversed ("lincoln abraham" / "Lincoln, Abraham"), small typo in either
+  if(person){
+    for(const a0 of A){
+      const main=noArt(a0).split(' ');
+      if(main.length<2||main.length>4||!/^[a-z ]+$/.test(main.join(' ')))continue;
+      const last=main[main.length-1];
+      const tol=last.length>=10?2:last.length>=6?1:0;
+      if(cw.length===1&&cw[0].length>=4&&(cw[0]===last||(tol&&cw[0][0]===last[0]&&lev(cw[0],last)<=tol)))return true;
+      if(cw.length===main.length&&cw.join(' ')===[last].concat(main.slice(0,-1)).join(' '))return true;
+    }
   }
   // 5) small typos / mis-hearings on longer words (never on numbers; first letter must match)
-  for(const a of A){
-    const ca=collapse(a);
+  for(const a0 of A){
+    const a=noArt(a0)||a0;const ca=collapse(a);
     if(cw.length!==1||a.includes(' '))continue;           // single words only ("canberra e" is not a typo); phrases use rule 6
-    if(/\d/.test(ca)||/\d/.test(cg)||ca[0]!==cg[0])continue;
+    const g=cw[0];
+    if(/\d/.test(ca)||/\d/.test(g)||ca[0]!==g[0])continue;
     const L=ca.length,tol=L>=10?2:L>=6?1:0;
-    if(!tol||Math.abs(L-cg.length)>tol)continue;
-    if(lev(ca,cg)<=tol)return true;
+    if(!tol||Math.abs(L-g.length)>tol)continue;
+    if(lev(ca,g)<=tol)return true;
   }
-  // 6) word-by-word typos in phrases ("glp 1 agonsts", "tim bernerslee"): digits exact, words of 4+ letters may be 1 off
-  //    Total edits capped like rule 5 (6+ letters: 1, 10+ letters: 2); an extra/missing word is never a typo.
-  for(const a of A){
+  // 6) word-by-word typos in phrases ("glp 1 agonsts", "tim bernerslee", "eiffle tower"): digits exact, words of
+  //    4+ letters may be 1 off (short linking words like "of"/"de" too). Total edits capped like rule 5
+  //    (6+ letters: 1, 10+ letters: 2); an extra/missing word is never a typo.
+  for(const a0 of A){
+    const a=noArt(a0)||a0;
     const aw=a.split(' ');if(aw.length!==cw.length||aw.length<2)continue;
     const L=collapse(a).length,tol=L>=10?2:L>=6?1:0;if(!tol)continue;
     let fuzzed=0,ok=true;
     for(let i=0;i<aw.length&&ok;i++){
       const x=cw[i],y=aw[i];if(x===y)continue;
-      if(/\d/.test(x)||/\d/.test(y)||y.length<4||lev(x,y)>1||++fuzzed>tol)ok=false;
+      if(/\d/.test(x)||/\d/.test(y)||(y.length<4&&!FUNC.has(y))||lev(x,y)>1||++fuzzed>tol)ok=false;
     }
     if(ok&&fuzzed)return true;
   }
@@ -631,7 +803,7 @@ const maxWager=()=>Math.max(score,1000); // Jeopardy rule: at or below $1,000 yo
 function startFinal(){
   if(!FINALS.length){endGame();return;}
   phase='wager';
-  finalData=FINALS[Math.floor(Math.random()*FINALS.length)];
+  finalData=dailyFinal||FINALS[Math.floor(Math.random()*FINALS.length)]; // TODAY'S BOARD: same Final for everyone
   $('final').style.display='block';$('finalCat').textContent=finalData.cat||'MIXED BAG';
   const fs=$('finalScore');fs.textContent=money(score);fs.style.color=score<0?'var(--red)':'var(--green)';
   const max=maxWager();$('wagerMax').textContent=money(max);
@@ -670,7 +842,7 @@ function endGame(){
 function resetToMenu(){
   stopAllAudio();cancelListen();
   $('clue').classList.remove('show');
-  phase='menu';current=null;finalData=null;board=null;score=0;remaining=0;selected=[];endSent=false;nextReadyAt=0;
+  phase='menu';current=null;finalData=null;dailyFinal=null;board=null;score=0;remaining=0;selected=[];endSent=false;nextReadyAt=0;
   $('cats').innerHTML='';$('cells').innerHTML='';
   $('board').style.display='none';$('final').style.display='none';$('end').style.display='none';$('menu').style.display='';
   showQuit(false);updateScore();updateCount();renderPicker();window.scrollTo(0,0);
@@ -687,7 +859,7 @@ function submitTyped(){const v=$('typeInput').value.trim();if(v)judge(v);}
 $('submitBtn').onclick=submitTyped;
 $('typeInput').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();submitTyped();}};
 // One tap from the results straight into a fresh random board (same as the menu's RANDOM BOARD).
-$('againBtn').onclick=()=>{resetToMenu();if(loaded){selected=voicedFirst(ALL).slice(0,6).map(c=>c.name);start();}};
+$('againBtn').onclick=()=>{resetToMenu();if(loaded){selected=voicedFirst(ALL).slice(0,6).map(c=>c.name);dailyFinal=null;start();}};
 $('pickBtn').onclick=resetToMenu;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
