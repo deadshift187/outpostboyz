@@ -435,7 +435,8 @@ function anyMove(){
 function submitRun(ended){ // exactly once per run; integer score; safe if the SDK failed to load
   if(runSubmitted)return;runSubmitted=true;
   const s=Math.max(0,Math.floor(Number(score)||0));
-  try{if(window.OB){if(s>0)OB.submitScore('block-nine',s);if(ended)OB.gameOver('block-nine');}}catch(e){}
+  const quiet=p=>{if(p&&p.catch)p.catch(()=>{});};
+  try{if(window.OB){if(s>0)quiet(OB.submitScore('block-nine',s));if(ended)quiet(OB.gameOver('block-nine'));}}catch(e){}
 }
 function checkGameOver(){
   if(anyMove())return false;

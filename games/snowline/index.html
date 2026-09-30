@@ -1,3 +1,5 @@
+<!doctype html>
+<html lang="en">
 <meta charset="utf-8">
 <title>SNOWLINE</title>
 <link rel="manifest" href="../../manifest.webmanifest">
@@ -35,7 +37,7 @@ button:active{transform:translateY(1px)}
 button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 /* ---- top strip: level name + ink ---- */
-.top{position:fixed;left:10px;right:10px;top:10px;display:flex;gap:8px;align-items:stretch;z-index:10;pointer-events:none}
+.top{position:fixed;left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));display:flex;gap:8px;align-items:stretch;z-index:10;pointer-events:none}
 .top>*{pointer-events:auto}
 .lvl{flex:1;min-width:0;padding:9px 13px;display:flex;flex-direction:column;justify-content:center}
 .lvl .n{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--slate);text-transform:uppercase}
@@ -56,7 +58,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .iconbtn:hover{background:rgba(120,150,180,.16);color:var(--ink)}
 
 /* ---- bottom dock ---- */
-.dock{position:fixed;left:10px;right:10px;bottom:calc(10px + var(--pad-b));z-index:10;
+.dock{position:fixed;left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));bottom:calc(10px + var(--pad-b));z-index:10;
   display:flex;gap:8px;align-items:stretch;pointer-events:none}
 .dock>*{pointer-events:auto}
 .tools{display:flex;gap:4px;padding:6px}
@@ -97,10 +99,19 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .hint{position:fixed;left:50%;bottom:calc(84px + var(--pad-b));transform:translateX(-50%);
   font-family:var(--mono);font-size:11px;color:var(--slate);z-index:9;white-space:nowrap;
   background:var(--panel);border:1px solid var(--edge);border-radius:9px;padding:7px 13px;opacity:.95}
+.hint{pointer-events:none}
 @media (max-width:560px){
-  .ink{width:112px}
+  .top{gap:6px}
+  .ink{width:96px;padding:9px 10px}
+  .ink .n,.lvl .n{letter-spacing:.1em}
+  .lvl{padding:8px 10px}
+  .lvl .n{white-space:nowrap;overflow:hidden}
+  .lvl .n .of{display:none}
+  .lvl .t{font-size:13px}
+  .iconbtn{width:44px}
   .tools button{width:48px;height:48px}
-  .hint{display:none}
+  /* phones get the level tip too (it was hidden, so a new player saw two flags and no instructions) */
+  .hint{white-space:normal;text-align:center;width:max-content;max-width:calc(100vw - 32px);font-size:12px;line-height:1.4}
   .card{padding:18px}
 }
 </style>
@@ -151,7 +162,7 @@ function launch(){ const a=[]; let x=-190,y=-84;
 const LEVELS=[
  {name:'First Tracks', ink:1200, start:[0,0], finish:[620,240], cps:[],
   rock:[...launch()],
-  tip:'Draw a line from the flag down to the finish.'},
+  tip:'Draw a line from the START flag down to the FINISH, then hit RIDE.'},
 
  {name:'Mind the Gap', ink:1500, start:[0,0], finish:[900,300], cps:[],
   rock:[...launch(), [300,300,470,300], [700,300,900,300]],
@@ -436,7 +447,7 @@ function zoomAt(sx,sy,f){
 const live=new Map(); let pinch=null;
 
 cv.addEventListener('pointerdown',e=>{
-  cv.setPointerCapture(e.pointerId);
+  try{ cv.setPointerCapture(e.pointerId); }catch(_){}
   const s=pt(e); live.set(e.pointerId,s);
   if(live.size===2){ const [a,b]=[...live.values()];
     pinch={d:Math.hypot(a.x-b.x,a.y-b.y),cx:(a.x+b.x)/2,cy:(a.y+b.y)/2};
@@ -446,6 +457,7 @@ cv.addEventListener('pointerdown',e=>{
   const w=toWorld(s.x,s.y);
   if(tool==='erase'){ erase(w); drawing=true; return; }
   drawing=true; last=w; strokeStart=lines.length;
+  el('hint').style.display='none';   // tip has done its job once you start drawing (it sat over the course on short screens)
 });
 cv.addEventListener('pointermove',e=>{
   const s=pt(e);
@@ -477,6 +489,11 @@ function endPtr(e){
 }
 addEventListener('pointerup',endPtr); addEventListener('pointercancel',endPtr);
 cv.addEventListener('contextmenu',e=>e.preventDefault());
+// iOS ignores user-scalable=no: the game does its own pinch-zoom on the canvas, so stop Safari zooming/dragging the
+// PAGE (the level list card still scrolls). Drawing uses pointer events, so it is unaffected.
+['gesturestart','gesturechange','gestureend'].forEach(n=>document.addEventListener(n,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>{ if(!(e.target.closest&&e.target.closest('.card')))e.preventDefault(); },{passive:false});
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
 cv.addEventListener('wheel',e=>{e.preventDefault();const s=pt(e);
   zoomAt(s.x,s.y,e.deltaY<0?1.12:1/1.12);},{passive:false});
 
@@ -509,14 +526,18 @@ function fit(){
   for(const p of pts) eat(p[0],p[1]);
   for(const L of rock.concat(lines)){ eat(L.x1,L.y1); eat(L.x2,L.y2); }
   const pad=150;
-  cam.z=Math.max(ZMIN,Math.min(ZMAX,Math.min(W/(x1-x0+pad*2),H/(y1-y0+pad*2))));
-  cam.x=(x0+x1)/2-W/(2*cam.z); cam.y=(y0+y1)/2-H/(2*cam.z);
+  // fit into the band between the top bar and the dock, so on a phone (esp. sideways) the course isn't under the UI
+  let t0=0, vh=H;
+  try{ const tb=document.querySelector('.top').getBoundingClientRect().bottom+6, db=document.querySelector('.dock').getBoundingClientRect().top-6;
+    if(db-tb>120){ t0=tb; vh=db-tb; } }catch(e){}
+  cam.z=Math.max(ZMIN,Math.min(ZMAX,Math.min(W/(x1-x0+pad*2),vh/(y1-y0+pad*2))));
+  cam.x=(x0+x1)/2-W/(2*cam.z); cam.y=(y0+y1)/2-(t0+vh/2)/cam.z;
 }
-function follow(){
+function follow(k){
   if(!running) return;
   const cx=(P[0].x+P[1].x)/2, cy=(P[0].y+P[1].y)/2;
   const tx=cx-(W/cam.z)*0.36, ty=cy-(H/cam.z)*0.46;
-  cam.x+=(tx-cam.x)*0.09; cam.y+=(ty-cam.y)*0.09;
+  cam.x+=(tx-cam.x)*k; cam.y+=(ty-cam.y)*k;
 }
 
 /* ============================ RENDER ============================ */
@@ -630,8 +651,10 @@ function setTool(t){ tool=t;
 
 /* --- progress --- */
 const SAVE='snowline_progress_v1';
-let prog=JSON.parse(localStorage.getItem(SAVE)||'{"done":[],"flips":{}}');
-const saveProg=()=>localStorage.setItem(SAVE,JSON.stringify(prog));
+// storage can be blocked/corrupt (private mode, in-app browsers): never let that stop the game from booting
+let prog={done:[],flips:{}};
+try{ const s=JSON.parse(localStorage.getItem(SAVE)||'null'); if(s&&Array.isArray(s.done)&&s.flips&&typeof s.flips==='object') prog=s; }catch(e){}
+const saveProg=()=>{ try{ localStorage.setItem(SAVE,JSON.stringify(prog)); }catch(e){} };
 
 function loadLevel(i){
   lvIndex=Math.max(0,Math.min(LEVELS.length-1,i));
@@ -641,7 +664,7 @@ function loadLevel(i){
   level.plats.forEach((segs,pi)=>{ for(const s of segs) rock.push({x1:s[0],y1:s[1],x2:s[2],y2:s[3],pi}); });
   lines=[]; strokes=[]; inkUsed=0; bestFlips=0;
   reindex();
-  el('lvNum').textContent='Level '+(lvIndex+1)+' of '+LEVELS.length;
+  el('lvNum').innerHTML='Level '+(lvIndex+1)+'<span class="of"> of '+LEVELS.length+'</span>';
   el('lvName').textContent=D.name;
   el('hint').textContent=D.tip;
   el('hint').style.display='';
@@ -650,7 +673,7 @@ function loadLevel(i){
 }
 function startRide(){
   if(!lines.length){ flash('DRAW SOMETHING FIRST'); return; }
-  running=true; el('btnRide').textContent='Stop'; el('btnRide').dataset.run='1';
+  running=true; simAcc=0; el('btnRide').textContent='Stop'; el('btnRide').dataset.run='1';
   el('hint').style.display='none';
   makeRider(level.start[0]-16,level.start[1]-24);
   // kick off down the launch ramp — friction nearly cancels gravity on the ramp slope, and
@@ -667,7 +690,8 @@ function finish(){
   const prev=prog.flips[lvIndex]||0;
   if(bestFlips>prev) prog.flips[lvIndex]=bestFlips;
   saveProg();
-  try{ if(window.OB){ OB.submitScore('snowline',prog.done.length); OB.gameOver('snowline'); } }catch(e){}
+  try{ if(window.OB){ const p=OB.submitScore('snowline',prog.done.length); if(p&&p.catch)p.catch(()=>{});
+    const q=OB.gameOver('snowline'); if(q&&q.catch)q.catch(()=>{}); } }catch(e){}
   const inkPct=Math.round((1-inkUsed/level.ink)*100);
   const last=lvIndex===LEVELS.length-1;
   showCard(
@@ -725,10 +749,19 @@ addEventListener('keydown',e=>{
 
 /* ============================ LOOP ============================ */
 let crashHold=0;
-function frame(){
+// Fixed 120 physics steps per second (the old 2-steps-per-frame ran the ride at double speed on 120 Hz phones).
+// Same step() sequence as before, so every level stays exactly as solvable as the harness proved.
+const STEPS_PER_MS=0.12;
+let simAcc=0, lastT=performance.now();
+function frame(now){
+  if(!(now>0)) now=performance.now();
+  const dt=Math.max(0,Math.min(100,now-lastT)); lastT=now;   // clamp: coming back from a hidden tab never jumps
   if(running){
-    for(let i=0;i<2&&!crashed&&!won;i++) step();
-    follow();
+    simAcc+=dt*STEPS_PER_MS;
+    let n=0;
+    while(simAcc>=1&&n<12&&!crashed&&!won){ step(); simAcc-=1; n++; }
+    if(simAcc>2) simAcc=2;
+    follow(1-Math.pow(0.91,dt/16.667));
     if(crashed){
       if(!crashHold){ crashHold=1; flash('WIPEOUT');
         setTimeout(()=>{ crashHold=0; stopRide(); },1100); }
