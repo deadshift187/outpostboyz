@@ -199,7 +199,7 @@
     },
 
     // Can this account play a paid game? Asks the get-game edge function (the server decides).
-    // -> { status: 'ok', url } | { status: 'signin' } | { status: 'not_owned' } | { status: 'error', message }
+    // -> { status: 'ok', url, version } | { status: 'signin' } | { status: 'not_owned' } | { status: 'error', message }
     async gameAccess(slug) {
       var s = await this.session();
       if (!s) return { status: 'signin' };
@@ -208,7 +208,7 @@
           headers: { 'Authorization': 'Bearer ' + s.access_token }, cache: 'no-store'
         });
         var d = {}; try { d = await r.json(); } catch (e) { }
-        if (r.ok && d.url) return { status: 'ok', url: d.url };
+        if (r.ok && d.url) return { status: 'ok', url: d.url, version: d.version || '' };
         if (r.status === 401) return { status: 'signin' };
         if (r.status === 403) return { status: 'not_owned' };
         return { status: 'error', message: d.error || '' };

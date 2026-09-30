@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Rebuild the site copy of SAVE LOST ANGELES from the LOST-ANGELES-OPUS repo (PAID game: the code is protected).
 #
-#   games/save-lost-angeles/          PUBLIC (committed): page shell + paywall gate, art (assets/), phone art
-#                                     (assets-m/), home-screen manifest + icons. None of it plays on its own.
+#   games/save-lost-angeles/          PUBLIC (committed): page shell + paywall gate/sell page, art (assets/), phone art
+#                                     (assets-m/), sell-page media (promo/), home-screen manifest + icons. None of it plays on its own.
 #   dist/save-lost-angeles/game.js    PROTECTED bundle (gitignored): all of OPUS's code in index.html order.
 #                                     Goes to the private Supabase bucket via tools/publish-lost-angeles-bundle.sh.
 #
@@ -33,6 +33,8 @@ find "$DST" \( -name 'manifest.json' -o -name 'srcmap.json' \) -delete
 mkdir -p "$DST/assets-m" && cp -R "$MCACHE/." "$DST/assets-m/"
 # Home-screen app: own manifest + Golden Boy icons (site-owned, live in tools/la-site/).
 cp "$SITE/manifest.webmanifest" "$DST/" && cp -R "$SITE/icons" "$DST/"
+# Sell-page media for the paywall gate (trailer + poster + screenshots; site-owned, made from OPUS media/ + review/).
+cp -R "$SITE/promo" "$DST/"
 # Page shell + protected bundle.
 "$PY" "$SITE/build.py" page "$CODE" "$DST" "$BUNDLE" "$SHA"
 if grep -q '<script src="\(data\|src\)/' "$DST/index.html"; then echo "code <script> tags leaked into the public page" >&2; exit 1; fi
