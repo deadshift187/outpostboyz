@@ -27,7 +27,11 @@
     padding:calc(var(--toppad) + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));
     display:flex;flex-direction:column;gap:12px;min-height:100vh;min-height:100dvh}
   @media (max-width:760px){.app{--toppad:48px;--chrome:320px}}
-  .homelink{position:fixed;top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));z-index:99;font-family:ui-monospace,monospace;font-size:10px;letter-spacing:1px;color:#9aa0c2;text-decoration:none;background:rgba(13,14,24,0.8);border:1px solid #2c2f47;border-radius:8px;padding:7px 10px}
+  /* absolute (not fixed): when a short phone scrolls to the challenge box, the link scrolls away instead of covering Chill/Hard */
+  .homelink::after{content:'';position:absolute;inset:-8px}
+  .mode{position:relative}
+  .mode::after{content:'';position:absolute;left:0;right:0;top:-8px;bottom:-8px}
+  .homelink{position:absolute;top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));z-index:99;font-family:ui-monospace,monospace;font-size:10px;letter-spacing:1px;color:#9aa0c2;text-decoration:none;background:rgba(13,14,24,0.8);border:1px solid #2c2f47;border-radius:8px;padding:7px 10px}
 
   .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
   .brand{display:flex;flex-direction:column;line-height:1}
@@ -93,13 +97,24 @@
   .chalrow{display:flex;gap:8px;align-items:center}
   .clab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);white-space:nowrap}
   #code,#finCode{font-family:var(--mono);font-weight:800;font-size:16px;letter-spacing:.14em;color:var(--accent);background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:6px 10px;flex:1;text-align:center}
-  .cbtn{border:1px solid var(--line2);background:var(--bg2);color:var(--ink);border-radius:9px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
+  .cbtn{min-height:40px;border:1px solid var(--line2);background:var(--bg2);color:var(--ink);border-radius:9px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
   .cbtn.go{background:var(--accent);color:#241701;border-color:var(--accent)}
-  #codeIn{flex:1;min-width:0;background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--ink);font-family:var(--mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase}
+  #codeIn{flex:1;min-width:0;background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--ink);font-family:var(--mono);font-size:16px;letter-spacing:.1em;text-transform:uppercase} /* 16px: iOS zooms the page into smaller inputs */
   #codeIn::placeholder{color:var(--ink-faint);letter-spacing:0;text-transform:none}
   .chalnote{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:center}
   .toast2{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);opacity:0;background:var(--good);color:#04231a;font-family:var(--mono);font-size:13px;font-weight:800;padding:11px 18px;border-radius:10px;pointer-events:none;transition:.22s;z-index:200}
   .toast2.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  /* phone held sideways: board on the left filling the height, scores + tray beside it (drag never leaves the screen) */
+  @media (orientation:landscape) and (max-height:520px){
+    .app{--toppad:10px;max-width:none;display:grid;grid-template-columns:auto minmax(240px,340px);grid-auto-rows:min-content;
+      column-gap:16px;row-gap:10px;justify-content:center;align-content:start;min-height:0}
+    .boardwrap{grid-column:1;grid-row:1/span 6;max-width:none;align-self:start;position:sticky;top:10px;
+      width:calc(100vh - 34px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      width:calc(100svh - 34px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+    .app>:not(.boardwrap){grid-column:2}
+    .top{margin-top:34px}
+    .tray{min-height:92px}
+  }
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -559,7 +574,9 @@ window.addEventListener('resize',()=>{
 });
 // touch safety: never let the page scroll / pinch-zoom while a piece is held
 document.addEventListener('touchmove',e=>{if(dragging)e.preventDefault();},{passive:false});
-document.addEventListener('gesturestart',e=>e.preventDefault());
+['gesturestart','gesturechange','gestureend'].forEach(n=>document.addEventListener(n,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false}); // no two-finger zoom mid-drag
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
 
 // ---- first-run how-to ----
 function hideHelp(){helpEl.classList.remove('show');try{localStorage.setItem('blocknine_help_seen','1');}catch(e){}}
