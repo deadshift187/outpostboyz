@@ -9,8 +9,12 @@ DST="$ROOT/games/save-lost-angeles"
 [ -f "$SRC/index.html" ] || { echo "OPUS build not found at $SRC" >&2; exit 1; }
 
 rm -rf "$DST" && mkdir -p "$DST"
-# same file set as the OPUS repo's own `tools/package.sh zip`
-(cd "$SRC" && tar --exclude='*manifest.json' --exclude='*srcmap.json' -cf - index.html data src assets) | tar -C "$DST" -xf -
+# Ship the last COMMIT only (never someone's half-finished working-tree edits). Same file set as the
+# OPUS repo's own `tools/package.sh zip`.
+git -C "$SRC" archive --format=tar HEAD index.html data src assets | tar -C "$DST" -xf -
+# The art isn't in git (ignored, ~130MB), so it comes from the folder. Art changes are whole files, not half-edits.
+(cd "$SRC" && tar -cf - assets) | tar -C "$DST" -xf -
+find "$DST" \( -name 'manifest.json' -o -name 'srcmap.json' \) -delete
 
 PY=""; for c in python3 python py; do command -v "$c" >/dev/null 2>&1 && "$c" -c 1 >/dev/null 2>&1 && { PY="$c"; break; }; done
 "$PY" - "$DST/index.html" <<'PYEOF'
