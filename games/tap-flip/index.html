@@ -4,6 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#070a0f">
+  <script>
+  /* iPhone Safari ignores user-scalable=no: block pinch, double-tap zoom and page scroll directly.
+     The game reads pointer events, so play is unaffected; links/buttons keep their normal taps. */
+  (function(){
+    var ok=function(t){ return t&&t.closest&&t.closest('a,button,input,select,textarea,label'); };
+    ['gesturestart','gesturechange','gestureend'].forEach(function(n){ document.addEventListener(n,function(e){ e.preventDefault(); },{passive:false}); });
+    document.addEventListener('touchstart',function(e){ if(e.touches.length>1||!ok(e.target))e.preventDefault(); },{passive:false});
+    document.addEventListener('touchmove',function(e){ e.preventDefault(); },{passive:false});
+    var last=0; document.addEventListener('touchend',function(e){ var n=Date.now(); if(n-last<350&&!ok(e.target))e.preventDefault(); last=n; },{passive:false});
+    document.addEventListener('dblclick',function(e){ e.preventDefault(); },{passive:false});
+  })();
+  </script>
   <title>TAP FLIP — Outpost Boyz Arcade</title>
   <meta name="description" content="Flip gravity, dodge blocks, chase the high score. Free from Outpost Boyz.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔄</text></svg>">
@@ -35,6 +47,8 @@
     /* invisible padding so the tap target is ~44px without changing the look */
     .home-btn::before { content: ''; position: absolute; inset: -4px; }
     .home-btn:hover, .home-btn:focus-visible { color: #41ff6b; border-color: #41ff6b; outline: none; }
+    /* mid-run the whole screen is the flip button: keep a stray thumb off the home link */
+    body.playing .home-btn { display: none; }
   </style>
 </head>
 <body>
@@ -392,6 +406,7 @@
     }
 
     let last = performance.now();
+    let homeHidden = false;
     function loop(now) {
       let dt = (now - last) / 1000;
       last = now;
@@ -406,6 +421,7 @@
         const h = steps > 0 ? dt / steps : 0;
         for (let i = 0; i < steps && state.mode === 'play'; i++) update(h);
       }
+      if (running !== homeHidden) { homeHidden = running; document.body.classList.toggle('playing', running); }
       const scroll = running ? state.speed : (state.mode === 'play' ? 0 : 40);
       state.gridX = (state.gridX + dt * scroll * 0.35) % 44;
 
