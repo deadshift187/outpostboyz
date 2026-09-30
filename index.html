@@ -9,21 +9,28 @@
   <meta name="theme-color" content="#000000">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://outpostboyz.com/">
-  <meta property="og:title" content="Outpost Boyz — Free Browser Games You Can Play Right Now">
-  <meta property="og:description" content="Free browser games you can play instantly on phone or desktop. Co-op games coming to Steam.">
+  <meta property="og:site_name" content="Outpost Boyz">
+  <meta property="og:title" content="SAVE LOST ANGELES — out now from Outpost Boyz">
+  <meta property="og:description" content="27 levels, 18 bosses, 2-player co-op. Plays in your browser on phone or computer. Plus free games from the lab.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://outpostboyz.com/">
-  <meta property="og:image" content="https://outpostboyz.com/assets/crew.jpg">
+  <meta property="og:image" content="https://outpostboyz.com/assets/og/og-save-lost-angeles.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="SAVE LOST ANGELES by Outpost Boyz: Golden Boy jumping in front of the Hollywood sign">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Outpost Boyz — Free Browser Games You Can Play Right Now">
-  <meta name="twitter:description" content="Free browser games you can play instantly on phone or desktop. Co-op games coming to Steam.">
-  <meta name="twitter:image" content="https://outpostboyz.com/assets/crew.jpg">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white' font-family='Arial Black'>OB</text></svg>">
+  <meta name="twitter:title" content="SAVE LOST ANGELES — out now from Outpost Boyz">
+  <meta name="twitter:description" content="27 levels, 18 bosses, 2-player co-op. Plays in your browser on phone or computer.">
+  <meta name="twitter:image" content="https://outpostboyz.com/assets/og/og-save-lost-angeles.png">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white' font-family='Arial Black'>OB</text></svg>" type="image/svg+xml">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/archivo-black-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/crew-hero.webp" as="image" type="image/webp" fetchpriority="high">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://duogqviqgmbaynfrhrmq.supabase.co" crossorigin>
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -45,7 +52,13 @@
     var gone=false;
     function done(){ if(gone)return; gone=true; lu.classList.add('lu-out'); setTimeout(function(){ if(lu.parentNode)lu.parentNode.removeChild(lu); },250); }
     lu.addEventListener('click',done);
-    setTimeout(done, 550); /* fully gone by 0.8s */
+    /* Lift at 0.55s, or as soon as the brand fonts land after that (cap 1.2s), so the font swap
+       happens behind the splash instead of jumping the hero in front of first-time visitors. */
+    setTimeout(function(){
+      var f=document.fonts;
+      if(!f||f.status==='loaded'){ done(); return; }
+      f.ready.then(done,done); setTimeout(done, 650);
+    }, 550);
   })();
   </script>
 
@@ -63,6 +76,7 @@
       <a class="nav-social" href="https://www.instagram.com/outpostboyz" aria-label="Instagram"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
     </div>
   </nav>
+  <a class="launch-strip" href="games/save-lost-angeles/"><span class="ls-new">NEW</span><span class="ls-title">SAVE LOST ANGELES</span><span>27 levels · 18 bosses · co-op</span><span class="ls-go">PLAY NOW &rarr;</span></a>
 
   <header class="hero" id="top">
     <div class="hero-bg"></div>
@@ -281,7 +295,7 @@
           <a class="btn btn-red btn-sm" href="#signup">GET LAUNCH ALERT</a>
         </div>
         <div class="steam-hero-media">
-          <video src="assets/rt-loadup.mp4" poster="assets/rt-profile.jpg" controls playsinline preload="metadata" aria-label="Ruff Transit menu load-up video"></video>
+          <video src="assets/rt-loadup.mp4" poster="assets/rt-profile.jpg" controls playsinline preload="none" width="720" height="720" aria-label="Ruff Transit menu load-up video"></video>
         </div>
       </article>
 
@@ -343,7 +357,10 @@
       </div>
     </section>
     <figure class="crew-photo">
-      <img src="assets/crew.jpg" alt="The Outpost Boyz crew — four hazmat-suited squad members in a bunker" loading="lazy">
+      <picture>
+        <source srcset="assets/crew.webp" type="image/webp">
+        <img src="assets/crew.jpg" alt="The Outpost Boyz crew — four hazmat-suited squad members in a bunker" loading="lazy" decoding="async" width="1024" height="1024">
+      </picture>
     </figure>
     <section class="section crew-below">
       <div class="crew-wrap">
@@ -385,8 +402,14 @@
       <span>/</span>
       <a href="mailto:squad@outpostboyz.com">SQUAD@OUTPOSTBOYZ.COM</a>
     </div>
+    <nav class="footer-legal" aria-label="Legal">
+      <a href="/privacy/">Privacy</a>
+      <a href="/terms/">Terms of sale</a>
+      <a href="/refunds/">Refunds</a>
+    </nav>
     <p class="footer-fine">© 2026 OUTPOST BOYZ — ALL RIGHTS RESERVED. GAMING BEYOND LIMITS. LAB CONDITIONS NOT GUARANTEED.</p>
   </footer>
+  <script src="assets/inapp.js" defer></script>
 
   <script>
   (async function () {

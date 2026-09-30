@@ -6,9 +6,6 @@
   <title>Your Account — Outpost Boyz</title>
   <meta name="robots" content="noindex">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white' font-family='Arial Black'>OB</text></svg>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/style.css">
   <style>
     .acct-wrap { max-width: 560px; margin: 0 auto; padding: 60px 24px 90px; }
@@ -58,9 +55,9 @@
         <input class="acct-input" id="pw" name="password" type="password" placeholder="8+ characters" autocomplete="current-password" required minlength="8">
         <div style="margin-top:16px;"><button type="submit" class="btn btn-solid" id="btnAuth">SIGN IN</button></div>
       </form>
-      <p style="margin-top:14px; font-size:13px;">
-        <a href="#" id="lnkForgot" style="color:var(--grey);">Forgot password?</a> &nbsp;·&nbsp;
-        <a href="#" id="lnkMagic" style="color:var(--grey);">Email me a magic link instead</a>
+      <p style="margin-top:6px; font-size:13px;">
+        <a href="#" id="lnkForgot" style="color:var(--grey); display:inline-block; padding:13px 0;">Forgot password?</a> &nbsp;·&nbsp;
+        <a href="#" id="lnkMagic" style="color:var(--grey); display:inline-block; padding:13px 0;">Email me a magic link instead</a>
       </p>
       <p class="acct-msg hidden" id="signinMsg" role="status" aria-live="polite"></p>
     </div>
@@ -125,11 +122,17 @@
   <footer class="footer">
     <p class="footer-logo">OUTPOST&nbsp;BOYZ</p>
     <div class="footer-social"><a href="mailto:squad@outpostboyz.com">SQUAD@OUTPOSTBOYZ.COM</a></div>
+    <nav class="footer-legal" aria-label="Legal">
+      <a href="/privacy/">Privacy</a>
+      <a href="/terms/">Terms of sale</a>
+      <a href="/refunds/">Refunds</a>
+    </nav>
     <p class="footer-fine">© 2026 OUTPOST BOYZ — GAMING BEYOND LIMITS.</p>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
   <script src="../assets/ob-sdk.js"></script>
+  <script src="../assets/inapp.js" defer></script>
   <script>
   (function () {
     var $ = function (id) { return document.getElementById(id); };

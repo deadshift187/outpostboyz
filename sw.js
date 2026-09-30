@@ -5,10 +5,10 @@
 //  * same-origin static assets   -> CACHE-FIRST (instant), refreshed in the background so the
 //                                   next load picks up new builds.
 //  * never touched: cross-origin requests (Supabase, CDNs, fonts), Range requests, and
-//    audio/video (run-the-board's ~105MB of .wav stays network-only; offline it falls back to TTS).
+//    audio/video (run-the-board's ~7MB of .mp3 clips stay network-only; offline it falls back to TTS).
 //
 // Bump VERSION on a deploy that changes cached assets to drop every old cache on activate.
-const VERSION = '2026-09-29e';
+const VERSION = '2026-09-29f';
 const CACHE = 'ob-arcade-' + VERSION;
 
 // Precached on install so every free game plays offline after the first visit.
@@ -17,6 +17,8 @@ const PRECACHE = [
   '/games/games.json',
   '/assets/style.css',
   '/assets/ob-sdk.js',
+  '/assets/fonts/archivo-black-latin.woff2',
+  '/assets/fonts/inter-latin-var.woff2',
   '/manifest.webmanifest',
   '/assets/icons/icon-192.png',
   '/assets/icons/icon-512.png',

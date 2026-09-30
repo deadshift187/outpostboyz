@@ -1,4 +1,15 @@
 /* ============ OUTPOST BOYZ v10 — BRUTALIST STREETWEAR DROP ============ */
+/* Self-hosted fonts (latin subset, OFL): no render-blocking trip to Google on first paint. */
+@font-face {
+  font-family: 'Archivo Black'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('fonts/archivo-black-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter'; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url('fonts/inter-latin-var.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 :root {
   --paper: #ffffff;
   --ink: #000000;
@@ -577,7 +588,9 @@ body {
 .hero-bg {
   position: absolute;
   inset: 0;
-  background: url('crew.jpg') center 22% / cover no-repeat;
+  /* 720px grayscale copy (~42KB): it sits under a 72% white wash, so full-res color is wasted bytes. */
+  background: url('crew-hero.jpg') center 22% / cover no-repeat;
+  background-image: image-set(url('crew-hero.webp') type('image/webp'), url('crew-hero.jpg') type('image/jpeg'));
   filter: grayscale(1) contrast(1.15);
 }
 .hero-bg::after {
@@ -671,3 +684,48 @@ section[id], header[id], #hire { scroll-margin-top: 84px; }
   .marquee-track { animation: none !important; }
 }
 .btn[aria-disabled="true"] { cursor: default; }
+
+/* tap target: the wordmark link in the nav */
+.nav-logo { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* launch strip under the nav (homepage) */
+.launch-strip {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px 12px;
+  min-height: 48px; padding: 10px 16px; background: #000; color: #fff; text-decoration: none; text-align: center;
+  font-family: var(--body); font-weight: 900; font-size: 13px; letter-spacing: 1px; text-transform: uppercase;
+  border-bottom: var(--bw) solid var(--ink);
+}
+.launch-strip .ls-new { background: var(--red); color: #fff; padding: 3px 8px; font-size: 11px; letter-spacing: 2px; }
+.launch-strip .ls-title { font-family: var(--disp); font-weight: 400; font-size: 16px; letter-spacing: 0; }
+.launch-strip .ls-go { color: #39ff14; white-space: nowrap; }
+.launch-strip:hover .ls-go, .launch-strip:focus-visible .ls-go { text-decoration: underline; }
+
+/* legal links in every footer */
+.footer-legal { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 18px; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+.footer-legal a { color: var(--grey); display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; }
+.footer-legal a:hover { color: var(--red-text); }
+
+/* legal / 404 pages */
+.doc-wrap { max-width: 720px; margin: 0 auto; padding: 56px 24px 80px; }
+.doc-wrap h1 { font-family: var(--disp); font-size: clamp(34px, 8vw, 58px); letter-spacing: -2px; line-height: 1; text-transform: uppercase; border-bottom: var(--bw) solid var(--ink); padding-bottom: 14px; }
+.doc-wrap .doc-date { font-weight: 900; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--grey); margin: 12px 0 28px; }
+.doc-wrap h2 { font-family: var(--disp); font-size: 22px; letter-spacing: -0.5px; text-transform: uppercase; margin: 32px 0 8px; }
+.doc-wrap p, .doc-wrap li { font-size: 16px; color: #222; margin-bottom: 10px; }
+.doc-wrap ul { padding-left: 22px; }
+.doc-wrap a { color: var(--ink); text-underline-offset: 3px; }
+
+/* in-app browser (Instagram / Facebook / TikTok) hint */
+#obInApp {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 9000;
+  background: #000; color: #fff; border-top: var(--bw) solid #39ff14;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); font-family: var(--body); font-size: 13px; line-height: 1.35;
+  display: flex; align-items: center; gap: 10px;
+}
+#obInApp p { flex: 1; margin: 0; }
+#obInApp b { color: #39ff14; }
+#obInApp a, #obInApp button {
+  flex: 0 0 auto; min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--body); font-weight: 900; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; text-decoration: none;
+}
+#obInApp a { background: #39ff14; color: #000; padding: 0 12px; border-radius: 4px 4px 12px 12px; }
+#obInApp button { background: transparent; color: #bbb; border: 0; font-size: 20px; cursor: pointer; }
