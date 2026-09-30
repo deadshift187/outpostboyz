@@ -24,7 +24,7 @@ def read(p):
 def page(code_dir, dst_dir, bundle_out, sha):
     html = read(os.path.join(code_dir, 'index.html'))
     m = re.search(r'<body[^>]*>', html, re.I)
-    if not m or html.count('</body>') != 1 or html.count('<title>LOST ANGELES</title>') != 1:
+    if not m or html.count('</body>') != 1 or len(re.findall(r'<title>(?:SAVE )?LOST ANGELES</title>', html)) != 1:
         sys.exit('OPUS index.html changed shape (<title>/<body>) - update tools/la-site/build.py')
     head, body = html[:m.end()], html[m.end():]
 
@@ -66,7 +66,7 @@ def page(code_dir, dst_dir, bundle_out, sha):
 
     site_head = read(os.path.join(HERE, 'head.html')).strip()
     gate = read(os.path.join(HERE, 'gate.html')).strip()
-    head = head.replace('<title>LOST ANGELES</title>', site_head, 1)
+    head = re.sub(r'<title>(?:SAVE )?LOST ANGELES</title>', lambda _m: site_head, head, count=1)   # OPUS title is SAVE LOST ANGELES since 9/29
     body = re.sub(r'[ \t]*<!-- =====[^>]*===== -->[ \t]*\n', '', body)   # OPUS's now-empty script-section labels
     body = re.sub(r'\n{3,}', '\n\n', body)
     body = body.replace('</body>', "<script>window.LA_MOBILE_ART = 'assets-m/';   // site only: phones load the 600px art copy</script>\n"
