@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin — Outpost Boyz</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/assets/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    .ad-wrap { max-width: 760px; margin: 0 auto; padding: 40px 16px 80px; }
+    .ad-h { font-family: var(--disp); font-size: clamp(30px, 7vw, 48px); letter-spacing: -1px; text-transform: uppercase; line-height: 1; }
+    .ad-sub { color: var(--grey); font-size: 14px; margin-top: 8px; }
+    .ad-card { border: var(--bw) solid var(--ink); padding: 18px; margin-top: 20px; }
+    .ad-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+    .ad-bar select, .ad-bar input { border: var(--bw) solid var(--ink); padding: 12px; font: 600 16px var(--body); border-radius: 0; background: var(--paper); color: var(--ink); }
+    .ad-bar input { flex: 1; min-width: 180px; }
+    .ad-row { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid var(--ink); padding: 12px 0; }
+    .ad-who { flex: 1; min-width: 0; }
+    .ad-tag { font-weight: 900; letter-spacing: .5px; overflow-wrap: anywhere; }
+    .ad-mail { color: var(--grey); font-size: 13px; overflow-wrap: anywhere; }
+    .ad-chip { display: inline-block; font: 900 11px/1 var(--body); letter-spacing: 1px; padding: 5px 7px; border: 2px solid var(--ink); margin-top: 6px; }
+    .ad-chip.bought { background: #39ff14; border-color: #1a7a0a; color: #04140a; }
+    .ad-chip.comped { background: #ffe14d; border-color: #8a6d00; color: #241a00; }
+    .ad-chip.none { color: var(--grey); border-color: var(--grey); }
+    .ad-btn { flex: none; min-width: 92px; padding: 12px 10px; font: 900 13px var(--body); letter-spacing: 1px; border: var(--bw) solid var(--ink); background: var(--ink); color: var(--paper); cursor: pointer; }
+    .ad-btn.revoke { background: var(--paper); color: var(--red-text); border-color: var(--red-text); }
+    .ad-btn[disabled] { opacity: .5; cursor: wait; }
+    .ad-msg { margin-top: 12px; font-weight: 600; font-size: 14px; min-height: 1em; }
+    .ad-msg.err { color: var(--red-text); }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="nav-logo" href="/">OUTPOST&nbsp;BOYZ</a>
+    <div class="nav-links"><a href="/account/">Account</a></div>
+  </nav>
+
+  <div class="ad-wrap">
+    <h1 class="ad-h">Game Access</h1>
+    <p class="ad-sub">Who can play the paid games. BOUGHT = paid through Stripe. COMPED = you gave it to them free.</p>
+
+    <div class="ad-card" id="boxMsg"><p>CHECKING CLEARANCE…</p></div>
+
+    <div class="hidden" id="boxAdmin">
+      <div class="ad-bar">
+        <select id="game" aria-label="Game"></select>
+        <input id="q" type="search" placeholder="Search gamertag or email" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Search">
+      </div>
+      <p class="ad-msg" id="msg" role="status" aria-live="polite"></p>
+      <p class="ad-sub" id="counts"></p>
+      <div id="list"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
+  <script src="/assets/ob-sdk.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    var FN = 'https://duogqviqgmbaynfrhrmq.supabase.co/functions/v1/admin-access';
+    var $ = function (id) { return document.getElementById(id); };
+    var data = null;
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); }
+    function say(html) { $('boxMsg').innerHTML = html; $('boxMsg').classList.remove('hidden'); $('boxAdmin').classList.add('hidden'); }
+    function note(text, err) { $('msg').textContent = text || ''; $('msg').className = 'ad-msg' + (err ? ' err' : ''); }
+
+    async function call(body) {
+      var s = await OB.session();
+      if (!s) return { status: 401, data: {} };
+      var r = await fetch(FN, {
+        method: 'POST', cache: 'no-store',
+        headers: { 'Authorization': 'Bearer ' + s.access_token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      var d = {}; try { d = await r.json(); } catch (e) { }
+      return { status: r.status, data: d };
+    }
+
+    function accessOf(u, slug) {
+      if (u.bought.indexOf(slug) !== -1) return 'bought';
+      if (u.comped.indexOf(slug) !== -1) return 'comped';
+      if (u.comped.indexOf('*') !== -1) return 'all';
+      return 'none';
+    }
+
+    function render() {
+      var slug = $('game').value;
+      var q = $('q').value.trim().toLowerCase();
+      var n = { bought: 0, comped: 0, all: 0, none: 0 };
+      data.users.forEach(function (u) { n[accessOf(u, slug)]++; });
+      $('counts').textContent = data.users.length + ' accounts · ' + n.bought + ' bought · ' + (n.comped + n.all) + ' comped';
+      var rows = data.users.filter(function (u) {
+        return !q || (u.gamertag || '').toLowerCase().indexOf(q) !== -1 || (u.email || '').toLowerCase().indexOf(q) !== -1;
+      });
+      $('list').innerHTML = rows.map(function (u) {
+        var a = accessOf(u, slug);
+        var chip = a === 'bought' ? '<span class="ad-chip bought">BOUGHT</span>'
+          : a === 'comped' ? '<span class="ad-chip comped">COMPED</span>'
+          : a === 'all' ? '<span class="ad-chip comped">' + (u.admin ? 'ADMIN · ALL GAMES' : 'COMPED · ALL GAMES') + '</span>'
+          : '<span class="ad-chip none">NO ACCESS</span>';
+        var btn = a === 'none' ? '<button type="button" class="ad-btn" data-act="grant" data-id="' + esc(u.id) + '">GRANT</button>'
+          : a === 'comped' || (a === 'all' && !u.admin) ? '<button type="button" class="ad-btn revoke" data-act="revoke" data-id="' + esc(u.id) + '">REVOKE</button>'
+          : '';
+        return '<div class="ad-row"><div class="ad-who"><div class="ad-tag">' + (u.gamertag ? esc(u.gamertag) : '<i style="font-weight:400">no gamertag yet</i>') +
+          (u.admin ? ' <span style="font-size:11px; color:var(--grey);">ADMIN</span>' : '') + '</div>' +
+          '<div class="ad-mail">' + esc(u.email) + '</div>' + chip + '</div>' + btn + '</div>';
+      }).join('') || '<p class="ad-sub">No accounts match.</p>';
+    }
+
+    async function load() {
+      var r;
+      try { r = await call({ action: 'list' }); } catch (e) { r = { status: 0, data: {} }; }
+      if (r.status === 401) { say('<p><b>Sign in first.</b></p><p class="ad-sub"><a href="/account/?return=/admin/">Go to sign in</a></p>'); return; }
+      if (r.status === 403) { say('<p><b>Admins only.</b></p><p class="ad-sub">This account can\'t manage game access.</p>'); return; }
+      if (r.status !== 200 || !r.data.users) { say('<p><b>Couldn\'t load accounts.</b></p><p class="ad-sub">' + esc(r.data.error || 'Check your connection and refresh.') + '</p>'); return; }
+      data = r.data;
+      var sel = $('game'), keep = sel.value;
+      sel.innerHTML = data.games.map(function (g) { return '<option value="' + esc(g.slug) + '">' + esc(g.title) + '</option>'; }).join('');
+      if (keep) sel.value = keep;
+      $('boxMsg').classList.add('hidden');
+      $('boxAdmin').classList.remove('hidden');
+      render();
+    }
+
+    $('list').addEventListener('click', async function (e) {
+      var b = e.target.closest('button[data-act]');
+      if (!b) return;
+      var act = b.getAttribute('data-act'), id = b.getAttribute('data-id'), slug = $('game').value;
+      var u = data.users.filter(function (x) { return x.id === id; })[0] || {};
+      var who = u.gamertag || u.email || 'this account';
+      if (act === 'revoke' && !confirm('Take ' + $('game').selectedOptions[0].text + ' away from ' + who + '?')) return;
+      b.disabled = true;
+      note('');
+      var r;
+      try { r = await call({ action: act, user_id: id, slug: slug }); } catch (err) { r = { status: 0, data: {} }; }
+      if (r.status === 200 && r.data.ok) {
+        note((act === 'grant' ? 'Granted to ' : 'Revoked from ') + who + '.');
+        await load();
+      } else {
+        b.disabled = false;
+        note((r.data && r.data.error) || 'That didn\'t go through — try again.', true);
+      }
+    });
+    $('q').addEventListener('input', function () { if (data) render(); });
+    $('game').addEventListener('change', function () { if (data) render(); });
+
+    if (!window.OB) { say('<p><b>Sign-in didn\'t load.</b> Refresh in a minute.</p>'); return; }
+    window.OBAdmin = { reload: load };   // re-run hook (after signing in elsewhere, tests)
+    load();
+  })();
+  </script>
+</body>
+</html>

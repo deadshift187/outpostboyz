@@ -182,11 +182,37 @@
       else { alert((d && d.error) || 'Checkout unavailable right now — try again in a minute.'); }
     },
 
+    // Games this account can play: bought (purchases) + comped (access_grants; '*' = everything).
+    // Returns [{ game_slug, created_at, how: 'bought' | 'comped' }], newest first.
     async myGames() {
       var s = await this.session();
       if (!s) return [];
-      var r = await client.from('purchases').select('game_slug,created_at').order('created_at', { ascending: false });
-      return r.data || [];
+      var r = await Promise.all([
+        client.from('purchases').select('game_slug,created_at'),
+        client.from('access_grants').select('game_slug,created_at')
+      ]);
+      var out = [], seen = {};
+      (r[0].data || []).forEach(function (g) { seen[g.game_slug] = 1; out.push({ game_slug: g.game_slug, created_at: g.created_at, how: 'bought' }); });
+      (r[1].data || []).forEach(function (g) { if (!seen[g.game_slug]) { seen[g.game_slug] = 1; out.push({ game_slug: g.game_slug, created_at: g.created_at, how: 'comped' }); } });
+      out.sort(function (a, b) { return String(b.created_at).localeCompare(String(a.created_at)); });
+      return out;
+    },
+
+    // Can this account play a paid game? Asks the get-game edge function (the server decides).
+    // -> { status: 'ok', url } | { status: 'signin' } | { status: 'not_owned' } | { status: 'error', message }
+    async gameAccess(slug) {
+      var s = await this.session();
+      if (!s) return { status: 'signin' };
+      try {
+        var r = await fetch(OB_FN + '/get-game?slug=' + encodeURIComponent(slug), {
+          headers: { 'Authorization': 'Bearer ' + s.access_token }, cache: 'no-store'
+        });
+        var d = {}; try { d = await r.json(); } catch (e) { }
+        if (r.ok && d.url) return { status: 'ok', url: d.url };
+        if (r.status === 401) return { status: 'signin' };
+        if (r.status === 403) return { status: 'not_owned' };
+        return { status: 'error', message: d.error || '' };
+      } catch (e) { return { status: 'error', message: '' }; }
     },
 
     tipUrl: '',
@@ -318,29 +344,17 @@
       async me() { var s = await OB.session(); return s ? s.user.id : null; }
     },
 
-    async playGame(slug) {
-      var s = await this.session();
-      if (!s) return;
-      var d;
-      try {
-        var r = await fetch(OB_FN + '/get-game?slug=' + encodeURIComponent(slug), {
-          headers: { 'Authorization': 'Bearer ' + s.access_token }
-        });
-        d = await r.json();
-      } catch (e) {
-        alert("Couldn't open that game right now. Check your connection and try again.");
-        return;
-      }
-      // Same-tab navigation: window.open after an await gets eaten by popup blockers.
-      if (d && d.url) { window.location.href = d.url; }
-      else { alert((d && d.error) || 'That game is unavailable right now — try again soon.'); }
+    // Paid games live at /games/<slug>/ and unlock themselves for owners (see get-game).
+    playGame(slug) {
+      window.location.href = '/games/' + encodeURIComponent(slug) + '/';
     }
   };
 
   // Auto-count a play whenever a game page loads: /games/<slug>/ (or .../index.html).
   // Future games are counted automatically — no per-game wiring needed.
+  // Paid pages set window.OB_NO_AUTOCOUNT and call trackPlay() themselves once the game boots.
   try {
-    var pm = location.pathname.match(/\/games\/([^\/]+)\/(?:index\.html)?$/);
+    var pm = !window.OB_NO_AUTOCOUNT && location.pathname.match(/\/games\/([^\/]+)\/(?:index\.html)?$/);
     if (pm && pm[1] && pm[1] !== 'games') { window.OB.trackPlay(pm[1]); }
   } catch (e) { }
 })();

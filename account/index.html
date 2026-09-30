@@ -41,7 +41,7 @@
 
   <div class="acct-wrap">
     <h1 class="acct-h">Your Account</h1>
-    <p class="acct-sub">One login for scores, the world ranks, and (soon) your $1 game library.</p>
+    <p class="acct-sub">One login for scores, the world ranks, and your game library.</p>
 
     <div class="acct-card" id="boxLoading"><p>CHECKING CLEARANCE…</p></div>
 
@@ -198,9 +198,11 @@
         return;
       }
       if (!s) { show('boxSignin'); return; }
-      await resumePendingBuy();
+      var buying = await resumePendingBuy();
       var p = await OB.profile();
       if (!p) { show('boxTag'); return; }
+      var back = buying ? null : takeReturn();
+      if (back) { $('boxLoading').innerHTML = '<p>BACK TO YOUR GAME…</p>'; show('boxLoading'); location.href = back; return; }
       $('outTag').textContent = p.gamertag;
       $('outEmail').textContent = s.user.email;
       $('pwUser').value = s.user.email || '';
@@ -220,17 +222,51 @@
         $('purchasedMsg').classList.remove('hidden');
       }
       if (!games.length) { list.innerHTML = ''; return; }
-      note.textContent = games.length + ' owned';
-      var names = {};
+      var names = {}, paid = [];
       try {
         var st = await (await fetch('../games/store.json', { cache: 'no-cache' })).json();
-        (st.drops || []).forEach(function (d) { names[d.slug] = d.title; });
+        (st.drops || []).concat(st.gauntlet || []).forEach(function (d) {
+          names[d.slug] = d.title;
+          if (d.available && d.paid) paid.push(d.slug);
+        });
       } catch (e) { }
-      list.innerHTML = games.map(function (g) {
-        var title = String(names[g.game_slug] || g.game_slug).replace(/[<>&]/g, '');
-        return '<div class="acct-row"><span>' + title + '</span>' +
-          '<button type="button" class="btn btn-sm" style="border: var(--bw) solid var(--ink); background: var(--paper);" onclick="OB.playGame(\'' + g.game_slug + '\')">PLAY</button></div>';
+      // A '*' comp = every paid game.
+      var rows = [], seen = {};
+      games.forEach(function (g) {
+        var slugs = g.game_slug === '*' ? paid : [g.game_slug];
+        slugs.forEach(function (slug) {
+          if (seen[slug] || !/^[a-z0-9-]+$/.test(slug)) return;
+          seen[slug] = 1;
+          rows.push({ slug: slug, how: g.how });
+        });
+      });
+      if (!rows.length) { list.innerHTML = ''; return; }
+      note.textContent = rows.length + ' in your library';
+      list.innerHTML = rows.map(function (g) {
+        var title = String(names[g.slug] || g.slug).replace(/[<>&]/g, '');
+        return '<div class="acct-row"><span>' + title +
+          (g.how === 'comped' ? ' <span style="font-size:11px; color:var(--grey); letter-spacing:1px;">COMPED</span>' : '') + '</span>' +
+          '<a class="btn btn-sm" style="border: var(--bw) solid var(--ink); background: var(--paper); color: var(--ink);" href="../games/' + g.slug + '/">PLAY</a></div>';
       }).join('');
+    }
+
+    // ?return=/games/<slug>/ (from a game's "Sign in to play"): go back there once signed in.
+    // Kept in localStorage so it survives magic-link / confirm-email links that open a new tab.
+    (function () {
+      var r = new URLSearchParams(location.search).get('return');
+      if (r && /^\/[a-z0-9\-\/]*$/i.test(r) && r.indexOf('//') === -1) {
+        try { localStorage.setItem('ob-return', JSON.stringify({ path: r, t: Date.now() })); } catch (e) { }
+      }
+    })();
+    function takeReturn() {
+      try {
+        var raw = localStorage.getItem('ob-return');
+        if (!raw) return null;
+        localStorage.removeItem('ob-return');
+        var p = JSON.parse(raw);
+        if (p && p.path && Date.now() - (p.t || 0) < 60 * 60 * 1000 && /^\/[a-z0-9\-\/]*$/i.test(p.path) && p.path.indexOf('//') === -1) return p.path;
+      } catch (e) { }
+      return null;
     }
 
     var mode = 'in';

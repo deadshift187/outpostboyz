@@ -1,0 +1,16 @@
+{
+  "name": "Save Lost Angeles",
+  "short_name": "Lost Angeles",
+  "description": "Golden Boy vs. the system. 27 levels, 18 bosses, 2-player co-op.",
+  "start_url": "/games/save-lost-angeles/",
+  "scope": "/games/save-lost-angeles/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0b0d14",
+  "theme_color": "#0b0d14",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

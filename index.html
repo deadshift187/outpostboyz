@@ -109,12 +109,12 @@
       <div class="sec-head">
         <span class="sec-num">(03)</span>
         <h2>UNDEFEATED</h2>
-        <p class="sec-sub">Games nobody has beaten. The first one opens soon — $1 for unlimited runs, and the first player to win takes the $100 bounty.</p>
+        <p class="sec-sub">Games nobody has beaten. The first one is open: SAVE LOST ANGELES, $4.99 on your account. A $100 bounty for the first player to beat it is coming soon.</p>
       </div>
 
       <div style="border: var(--bw) solid var(--ink); background: var(--ink); color: var(--paper); padding: 18px 22px; margin-bottom: 22px; font-size: 14px;">
-        <b style="letter-spacing: 2px;">THE RULES (BOUNTY OPENS AT LAUNCH):</b>
-        $1 unlocks unlimited runs on your account &nbsp;·&nbsp; every run posts your farthest point to the <a href="leaderboard/" style="color:#39ff14;">world board</a> &nbsp;·&nbsp; first player to BEAT it — verified by the crew — takes the <b style="color:#39ff14;">$100 bounty</b> &nbsp;·&nbsp; conquered games retire to the BEAT PILE with the victor's name on them forever.
+        <b style="letter-spacing: 2px;">THE RULES (BOUNTY COMING SOON):</b>
+        buy it once and it's yours on your account, on phone and computer &nbsp;·&nbsp; every run posts your farthest point to the <a href="leaderboard/" style="color:#39ff14;">world board</a> &nbsp;·&nbsp; first player to BEAT it — verified by the crew — takes the <b style="color:#39ff14;">$100 bounty</b> &nbsp;·&nbsp; conquered games retire to the BEAT PILE with the victor's name on them forever.
       </div>
 
       <div class="game-grid" id="gauntletGrid">
@@ -549,14 +549,14 @@
       } else {
         gg.innerHTML = gauntlet.map(function (g) {
           var live = !!g.available;
+          // Paid gauntlet games sell (and unlock) on their own page: /games/<slug>/.
           var btn = live
-            ? '<a class="game-play" href="#" onclick="OB && OB.buy(\'' + g.slug + '\'); return false;">$1 — UNLIMITED RUNS</a>'
-            : (g.freePlay ? '<a class="game-play" href="games/' + g.slug + '/">PLAY FREE NOW →</a>' : '<span class="game-play dim">COMING SOON</span>');
-          var teaser = live ? '' :
-            '<p style="flex:0; font-weight:900; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--ink);">' +
-            (g.freePlay ? 'Free to play while we build it — the $100 bounty opens at launch.' : 'Not open yet — the $100 bounty opens at launch.') + '</p>';
+            ? '<a class="game-play" href="games/' + g.slug + '/">GET IT &#8212; ' + g.price + '</a>'
+            : '<span class="game-play dim">COMING SOON</span>';
+          var teaser = '<p style="flex:0; font-weight:900; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--ink);">' +
+            (live ? 'One-time purchase &#183; $100 bounty coming soon' : 'Not open yet — the $100 bounty opens at launch.') + '</p>';
           return '<article class="game-card" style="--gc:' + (g.color || '#000') + '">' +
-            '<span class="chip chip-hot game-badge">' + (live ? '$100 BOUNTY' : 'COMING SOON') + '</span>' +
+            '<span class="chip chip-hot game-badge">' + (live ? g.price : 'COMING SOON') + '</span>' +
             '<div class="game-icon" aria-hidden="true">' + (g.icon || '&#128128;') + '</div>' +
             '<h3>' + g.title + '</h3><p>' + (g.tagline || '') + '</p>' + teaser + btn + '</article>';
         }).join('');

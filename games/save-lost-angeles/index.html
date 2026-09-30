@@ -1,41 +1,186 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Save Lost Angeles — Outpost Boyz</title>
-  <meta name="description" content="Save Lost Angeles: Golden Boy vs. the system. 27 levels, 18 bosses, 2-player co-op. Coming soon to outpostboyz.com.">
-  <meta property="og:title" content="Save Lost Angeles — Outpost Boyz">
-  <meta property="og:description" content="Golden Boy vs. the system. 27 levels, 18 bosses, 2-player co-op. Coming soon.">
-  <meta property="og:url" content="https://outpostboyz.com/games/save-lost-angeles/">
-  <link rel="canonical" href="https://outpostboyz.com/games/save-lost-angeles/">
-  <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
-  <link rel="icon" href="/assets/icons/icon-192.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/style.css">
-  <style>
-    .la-wrap { max-width: 720px; margin: 0 auto; padding: 64px 16px 80px; text-align: center; }
-    .la-kicker { font-weight: 900; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--red-text); }
-    .la-title { font-family: var(--disp); font-size: clamp(44px, 11vw, 96px); line-height: .92; margin: 14px 0 18px; text-wrap: balance; }
-    .la-sub { font-size: 18px; line-height: 1.5; max-width: 34em; margin: 0 auto 28px; }
-    .la-facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 0 0 32px; }
-    .la-facts span { border: var(--bw) solid var(--ink); padding: 8px 12px; font-weight: 900; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; }
-    .la-soon { display: inline-block; background: var(--ink); color: var(--paper); padding: 16px 24px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
-    .la-back { display: inline-block; margin-top: 28px; font-weight: 900; color: var(--ink); }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Save Lost Angeles — Outpost Boyz</title>
+<meta name="description" content="Save Lost Angeles: a Mario-style platformer. You're Golden Boy: 27 levels across 5 worlds of LA, 18 bosses, 2-player co-op. $4.99, plays in your browser on phone or computer.">
+<meta property="og:title" content="Save Lost Angeles — Outpost Boyz">
+<meta property="og:description" content="Golden Boy vs. the system. 27 levels, 18 bosses, 2-player co-op. $4.99 in your browser.">
+<meta property="og:url" content="https://outpostboyz.com/games/save-lost-angeles/">
+<link rel="canonical" href="https://outpostboyz.com/games/save-lost-angeles/">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-title" content="Lost Angeles">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+/* iPhone Safari ignores user-scalable=no: a stray pinch (thumbs on stick + button) or double-tap zoomed the
+   game in mid-level (Saint, 9/29). Block pinch, double-tap zoom and scroll; the touch pad uses pointer events. */
+(function(){
+  var ok=function(t){ return t&&t.closest&&t.closest('a,button,input,select,textarea,label'); };
+  ['gesturestart','gesturechange','gestureend'].forEach(function(n){ document.addEventListener(n,function(e){ e.preventDefault(); },{passive:false}); });
+  document.addEventListener('touchstart',function(e){ if(e.touches.length>1||!ok(e.target))e.preventDefault(); },{passive:false});
+  document.addEventListener('touchmove',function(e){ e.preventDefault(); },{passive:false});
+  var last=0; document.addEventListener('touchend',function(e){ var n=Date.now(); if(n-last<350&&!ok(e.target))e.preventDefault(); last=n; },{passive:false});
+  document.addEventListener('dblclick',function(e){ e.preventDefault(); },{passive:false});
+})();
+</script>
+<style>
+  html,body{margin:0;height:100%;background:#0b0d14;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+  #cv{position:absolute;image-rendering:pixelated;image-rendering:crisp-edges;background:#000}
+  #ui{position:absolute;inset:0;pointer-events:none}
+  #ui .touch{pointer-events:auto}
+  noscript{color:#fff;font:16px system-ui;padding:24px;display:block}
+</style>
 </head>
 <body>
-  <main class="la-wrap">
-    <p class="la-kicker">Outpost Boyz · Undefeated</p>
-    <h1 class="la-title">SAVE LOST ANGELES</h1>
-    <p class="la-sub">Golden Boy vs. the system. Run all of LA from Venice to Alcatraz, rescue the citizens, and take down every boss.</p>
-    <div class="la-facts"><span>27 levels</span><span>18 bosses</span><span>5 worlds</span><span>2-player co-op</span></div>
-    <span class="la-soon">Coming soon to the site</span>
-    <br>
-    <a class="la-back" href="/">&larr; Back to Outpost Boyz</a>
-  </main>
+<canvas id="cv"></canvas>
+<div id="ui"></div>
+<noscript>LOST ANGELES needs JavaScript.</noscript>
+
+<script>window.LA_MOBILE_ART = 'assets-m/';   // site only: phones load the 600px art copy</script>
+<!-- ===== OUTPOST BOYZ (site only): paywall gate + home link on menu screens + play counter =====
+     The game code is NOT on this page. Signed-in owners (bought or comped) get a 60-second link to the
+     private bundle from the get-game edge function; it is fetched as text and run from a Blob URL. -->
+<style>
+#obHome{position:fixed;top:max(10px,env(safe-area-inset-top));left:10px;z-index:50;display:none;align-items:center;
+  padding:8px 12px;min-height:28px;border:1px solid rgba(255,255,255,.18);border-radius:6px;background:rgba(8,10,16,.72);
+  color:#cfd6e4;font:600 10px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.15em;text-decoration:none}
+#obHome:hover,#obHome:focus-visible{color:#fff;border-color:#FF5A1F;outline:none}
+#obGate{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+  padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+  background:radial-gradient(ellipse at 50% 30%,#2a1330 0%,#0b0d14 70%);color:#e8e2d4;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-user-select:text;user-select:text;overflow:auto}
+#obGate .c{width:100%;max-width:420px;text-align:center;border:2px solid #ff4d9d;border-radius:14px;background:rgba(12,10,20,.92);
+  padding:18px 18px 16px;box-shadow:0 10px 50px rgba(0,0,0,.6)}
+#obGate .k{font:800 10px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.25em;color:#ff4d9d;text-transform:uppercase}
+#obGate h1{font:900 clamp(26px,7vw,38px)/.95 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-1px;margin:8px 0 10px;color:#fff}
+#obGate .f{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0 0 12px}
+#obGate .f span{border:1px solid rgba(255,255,255,.25);border-radius:4px;padding:4px 7px;font:800 10px/1.1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#cfd6e4}
+#obGate .p{font:900 30px/1 system-ui,sans-serif;color:#39ff14;margin:4px 0 12px}
+#obGate .b{display:block;width:100%;box-sizing:border-box;border:0;border-radius:8px 8px 18px 18px;background:#39ff14;color:#04140a;
+  font:900 16px/1 system-ui,sans-serif;letter-spacing:.12em;padding:15px 16px;cursor:pointer;text-decoration:none;text-transform:uppercase}
+#obGate .b[disabled]{opacity:.6;cursor:wait}
+#obGate .b2{display:inline-block;margin-top:10px;color:#9aa89b;font-size:12px;text-decoration:underline;background:none;border:0;cursor:pointer}
+#obGate .m{font-size:14px;line-height:1.45;color:#cfd6e4;margin:6px 0 12px}
+#obGate .s{font-size:11px;line-height:1.4;color:#8d93a3;margin:10px 0 0}
+#obGate .spin{width:28px;height:28px;margin:14px auto 4px;border:3px solid rgba(255,255,255,.15);border-top-color:#ff4d9d;border-radius:50%;animation:obSpin .8s linear infinite}
+@keyframes obSpin{to{transform:rotate(360deg)}}
+@media (max-height:420px){#obGate .c{padding:12px 14px}#obGate h1{font-size:26px;margin:4px 0 6px}#obGate .f{margin-bottom:8px}#obGate .p{font-size:24px;margin:2px 0 8px}#obGate .b{padding:12px}}
+</style>
+<a id="obHome" href="/">&#9666; OUTPOST BOYZ</a>
+<div id="obGate" role="dialog" aria-live="polite"><div class="c"><div class="k">Outpost Boyz</div><div class="spin"></div></div></div>
+<script>window.OB_NO_AUTOCOUNT = true;   // count a play only when the game actually boots</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
+<script src="/assets/ob-sdk.js"></script>
+<script>
+(function () {
+  'use strict';
+  var SLUG = 'save-lost-angeles', PRICE = '$4.99';
+  var HERE = '/games/' + SLUG + '/';
+  var gate = document.getElementById('obGate');
+  var purchased = /[?&]purchased=1/.test(location.search);
+  var booted = false;
+
+  function esc(s) { return String(s || '').replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); }
+  function card(html) { gate.innerHTML = '<div class="c">' + html + '</div>'; gate.style.display = 'flex'; }
+  var TOP = '<div class="k">Outpost Boyz &middot; Undefeated</div><h1>SAVE LOST ANGELES</h1>' +
+    '<div class="f"><span>27 levels</span><span>18 bosses</span><span>5 worlds</span><span>2-player co-op</span></div>';
+  var FINE = '<p class="s">One-time purchase. Plays on phone and computer. Tied to your account.</p>';
+
+  function busy(text) { card(TOP + '<div class="spin"></div><p class="m">' + esc(text) + '</p>'); }
+  function signinCard() {
+    card(TOP + '<div class="p">' + PRICE + '</div>' +
+      '<a class="b" href="/account/?return=' + encodeURIComponent(HERE) + '">SIGN IN TO PLAY</a>' +
+      '<p class="s">Already bought it? Sign in and it opens. New here? Make a free account, then buy it for ' + PRICE + '.</p>');
+  }
+  function buyCard(who) {
+    card(TOP + '<div class="p">' + PRICE + '</div>' +
+      '<button type="button" class="b" id="obBuy">BUY &mdash; ' + PRICE + '</button>' + FINE +
+      (who ? '<p class="s">Signed in as <b>' + esc(who) + '</b>. <a href="/account/" style="color:#9aa89b">Not you?</a></p>' : ''));
+    document.getElementById('obBuy').addEventListener('click', function () {
+      this.disabled = true; this.textContent = 'OPENING CHECKOUT…';
+      var b = this;
+      Promise.resolve(OB.buy(SLUG)).then(function () {
+        setTimeout(function () { b.disabled = false; b.innerHTML = 'BUY &mdash; ' + PRICE; }, 4000);
+      });
+    });
+  }
+  function pendingCard() {
+    card(TOP + '<p class="m">Payment received &mdash; we&rsquo;re still confirming it with the bank. This usually takes under a minute.</p>' +
+      '<button type="button" class="b" id="obAgain">CHECK AGAIN</button>' +
+      '<p class="s">Still stuck after a few minutes? Email <a href="mailto:squad@outpostboyz.com" style="color:#9aa89b">squad@outpostboyz.com</a> &mdash; you won&rsquo;t be charged twice.</p>');
+    document.getElementById('obAgain').addEventListener('click', function () { check(0); });
+  }
+  function errCard(text) {
+    card(TOP + '<p class="m">' + esc(text) + '</p><button type="button" class="b" id="obRetry">TRY AGAIN</button>' +
+      '<a class="b2" href="/">Back to Outpost Boyz</a>');
+    document.getElementById('obRetry').addEventListener('click', function () { location.reload(); });
+  }
+
+  function wireHome() {
+    var MENUS = { title: 1, gameover: 1, credits: 1 };   // not map/results: their headers sit top-left
+    var el = document.getElementById('obHome');
+    function show(name) { el.style.display = MENUS[name] ? 'flex' : 'none'; }
+    if (window.LA && LA.on) { LA.on('scene', show); if (LA.scenes) show(LA.scenes.curName); }
+  }
+
+  function boot(url) {
+    if (booted) return;
+    busy('Loading the city…');
+    fetch(url, { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error('bundle ' + r.status);
+      return r.text();
+    }).then(function (code) {
+      var src = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+      var s = document.createElement('script');
+      s.src = src;
+      s.onload = function () {
+        booted = true;
+        URL.revokeObjectURL(src);
+        gate.style.display = 'none'; gate.innerHTML = '';
+        wireHome();
+        if (purchased) { try { history.replaceState(null, '', location.pathname); } catch (e) { } }
+        try { OB.trackPlay(SLUG); } catch (e) { }
+      };
+      s.onerror = function () { errCard('The game didn’t start. Refresh to try again.'); };
+      document.body.appendChild(s);
+    }).catch(function () {
+      errCard('Couldn’t download the game. Check your connection and try again.');
+    });
+  }
+
+  var who = '';
+  async function check(tries) {
+    var a = await OB.gameAccess(SLUG);
+    if (a.status === 'ok') return boot(a.url);
+    if (a.status === 'signin') return signinCard();
+    if (a.status === 'not_owned') {
+      if (purchased && tries < 8) {   // the Stripe webhook can lag a few seconds behind the redirect
+        busy('Confirming your purchase…');
+        setTimeout(function () { check(tries + 1); }, 2500);
+        return;
+      }
+      return purchased ? pendingCard() : buyCard(who);
+    }
+    errCard(a.message || 'Couldn’t reach the game server. Try again in a minute.');
+  }
+
+  async function run() {
+    if (!window.OB) { errCard('Sign-in didn’t load (a network hiccup or a blocker). Refresh in a minute.'); return; }
+    busy(purchased ? 'Confirming your purchase…' : 'Checking your library…');
+    var s = await OB.session();
+    if (!s) return signinCard();
+    who = (s.user && s.user.email) || '';
+    try { var p = await OB.profile(); if (p && p.gamertag) who = p.gamertag; } catch (e) { }
+    return check(0);
+  }
+  window.OBGate = { run: run };   // re-run hook (sign-in state changes, tests)
+  run();
+})();
+</script>
 </body>
 </html>
