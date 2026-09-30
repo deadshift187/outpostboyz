@@ -25,6 +25,44 @@
   };
   function lookKey(L) { return [L.skin, L.hair, L.style, L.top, L.bottom, L.skirt ? 1 : 0, L.beard ? 1 : 0, L.shades ? 1 : 0, L.scarf, L.cap].join('.'); }
 
+  // Citizen TYPES + sprite hook. Every code-drawn citizen has a type = gender + hair style (the same variety
+  // folkLook rolls): WomanLong WomanBun WomanBraids WomanHijab WomanAfro WomanPonytail · ManShort ManBald
+  // ManCap ManAfro ManLocs. If LA.SPRITES has 'cit' + type (e.g. 'citWomanAfro') it is drawn instead of the
+  // code art once decoded (preloaded through the entity's art field); otherwise the code art is the fallback.
+  const pascal = (s) => String(s).replace(/(^|[^a-z0-9])([a-z0-9])/gi, (m, a, c) => c.toUpperCase());
+  LA.gameplay.folkType = (L) => (L.fem ? 'Woman' : 'Man') + pascal(L.style);
+  LA.gameplay.citKey = (type) => 'cit' + pascal(type);
+  // Adult human scale: the hero draws 56 × 1.294 ≈ 72 px ≈ 1.8 m. Citizens are adults (≈1.7 m) → 68 px of body
+  // from the top of the head to the soles, feet planted on the same line as the hero's (GY + 3).
+  const CIT_H = 68, FOOT_Y = GY + 3;
+  // Foot snap: measure (once per image/canvas, never per frame) the fraction of the source height that is
+  // transparent padding below the bottom-most opaque row, so the soles — not the image edge — touch the street.
+  const footPad = new WeakMap();
+  function padOf(src, sw, sh) {
+    let f = footPad.get(src);
+    if (f != null) return f;
+    f = 0;
+    try {
+      const c = document.createElement('canvas'); c.width = sw; c.height = sh;
+      const g = c.getContext('2d'); g.drawImage(src, 0, 0);
+      const d = g.getImageData(0, 0, sw, sh).data;
+      let bottom = -1;
+      for (let y = sh - 1; y >= 0 && bottom < 0; y--) for (let x = 0; x < sw; x++) if (d[(y * sw + x) * 4 + 3] > 96) { bottom = y; break; }
+      if (bottom >= 0) f = (sh - 1 - bottom) / sh;
+    } catch (err) { f = 0; }
+    footPad.set(src, f);
+    return f;
+  }
+  // draw an upright citizen image/canvas: CIT_H from the top of the art to the soles, soles on FOOT_Y
+  // (image bottom padding measured + pushed below the line); returns the art's top y
+  function drawBody(ctx, src, sw, sh, cx, lift, flip) {
+    const pad = padOf(src, sw, sh), h = CIT_H / (1 - Math.min(0.5, pad)), w = h * sw / sh;
+    const y = FOOT_Y - h * (1 - pad) - lift;
+    if (flip) { ctx.save(); ctx.translate(cx, 0); ctx.scale(-1, 1); ctx.drawImage(src, -w / 2, y, w, h); ctx.restore(); }
+    else ctx.drawImage(src, cx - w / 2, y, w, h);
+    return y;
+  }
+
   function folkArt(L, pose) {
     return GP.cache('folk' + lookKey(L) + pose, W, H, (g) => {
       const sk = SKIN[L.skin], hc = HAIR[L.hair], top = CLOTH[L.top], bot = CLOTH[L.bottom === L.top ? (L.bottom + 3) % CLOTH.length : L.bottom];
@@ -90,8 +128,11 @@
     ctx.fillStyle = '#e2563f'; ctx.font = 'bold 13px ' + LA.FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('!', bx, by);
   }
 
-  LA.ents.define('folk', (o) => ({
-    x: o.x, y: GY - 30, w: 20, h: 30, art: o.artKey ? [o.artKey] : null, artKey: o.artKey || null, look: o.look || LA.gameplay.folkLook(LA.rng(o.x | 0)),
+  LA.ents.define('folk', (o) => {
+    const look = o.look || LA.gameplay.folkLook(LA.rng(o.x | 0)), type = o.type || LA.gameplay.folkType(look), citKey = LA.gameplay.citKey(type);
+    return {
+    x: o.x, y: GY - 30, w: 20, h: 30, look, type, citKey, artKey: o.artKey || null,
+    art: [o.artKey || citKey],                                          // preloaded with the level (missing keys are skipped)
     guard: o.guard || null, gem: o.gem || 'grow', saved: false, walk: 0, citizen: true, layer: 'mid', drawW: 40, level: o.level || null,
     update(S, dt) {
       if (this.saved) { this.walk += dt; if (this.walk > 0.7) this.x += 1.7 * dt * 60; if (this.walk > 3.4) this.dead = true; return; }
@@ -113,20 +154,18 @@
       const free = this.saved, wob = free ? Math.abs(Math.sin(this.walk * 9)) * 2.5 : 0;
       if (free && this.walk > 2.6) ctx.globalAlpha = Math.max(0, (3.4 - this.walk) / 0.8);
       let headY;
-      const im = this.artKey && LA.img(this.artKey);
-      if (im) {
-        const h = 48, w = h * im.naturalWidth / im.naturalHeight;
-        ctx.drawImage(im, this.x + 10 - w / 2, GY - h + 1 - wob, w, h); headY = GY - h - 10 - wob;
-      } else {
-        const a = folkArt(this.look, free ? 'cheer' : 'help'), h = 54, w = h * W / H;
+      // illustrated art first: Saint's beach sprite (artKey) or an illustrated 'cit<Type>' (only once decoded)
+      const im = (this.artKey && LA.img(this.artKey)) || (LA.SPRITES && LA.SPRITES[this.citKey] ? LA.img(this.citKey) : null);
+      if (im) headY = drawBody(ctx, im, im.naturalWidth, im.naturalHeight, this.x + 10, wob, false) - 10;
+      else {
+        const a = folkArt(this.look, free ? 'cheer' : 'help');
         const flip = free;                                             // walk off to the right
-        if (flip) { ctx.save(); ctx.translate(this.x + 10, 0); ctx.scale(-1, 1); ctx.drawImage(a.cv, -w / 2, GY - h + 1 - wob, w, h); ctx.restore(); }
-        else ctx.drawImage(a.cv, this.x + 10 - w / 2, GY - h + 1 - wob + (Math.sin(S.t * 8 + this.x) > 0.6 ? 1 : 0), w, h);
-        headY = GY - h - 10 - wob;
+        headY = drawBody(ctx, a.cv, a.cv.width, a.cv.height, this.x + 10, wob - (!free && Math.sin(S.t * 8 + this.x) > 0.6 ? 1 : 0), flip) - 10;
       }
       ctx.globalAlpha = 1;
       if (!free) bubble(ctx, this.x + 10, headY);
       else if (this.walk < 1.4) { ctx.font = 'bold 11px ' + LA.FONT; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = O; ctx.strokeText('THANK YOU!', this.x + 10, headY - 4); ctx.fillStyle = '#fff'; ctx.fillText('THANK YOU!', this.x + 10, headY - 4); }
     },
-  }));
+    };
+  });
 })();

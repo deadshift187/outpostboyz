@@ -100,6 +100,31 @@
     return (c - V / 2) / K.BG_PAR + V / 2;
   };
   SP.inLevel = (lv, x, pad) => x != null && x >= lv.x0 - (pad || 0) && x <= lv.x1 + (pad || 0);
+  // Mario rule for carriers (RV, flood boat, ferry): once the ride has carried you forward, the checkpoint moves
+  // to safe street just past where it dropped you — a death afterwards never replays / re-walks the set-piece.
+  // Nudges forward to solid ground clear of pothole lips and water; never past an unbeaten boss arena's door.
+  // nearest safe street at/after x: solid ground clear of pothole lips and water, never past an unbeaten arena door
+  SP.safeX = function (S, x) {
+    const A = S.arenas && S.arenas.find((a) => !a.cleared && a.x + a.w > x);
+    const cap = A ? A.x - 120 : Infinity;
+    const safe = (c) => {
+      if (typeof S.water === 'function' && S.water(c)) return false;
+      for (const ph of S.potholes) if (c > ph - 70 && c < ph + K.PIT_X + K.PIT_W + 70) return false;
+      for (const g of S.ground) if (c > g.x && c < g.x + g.w) return c > g.x + 90 && c < g.x + g.w - 90;
+      return false;
+    };
+    let cx = Math.min(x, cap);
+    for (let d = 0; d <= 900 && cx + d < cap; d += 20) if (safe(cx + d + 12)) { cx += d; break; }
+    return cx;
+  };
+  SP.checkpoint = function (S, x, quiet) {
+    const cx = SP.safeX(S, x);
+    if (!(cx > S.lastCP)) return false;
+    S.lastCP = cx;
+    if (!quiet) { LA.pop(S, cx, GY - 110, 'CHECKPOINT', '#8fd8ff', true); SP.sfx('checkpoint'); }
+    LA.emit && LA.emit('checkpoint', { S, x: cx, setpiece: true });
+    return true;
+  };
 
   // ---------- drawing ----------
   SP.text = function (ctx, txt, x, y, size, fill, align, stroke) {

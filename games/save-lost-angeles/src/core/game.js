@@ -71,6 +71,9 @@
       const def = LA.setpieces && LA.setpieces.defs[id];
       if (def) try { S.sets[id + '@' + lv.id] = Object.assign({ id, level: lv }, def.init ? def.init(S, lv) || {} : {}); } catch (e) { console.error('[setpiece init]', id, e); }
     }
+    // level midway checkpoints land on safe street (not over a pothole, the bay, or inside an arena)
+    if (LA.setpieces && LA.setpieces.safeX) S.checkpoints = S.checkpoints.map((c) => LA.setpieces.safeX(S, c))
+      .filter((c) => LA.phys.floorAt(S, c) && !(S.water && S.water(c)));   // e.g. mid-bay on the ferry: drop it
     // players
     const spawnX = S.lastCP;
     for (let i = 0; i < run.players; i++) S.players.push(new LA.Player(S, i, spawnX + i * 34));
@@ -291,14 +294,35 @@
     }
     ctx.globalAlpha = 1;
   }
-  function drawGoal(ctx, S) {                                          // LA-style goal: a "YOU ARE LEAVING ___" freeway sign on a pole
-    const x = S.goalX, top = GY - 230;
+  // Goal sign text. "NOW LEAVING <district>" only when the goal really sits at that district's end (≤300 px from
+  // LA.city.seg[zi][1]); when the district carries on into the next level (DTLA 3-2/3-3, SF 5-5) the sign names
+  // the next stop instead ("NEXT EXIT · 3-3 / THE HISTORIC CORE / DTLA CONTINUES ▸") — Saint: "it's not over yet".
+  function goalSign(S) {
+    const x = S.goalX;
+    if (S._goalSign && S._goalSign.x === x) return S._goalSign;
+    const zi = LA.city.zoneIndexAt(x), z = LA.city.zones[zi] || {}, seg = LA.city.seg[zi], dn = z.n || S.level.name;
+    let g;
+    if (!seg || seg[1] - x <= 300) g = { x, a: 'NOW LEAVING', b: dn, c: 'NEXT EXIT ▸' };
+    else {
+      const nx = LA.LEVELS[(S.level.index != null ? S.level.index : LA.LEVELS.indexOf(S.level)) + 1];
+      g = nx ? { x, a: 'NEXT EXIT · ' + nx.id, b: String(nx.sub || nx.name).toUpperCase(), c: dn + ' CONTINUES ▸' }
+             : { x, a: 'CHECKPOINT', b: dn, c: 'KEEP GOING ▸' };
+    }
+    return (S._goalSign = g);
+  }
+  function drawGoal(ctx, S) {                                          // LA-style goal: a green freeway sign on a pole
+    const x = S.goalX, top = GY - 230, g = goalSign(S);
     ctx.fillStyle = '#6b6f78'; ctx.fillRect(x - 4, top, 8, 230);
     ctx.fillStyle = '#0a6b3a'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - 78, top - 6, 156, 64, 8) : ctx.rect(x - 78, top - 6, 156, 64); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = 'bold 11px ' + LA.FONT; ctx.fillText('NOW LEAVING', x, top + 12);
-    ctx.font = 'bold 15px ' + LA.FONT; ctx.fillText(S.level.name.slice(0, 16), x, top + 32);
-    ctx.font = 'bold 9px ' + LA.FONT; ctx.fillText('NEXT EXIT ▸', x, top + 48);
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = 'bold 11px ' + LA.FONT; ctx.fillText(g.a, x, top + 12);
+    if (!g.font) {                                                     // shrink-to-fit once, cached
+      let fs = 15; ctx.font = 'bold ' + fs + 'px ' + LA.FONT;
+      while (fs > 10 && ctx.measureText(g.b).width > 146) { fs--; ctx.font = 'bold ' + fs + 'px ' + LA.FONT; }
+      g.font = ctx.font;
+    }
+    ctx.font = g.font; ctx.fillText(g.b, x, top + 32);
+    ctx.font = 'bold 9px ' + LA.FONT; ctx.fillText(g.c, x, top + 48);
   }
   function drawWall(ctx, w) {
     ctx.fillStyle = 'rgba(255,90,31,.18)'; ctx.fillRect(w.x, w.y, w.w, w.h);

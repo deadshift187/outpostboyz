@@ -19,7 +19,7 @@
   }
 
   LA.ents.define('spPapz', (o) => ({
-    x: o.x, y: GY - 40, w: 26, h: 40, vx: 0, type: o.type, face: 1, t: o.t || 0, layer: 'mid', always: true, foe: true, noGate: true, setpiece: 'paparazzi',
+    x: o.x, y: GY - 48, w: 26, h: 48, vx: 0, type: o.type, face: 1, t: o.t || 0, layer: 'mid', always: true, foe: true, noGate: true, setpiece: 'paparazzi',
     papz: true, hitCD: 0, flashCD: o.flashCD, flashPop: 0, flee: 0, gone: 0, spd: o.spd, art: TYPES,
     update(S, dt) {
       this.t += dt; if (this.hitCD > 0) this.hitCD--; if (this.shoveCD > 0) this.shoveCD--;
@@ -53,7 +53,7 @@
     draw(ctx, S) {
       const key = this.type, bob = Math.abs(Math.sin(this.t * 10)) * 2;
       ctx.save(); if (this.gone) ctx.globalAlpha = Math.max(0, this.gone / 0.8);
-      SP.sprite(ctx, key, this.x + this.w / 2, this.y + this.h + 3 - bob, 60, this.face > 0, this.gone ? 0.6 * this.face : 0);   // his papz art faces left
+      SP.sprite(ctx, key, this.x + this.w / 2, this.y + this.h + 3 - bob, 72, this.face > 0, this.gone ? 0.6 * this.face : 0);   // his papz art faces left · 72 = adult scale next to the 72 px hero (was 60)
       ctx.restore();
       if (this.flashPop > 0) { const b = burstArt(); if (b) { const s = 40 + this.flashPop * 120; ctx.drawImage(b, this.x + this.w / 2 + this.face * 14 - s / 2, this.y + 8 - s / 2, s, s); } }
     },

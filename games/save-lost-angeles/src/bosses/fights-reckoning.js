@@ -14,7 +14,7 @@
 
   // ------------------------------------------------------------------ TWZ HOSTS — paparazzi swarm + flash whiteouts
   function pap(S, b, x) {
-    return B.add(S, b, x, { art: b.rng() < 0.5 ? 'paparazzi' : 'paparazziF', dh: 60, w: 26, h: 32, speed: 1.7 + b.rng() * 0.5, hp: 1, label: 'PAP',
+    return B.add(S, b, x, { art: b.rng() < 0.5 ? 'paparazzi' : 'paparazziF', dh: 72, w: 26, h: 40, speed: 1.7 + b.rng() * 0.5, hp: 1, label: 'PAP',
       ai(S, e, dt) {
         const tp = B.target(S, { cx: () => e.x + 13 }), dx = tp ? B.pcx(tp) - (e.x + 13) : 0, k = dt * 60;
         e.vx = Math.abs(dx) > 50 ? Math.sign(dx) * e.speed : 0; LA.phys.move(S, e, { grav: LA.K.GRAV, maxFall: 14 }); if (e.vx) e.face = e.vx < 0 ? -1 : 1;
@@ -25,7 +25,8 @@
       } });
   }
   B.register('TWZ HOSTS', {
-    art: 'leech', artKeys: ['paparazzi', 'paparazziF'], faces: -1, hit: [96, 86], h: 100, hp: 11, phases: [0.6, 0.3], speed: [1.2, 1.4, 1.65], cd: [1.55, 1.3, 1.05],
+    // Saint: "a little short" — was h 100 / hit 96x86; now 112 (1.55× the 72 px hero, same as NEWSCUM)
+    art: 'leech', artKeys: ['paparazzi', 'paparazziF'], faces: -1, hit: [104, 96], h: 112, hp: 11, phases: [0.6, 0.3], speed: [1.2, 1.4, 1.65], cd: [1.55, 1.3, 1.05],
     style: 'keep', keep: 290, lastWords: "CUT THE FEED! CUT THE FEED!",
     headline: ['TWZ HOSTS: "NO COMMENT"', 'Gossip show runs 11 minutes on its own defeat, calls it "exclusive footage." Ratings: up.'],
     quips: { 2: "WE'RE GOING LIVE!", 3: 'THIS IS GOING VIRAL!' },
@@ -50,7 +51,9 @@
   });
 
   // ------------------------------------------------------------------ MAYOR BASURA — the ballot-box chase (Saint's setupBasura/updateBasura)
-  const BALLOT_H = 42;
+  // Saint playtest: "ballot box is too small". A real drop box is ~1.2 m ≈ 48 px next to the 72 px hero: BALLOT_H 42→56 and the
+  // trail now starts at ×0.86 (48 px) and steps ×0.1 (was ×0.5 + 0.22/box → the first box drew 21 px). Street boxes ×0.9 → 50 px.
+  const BALLOT_H = 56;
   const boxAsp = () => { const im = LA.img('ballotBox'); return im && im.naturalWidth ? im.naturalWidth / im.naturalHeight : 0.62; };
   function voteCard(S, owner, x, y, clampFn) {
     const e = B.thing(S, owner, { x: x - 11, y: y - 11, w: 22, h: 22, vx: (Math.random() - 0.5) * 5, vy: -4 - Math.random() * 2.5, t: 0, layer: 'mid' });
@@ -77,17 +80,17 @@
     };
     return e;
   }
-  function layTrail(S, b, n, s0) {
+  function layTrail(S, b, n, s0, ds) {
     b.mem.stuffed = 0;
-    for (let i = 0; i < n; i++) ballotBox(S, b, b.A.x + 150 + (b.A.w - 300) * i / (n - 1), s0 + i * 0.22, () => { b.mem.popped = (b.mem.popped || 0) + 1; });
+    for (let i = 0; i < n; i++) ballotBox(S, b, b.A.x + 150 + (b.A.w - 300) * i / (n - 1), s0 + i * (ds || 0.1), () => { b.mem.popped = (b.mem.popped || 0) + 1; });
   }
   B.register('MAYOR BASURA', {
     art: 'basura', artKeys: ['ballotBox', 'basuraVote'], faces: -1, hit: [56, 92], hp: 13, phases: [0.66, 0.33], speed: [2.1, 2.5, 2.8], cd: [2.6, 1.6, 1.2],
     lastWords: 'I DEMAND A RECOUNT!',
     headline: ['BASURA RECALLED IN A LANDSLIDE', 'Long Beach counts every vote once. Mayor calls it "the most rigged election in history" and requests a third recount.'],
     quips: { 2: 'RECOUNT! RECOUNT!', 3: 'EVERY VOTE COUNTS... TWICE!' },
-    init(S, b) { b.mem.trail = true; layTrail(S, b, 6, 0.5); },
-    onPhase(S, b, ph) { if (ph === 2) { for (const e of b.things) if (e.isBox && !e.dead) e.dead = true; b.mem.trail = true; layTrail(S, b, 4, 0.7); } },
+    init(S, b) { b.mem.trail = true; layTrail(S, b, 6, 0.86); },
+    onPhase(S, b, ph) { if (ph === 2) { for (const e of b.things) if (e.isBox && !e.dead) e.dead = true; b.mem.trail = true; layTrail(S, b, 4, 0.95); } },
     move(S, b, dt, sp, dx) {
       const boxes = b.things.filter((e) => e.isBox && !e.dead && !e.visited);
       const k = dt * 60;
@@ -111,12 +114,12 @@
     },
     attacks: {
       votes: { tell: 0.5, say: 'VOTE EARLY, VOTE OFTEN!', rec: 0.35,
-        start(S, b) { const t = tx(S, b), n = b.phase === 1 ? 2 : 3; for (let i = 0; i < n; i++) B.lobTo(S, b, b.cx() + b.face * 26, handY(b), inA(b, t + (i - (n - 1) / 2) * 110), { T: 50 + i * 8, icon: 'vote', size: 28, r: 11, spin: 0.2 }); } },
+        start(S, b) { const t = tx(S, b), n = b.phase === 1 ? 2 : 3; for (let i = 0; i < n; i++) B.lobTo(S, b, b.cx() + b.face * 26, handY(b), inA(b, t + (i - (n - 1) / 2) * 110), { T: 50 + i * 8, icon: 'vote', size: 36, r: 13, spin: 0.2 }); } },
       charge: { ph: 1, tell: 0.7, say: 'OUT OF MY WAY, VOTER!', rec: 0.2, max: 4, can: (S, b) => !b.things.some((e) => e.isBox && !e.dead && !e.visited),
         start(S, b) { b.vx = b.face * 7.5; },
         run(S, b, t, dt) { b.x += b.vx * dt * 60; b.anim.dy = -Math.abs(Math.sin(t * 20)) * 3; if ((b.vx < 0 && b.x <= b.L() + 1) || (b.vx > 0 && b.x + b.w >= b.R() - 1)) { b.vx = 0; LA.camera.kick(8); b.stun(1.1, '*recount pending*'); return true; } return false; } },
       storm: { ph: 3, tell: 0.6, say: 'BALLOT STORM!', rec: 0.35,
-        start(S, b) { const t = tx(S, b); for (let i = 0; i < 5; i++) B.drop(S, b, inA(b, t + (i - 2) * 115, 40), { delay: 0.75 + (i % 2) * 0.25, icon: 'ballot', size: 28, r: 11, spin: 0.2 }); } },
+        start(S, b) { const t = tx(S, b); for (let i = 0; i < 5; i++) B.drop(S, b, inA(b, t + (i - 2) * 115, 40), { delay: 0.75 + (i % 2) * 0.25, icon: 'ballot', size: 36, r: 13, spin: 0.2 }); } },
     },
   });
   // level-side: fake drop-boxes along the Long Beach street — stomp them for points (deny Basura early)

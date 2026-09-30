@@ -38,7 +38,7 @@
   B.register('THE GRILL MARSHAL', {
     art: 'grillmarshal', artKeys: ['grill3'], faces: -1, hit: [54, 92], hp: 10, phases: [0.6, 0.3], speed: [1.35, 1.6, 1.9], cd: [1.5, 1.25, 1.05],
     lastWords: 'MY... CLIPBOARD...',
-    headline: ['GRILL MARSHAL GRILLED', 'Block party back on. Marshal cited for grilling without a permit at his own retirement party.'],
+    headline: ['GRILL MARSHAL GRILLED', 'Block party back on. Marshal cited for grilling without a permit at her own retirement party.'],
     quips: { 2: 'NO PERMIT, NO PARTY!', 3: "I'LL FINE THE WHOLE BLOCK!" },
     seq: { 1: ['toss', 'toss', 'toss'], 2: ['grills', 'toss', 'toss'], 3: ['ban', 'toss', 'grills', 'toss'] },
     attacks: {

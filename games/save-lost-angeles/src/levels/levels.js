@@ -45,7 +45,7 @@
     { id: '5-6', w: 5, name: 'ALCATRAZ', sub: 'the final spin', from: [29, 'ferry'], boss: 'GOV. NEWSCUM', sets: ['alcatraz'], final: true },
   ];
 
-  const ARENA_W = 960, MIN_BOSS = 2700, MIN_GOAL = 3200, CHECK_EVERY = 7000;
+  const ARENA_W = 960, MIN_BOSS = 2700, MIN_GOAL = 3200, CHECK_EVERY = 4500;
   const levels = LA.levels = { ARENA_W, byId: {} };
 
   // world x where the SF bay water starts: just past the last building before Alcatraz (his azInit() wx0)
@@ -87,7 +87,9 @@
       lv.goalX = lv.goal ? lv.x1 - 240 : null;
       const playEnd = lv.arena ? lv.arena.x - 200 : lv.goalX - 400;
       lv.checkpoints = [];
-      for (let x = lv.x0 + CHECK_EVERY; x < playEnd - 1500; x += CHECK_EVERY) lv.checkpoints.push(Math.round(x));
+      // Mario midway points: every level longer than ~3.2k gets at least one, evenly spaced about every 4.5k
+      const playLen = playEnd - lv.x0, nCP = playLen > 3200 ? Math.max(1, Math.round(playLen / CHECK_EVERY)) : 0;
+      for (let i = 1; i <= nCP; i++) lv.checkpoints.push(Math.round(lv.x0 + playLen * i / (nCP + 1)));
       lv.districts = []; for (let d = C.zoneIndexAt(lv.x0 + 1); d <= C.zoneIndexAt(lv.x1 - 1); d++) lv.districts.push(d);
       levels.byId[lv.id] = lv;
     }

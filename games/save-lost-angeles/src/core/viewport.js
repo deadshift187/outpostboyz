@@ -5,6 +5,7 @@
   'use strict';
   const LA = window.LA;
   const VH = LA.K.VH, MIN_W = 420, MAX_W = 1200;
+  const RH = +(new URLSearchParams(location.search).get('rh')) || 0;
   const view = LA.view = { VW: MIN_W, VH, scale: 1, dpr: 1, portrait: false, cv: null, ctx: null, ox: 0, oy: 0, cssW: 0, cssH: 0 };
 
   view.init = function (canvas) {
@@ -28,6 +29,10 @@
     view.dpr = Math.min(window.devicePixelRatio || 1, 2);
     view.cssW = Math.round(view.VW * scale);
     view.cssH = Math.round(VH * scale);
+    // render-height cap (?rh=540): weak hardware (the Pi 5 cabinet's CPU-rasterised WebKit canvas) draws a
+    // smaller backing store and lets the compositor upscale it
+    if (RH && view.cssH * view.dpr > RH) view.dpr = RH / view.cssH;
+    cv.style.imageRendering = RH && view.cssH % RH === 0 ? 'pixelated' : '';
     cv.style.width = view.cssW + 'px';
     cv.style.height = view.cssH + 'px';
     view.ox = Math.round((W - view.cssW) / 2);

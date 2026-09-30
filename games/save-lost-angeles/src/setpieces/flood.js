@@ -63,6 +63,7 @@
           sp.beached = { x: D.x };
           for (const q of S.players) if (q.active && !q.ghost && q.x > sp.fx0 - 100 && q.x < sp.fx1 + 300 && q.y + q.h < GY - 2) q.vy = Math.max(q.vy, 0);
           SP.banner(S, 'BACK ON PAVEMENT', 'HOLLYWOOD ROLLS ON', 2.2);
+          SP.checkpoint(S, D.x + BOAT_W + 20);                               // dry street just past the beached boat
           return;
         }
       }

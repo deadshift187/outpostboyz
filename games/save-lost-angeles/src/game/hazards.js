@@ -75,6 +75,113 @@
     return e;
   });
 
+  // ---------------- tennis ball machine (rich-estate turret) ----------------
+  // Saint playtest: "too small, not shooting balls anymore, and I can't kill it." It used to be a harmless
+  // hurdle prop (45 px). Now a real hazard, Bill-Blaster style: it turns to face the nearest player, RUMBLES for
+  // 0.6 s (shakes + blinking chute ring + "!"), then fires a bouncing tennis ball out of the chute. Balls hurt;
+  // shoot one to swat it. The machine is a foe: stomp it or hit it with a crystal to wreck it (+200); side
+  // contact hurts like any foe. Drawn 62 px (≈0.85× the 72 px hero ≈ 1.5 m) from props.js PROP_H.
+  const BM_FIRE = 2.4, BM_TELL = 0.6, BM_RANGE = 520;
+  function tennisArt() {
+    return GP.cache('tennisBall', 16, 16, (g) => {
+      g.fillStyle = '#d8f04a'; g.strokeStyle = '#191921'; g.lineWidth = 2;
+      g.beginPath(); g.arc(8, 8, 6.6, 0, 7); g.fill(); g.stroke();
+      g.fillStyle = 'rgba(255,255,255,.45)'; g.beginPath(); g.arc(6, 5.6, 2.2, 0, 7); g.fill();
+      g.strokeStyle = '#fbfff0'; g.lineWidth = 1.4;                   // the seam
+      g.beginPath(); g.arc(1.5, 8, 5, -1.1, 1.1); g.stroke(); g.beginPath(); g.arc(14.5, 8, 5, Math.PI - 1.1, Math.PI + 1.1); g.stroke();
+    });
+  }
+  LA.ents.define('tennisBall', (o) => ({
+    x: o.x - 7, y: o.y - 7, w: 14, h: 14, vx: o.vx, vy: o.vy, bounces: 0, life: 4, rot: 0, layer: 'front', always: true, hostile: true,
+    update(S, dt) {
+      const k = dt * 60;
+      this.vy += 0.2 * k; this.x += this.vx * k; this.y += this.vy * k; this.rot += this.vx * 0.06 * k; this.life -= dt;
+      if (this.life <= 0 || this.y > K.VH + 40) { this.dead = true; return; }
+      if (this.y + this.h >= GY && this.vy > 0 && LA.phys.floorAt(S, this.x + this.w / 2)) {
+        this.y = GY - this.h;
+        if (++this.bounces > 3) { this.dead = true; LA.ents.add(S, 'gpfx', { mode: 'poof', x: this.x + 7, y: GY - 6 }); return; }
+        this.vy *= -0.62; this.vx *= 0.9;
+      }
+      const cx = LA.camera.x, VW = LA.view.VW;
+      if (this.x < cx - 200 || this.x > cx + VW + 200) this.dead = true;
+    },
+    touch(S, p) {
+      if (LA.powers.invincible(S, p)) { this.dead = true; return; }
+      if (p.hurt(S, 'shot')) this.dead = true;
+    },
+    onShot(S) { this.dead = true; LA.ents.add(S, 'gpfx', { mode: 'poof', x: this.x + 7, y: this.y + 7 }); return true; },
+    draw(ctx) {
+      const a = tennisArt();
+      ctx.save(); ctx.translate(this.x + 7, this.y + 7); ctx.rotate(this.rot); ctx.drawImage(a.cv, -8, -8, 16, 16); ctx.restore();
+    },
+  }));
+  LA.ents.define('ballMachine', (o, S) => {
+    const [pw, ph] = LA.gameplay.propDims('dsBallMachine'), gx = o.x, gy = GY - ph + 7;   // bedded 7 px into the lip like every prop
+    const tierSp = (S && S.tier && S.tier.speed) || 1;
+    return {
+      gx, gy, pw, ph, x: gx + pw * 0.1, y: gy + ph * 0.18, w: pw * 0.8, h: ph * 0.82 - 7,   // hitbox: hopper rim to the street
+      face: o.flip ? 1 : -1, cd: 1.2 + (o.seed || 0) % 1.4, tell: 0, recoil: 0, dying: null, foe: true, layer: 'mid', art: ['dsBallMachine'], drawW: pw,
+      fireEvery: BM_FIRE / tierSp, shots: 0,
+      update(S, dt) {
+        if (this.dying) { this.dying.t += dt; if (this.dying.t > 0.5) this.dead = true; return; }
+        if (this.recoil > 0) this.recoil -= dt;
+        const cx = this.gx + pw / 2, p = GP.target(S, cx);
+        if (!p) return;
+        const dx = p.x + p.w / 2 - cx;
+        if (this.tell > 0) {
+          this.tell -= dt;
+          if (this.tell <= 0) this.fire(S);
+          return;
+        }
+        if (Math.abs(dx) > 30) this.face = dx > 0 ? 1 : -1;            // swivel to track you
+        this.cd -= dt;
+        if (this.cd <= 0) {
+          if (Math.abs(dx) < BM_RANGE && Math.abs(dx) > 40 && LA.camera.visible(this.gx, pw, -10)) { this.tell = BM_TELL; GP.sfx('whoosh', { vol: 0.5 }); }
+          else this.cd = 0.4;
+        }
+      },
+      fire(S) {
+        this.cd = this.fireEvery; this.recoil = 0.18; this.shots++;
+        const mx = this.gx + pw / 2 + this.face * pw * 0.36, my = this.gy + ph * 0.66;   // the round chute on the front of the base
+        LA.ents.add(S, 'tennisBall', { x: mx, y: my, vx: this.face * 4.4, vy: -3.6 });
+        LA.pop(S, mx, this.gy - 4, 'THWOOP!', '#d8f04a'); GP.sfx('boing');
+      },
+      touch(S, p) {
+        if (this.dying) return;
+        if (LA.powers.invincible(S, p) || p.power === 'grow' && !LA.phys.stompedFrom(p, this)) { this.kill(S, 'flip', 'PLOWED +200'); GP.sfx('stomp'); return; }
+        if (LA.phys.stompedFrom(p, this)) {
+          const combo = p.bounce(S); S.stats.stomps++;
+          this.kill(S, 'squash', (combo > 1 ? 'x' + combo + ' ' : '') + 'OUT! +200'); GP.sfx(combo > 1 ? 'combo' : 'stomp', { n: combo });
+          return;
+        }
+        p.hurt(S, 'foe');
+      },
+      onShot(S) { if (this.dying) return false; this.kill(S, 'flip', 'FAULT! +200'); return true; },
+      kill(S, how, txt) {
+        if (this.dying) return;
+        this.dying = { t: 0, how: how || 'squash' }; this.defeated = true; this.always = true;
+        S.stats.kills++; S.run.kills++; LA.game.score(S, 200);
+        LA.pop(S, this.gx + pw / 2, this.gy - 10, txt || '+200', '#d8f04a');
+        LA.ents.add(S, 'gpfx', { mode: 'debris', x: this.gx + pw / 2, y: this.gy + ph * 0.4 }); GP.sfx('boom', { vol: 0.5 });
+      },
+      draw(ctx, S) {
+        const cx = this.gx + pw / 2, base = this.gy + ph;
+        ctx.save(); ctx.translate(cx, base);
+        if (this.dying) { const f = Math.min(1, this.dying.t / 0.25); ctx.globalAlpha = 1 - Math.max(0, this.dying.t - 0.25) / 0.25; if (this.dying.how === 'squash') ctx.scale(1 + f * 0.3, 1 - f * 0.65); else ctx.rotate(-this.face * f * 1.3); }
+        else if (this.tell > 0) ctx.translate(Math.sin(S.t * 60) * 1.4, 0);                                 // rumble
+        else if (this.recoil > 0) ctx.scale(1 + this.recoil * 0.5, 1 - this.recoil * 0.6);                  // THWOOP squash
+        if (this.face > 0) ctx.scale(-1, 1);                           // Saint's art faces LEFT (chute on the left)
+        LA.di(ctx, 'dsBallMachine', -pw / 2, -ph, pw, ph);
+        ctx.restore();
+        if (this.dying || this.tell <= 0) return;
+        const mx = cx + this.face * pw * 0.36, my = this.gy + ph * 0.66, bl = Math.floor(this.tell * 16) % 2 === 0;
+        ctx.lineWidth = 3; ctx.strokeStyle = bl ? '#ffd23a' : '#ff5a1f'; ctx.beginPath(); ctx.arc(mx, my, 7 + (BM_TELL - this.tell) * 8, 0, 7); ctx.stroke();
+        ctx.font = 'bold 16px ' + LA.FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.lineWidth = 4; ctx.strokeStyle = '#191921'; ctx.strokeText('!', cx, this.gy - 14); ctx.fillStyle = '#ffd23a'; ctx.fillText('!', cx, this.gy - 14);
+      },
+    };
+  });
+
   // ---------------- traffic cone (slip) ----------------
   // knocked-over cone: was 45 px tall (0.62× the hero ≈ a 1.1 m cone lying down); 34 px still reads at a glance
   const CONE_H = 34;

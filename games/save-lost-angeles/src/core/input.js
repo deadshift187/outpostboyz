@@ -20,7 +20,9 @@
   const P1_WASD = { left: ['KeyA'], right: ['KeyD'], up: ['KeyW'], down: ['KeyS'] };
   const P2 = { left: ['KeyD'], right: ['KeyG'], up: ['KeyR'], down: ['KeyF'],
     jump: ['KeyQ', 'KeyI'], fire: ['KeyA', 'KeyK'], sprint: ['KeyW'], start: ['Digit2'], coin: ['Digit6'] };
-  const P2_ONLY = new Set(['KeyR', 'KeyG', 'KeyQ', 'KeyI', 'KeyK', 'Digit2', 'Digit6']);   // proves a 2nd person is on the keys
+  // Only P2's START/COIN hand the shared keys (A/D/W/S) to player 2. It used to flip on any P2 key, so one stray
+  // K mid-level stole P1's WASD movement (Saint, 9/29).
+  const P2_ONLY = new Set(['Digit2', 'Digit6']);
 
   addEventListener('keydown', (e) => {
     if (!input.keys[e.code] && P2_ONLY.has(e.code)) input.p2keyboard = true;

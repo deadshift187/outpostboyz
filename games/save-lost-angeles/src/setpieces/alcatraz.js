@@ -85,6 +85,7 @@
       if (!sp.crossed && live.some((q) => q.onGround && q.x > sp.wx1 + 20)) {
         sp.crossed = true; S.flags.ferry = 'crossed';
         SP.banner(S, 'ALCATRAZED', 'NO ESCAPE PLAN · NEWSCUM IS INSIDE', 2.8);
+        SP.checkpoint(S, sp.wx1 + 120);                                       // island dock: a death here never re-sails the bay
       }
     },
     draw(ctx, S, sp, layer) {

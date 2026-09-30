@@ -11,9 +11,23 @@
 <meta property="og:description" content="Golden Boy vs. the system. 27 levels, 18 bosses, 2-player co-op. Free in your browser.">
 <meta property="og:url" content="https://outpostboyz.com/games/save-lost-angeles/">
 <link rel="canonical" href="https://outpostboyz.com/games/save-lost-angeles/">
-<link rel="manifest" href="/manifest.webmanifest">
-<link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
-<link rel="icon" href="/assets/icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-title" content="Lost Angeles">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+/* iPhone Safari ignores user-scalable=no: a stray pinch (thumbs on stick + button) or double-tap zoomed the
+   game in mid-level (Saint, 9/29). Block pinch, double-tap zoom and scroll; the touch pad uses pointer events. */
+(function(){
+  var ok=function(t){ return t&&t.closest&&t.closest('a,button,input,select,textarea,label'); };
+  ['gesturestart','gesturechange','gestureend'].forEach(function(n){ document.addEventListener(n,function(e){ e.preventDefault(); },{passive:false}); });
+  document.addEventListener('touchstart',function(e){ if(e.touches.length>1||!ok(e.target))e.preventDefault(); },{passive:false});
+  document.addEventListener('touchmove',function(e){ e.preventDefault(); },{passive:false});
+  var last=0; document.addEventListener('touchend',function(e){ var n=Date.now(); if(n-last<350&&!ok(e.target))e.preventDefault(); last=n; },{passive:false});
+  document.addEventListener('dblclick',function(e){ e.preventDefault(); },{passive:false});
+})();
+</script>
 <style>
   html,body{margin:0;height:100%;background:#0b0d14;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
   #cv{position:absolute;image-rendering:pixelated;image-rendering:crisp-edges;background:#000}
@@ -27,6 +41,7 @@
 <div id="ui"></div>
 <noscript>LOST ANGELES needs JavaScript.</noscript>
 
+<script>window.LA_MOBILE_ART = 'assets-m/';   // site only: phones load the 600px art copy</script>
 <!-- ===== DATA (generated from Saint's city by tools/extract.js, tools/dims.py) ===== -->
 <script src="data/sprites.js"></script>
 <script src="data/dims.js"></script>

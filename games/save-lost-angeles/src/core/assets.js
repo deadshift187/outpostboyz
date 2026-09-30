@@ -25,7 +25,14 @@
   (B.decals || []).forEach((d) => { const n = d.src.split('/').pop().replace(/\.(webp|png)$/, ''); alias['@' + n] = { src: d.src, dimKey: '@' + n }; });
 
   // pages living in a subfolder (tests/) set LA.ASSET_BASE = '../' before loading this file
-  const withBase = (s) => (s && !/^(data:|blob:|https?:|\/)/.test(s) ? (LA.ASSET_BASE || '') + s : s);
+  // Phones get lighter art when the host ships it (the website sets window.LA_MOBILE_ART = 'assets-m/', a
+  // 600px-capped copy of assets/): iPhone Safari kills the tab at far less memory than a desktop.
+  const MOBILE_ART = window.LA_MOBILE_ART && window.matchMedia && matchMedia('(pointer: coarse)').matches ? window.LA_MOBILE_ART : null;
+  const withBase = (s) => {
+    if (!s || /^(data:|blob:|https?:|\/)/.test(s)) return s;
+    if (MOBILE_ART && s.startsWith('assets/')) s = MOBILE_ART + s.slice(7);
+    return (LA.ASSET_BASE || '') + s;
+  };
   function srcOf(key) {
     if (alias[key]) return withBase(alias[key].src);
     return withBase((LA.SPRITES && LA.SPRITES[key]) || null);

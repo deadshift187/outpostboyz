@@ -77,7 +77,8 @@
     leap(S, b, -7.5, null, (S, b) => { B.shock(S, b, b.cx(), -1, { speed: 5.2 }); B.shock(S, b, b.cx(), 1, { speed: 5.2 }); LA.pop(S, b.cx(), GY - 110, 'DENIED', '#ff4d5e', true); B.sfx('bonk'); });
   }
   B.register('THE ADJUSTER', {
-    art: 'adjuster', faces: -1, hit: [60, 90], hp: 8, phases: [0.6, 0.3], speed: [1.4, 1.6, 1.9], cd: [1.6, 1.3, 1.05],
+    // Saint playtest: "a bit too big" → drawn 86 px (was the 104 default, −17%); hitbox scaled with it (60×90 → 50×74)
+    art: 'adjuster', faces: -1, h: 86, hit: [50, 74], hp: 8, phases: [0.6, 0.3], speed: [1.4, 1.6, 1.9], cd: [1.6, 1.3, 1.05],
     lastWords: 'I NEED TO SPEAK TO MY MANAGER',
     headline: ['ADJUSTER DENIED', 'Your claim has been reviewed. Coverage: none. Deductible: everything. Have a blessed day.'],
     quips: { 2: 'PRE-EXISTING CONDITION!', 3: 'ACT OF GOD. NOT COVERED.' },

@@ -158,7 +158,19 @@
       if (G().CITY_ONLY.has(k) && beach) return false;
       return true;
     }
+    // tennis ball machine = a turret HAZARD now (hazards.js 'ballMachine'), not scenery. Kept ≥ 900 px apart so the
+    // estate districts don't turn into a ball-machine gauntlet; a spot too close to the last one gets a topiary.
+    let lastBM = -1e9;
+    function ballMachine(x) {
+      const [bw] = G().propDims('dsBallMachine');
+      if (!propFits('dsBallMachine', x, bw)) return false;
+      if (Math.abs(x - lastBM) < 900) return prop('dsTopiary', x);
+      if (!free(x - 50, x + bw + 50, 'fire')) return false;
+      LA.ents.add(S, 'ballMachine', { x, flip: rng() < 0.5, seed: rng() * 10 }); take(x - 30, x + bw + 30, 'fire');
+      GP.art(S, 'dsBallMachine'); stats.threats++; lastBM = x; return true;
+    }
     function prop(k, x) {
+      if (k === 'dsBallMachine') return ballMachine(x);
       const [pw, ph] = G().propDims(k), hurdle = G().isHurdle(k);
       const t = hurdle ? 'solid' : 'prop';
       const pad = hurdle ? 50 : 18;                                   // scenery keeps a little air around it too

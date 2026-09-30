@@ -28,17 +28,21 @@
     lobby:    { w: 32, h: 38, speed: 0.7,  hp: 1, beh: 'shell', name: 'LOBBYIST', diff: 2 },
     cat:      { w: 26, h: 40, speed: 0.55, hp: 1, beh: 'dash',  name: 'CAT BURGLAR', diff: 3 },
     hoaC:     { w: 26, h: 40, speed: 0.75, hp: 2, beh: 'armor', name: 'HOA JUNIOR', diff: 3 },
-    press:    { w: 26, h: 48, speed: 0.6,  hp: 1, beh: 'report', name: 'NEWS ANCHOR', diff: 3 },
+    press:    { w: 26, h: 58, speed: 0.6,  hp: 1, beh: 'report', name: 'NEWS ANCHOR', diff: 3 },
     dockbird: { w: 32, h: 28, speed: 1.1,  hp: 1, beh: 'glide', name: 'DOCK PELICAN', diff: 3, fly: 1 },
     hoaA:     { w: 28, h: 46, speed: 0.4,  hp: 1, beh: 'toss',  name: 'HOA ENFORCER', diff: 4 },
-    cam:      { w: 28, h: 46, speed: 0.65, hp: 1, beh: 'boom',  name: 'BOOM-MIC OP', diff: 4 },
-    papa:     { w: 30, h: 44, speed: 0.7,  hp: 1, beh: 'flash', name: 'PAPARAZZI', diff: 4 },
-    cam2:     { w: 30, h: 44, speed: 0.7,  hp: 1, beh: 'flash', name: 'PAPARAZZI', diff: 4 },
+    cam:      { w: 28, h: 55, speed: 0.65, hp: 1, beh: 'boom',  name: 'BOOM-MIC OP', diff: 4 },
+    papa:     { w: 30, h: 53, speed: 0.7,  hp: 1, beh: 'flash', name: 'PAPARAZZI', diff: 4 },
+    cam2:     { w: 30, h: 53, speed: 0.7,  hp: 1, beh: 'flash', name: 'PAPARAZZI', diff: 4 },
     pumpjack: { w: 40, h: 46, speed: 0.45, hp: 2, beh: 'heavy', name: 'PUMPJACK', diff: 4 },
-    papaF:    { w: 30, h: 42, speed: 0.8,  hp: 1, beh: 'flashhop', name: 'PAPARAZZA', diff: 5 },
+    papaF:    { w: 30, h: 50, speed: 0.8,  hp: 1, beh: 'flashhop', name: 'PAPARAZZA', diff: 5 },
     drone:    { w: 52, h: 24, speed: 1.1,  hp: 1, beh: 'drone', name: 'TWZ DRONE', diff: 5, fly: 1 },
   };
   const DRAW_H = 60;
+  // Media crew are grown adults, not 60 px goblins (Saint playtest: "news anchors are a little short"). The hero
+  // draws ~72 px (≈1.8 m), so the anchor / boom-mic op / TWZ paparazzi draw at 72; their hitbox heights above were
+  // raised by the same ×1.2 so the box still covers the body (feet stay on floorY).
+  const HUMAN_H = { press: 72, cam: 72, papa: 72, cam2: 72, papaF: 72 };
 
   // ---------------- LOBBYIST art (code-drawn, cached) ----------------
   function lobbyArt(f) {
@@ -305,7 +309,7 @@
 
   // ---------------- drawing ----------------
   function draw(e, ctx, S) {
-    const cx = e.x + e.w / 2, dh = DRAW_H * (FOE_SCALE[e.type] || 1);
+    const cx = e.x + e.w / 2, dh = HUMAN_H[e.type] || DRAW_H * (FOE_SCALE[e.type] || 1);
     const flipArt = e.face > 0 && !/^hoa/.test(e.type);
     ctx.save();
     if (e.fly) ctx.translate(cx, e.y + e.h / 2 + dh / 2 - (e.type === 'drone' ? 14 : 8));

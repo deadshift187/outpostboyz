@@ -105,6 +105,8 @@
           flying.forEach((p) => { p.riding = null; });
           sp.phase = 'done'; LA.city.hideBoats = false; S.flags.rv = 'done';
           SP.banner(S, 'WIPED OUT THE CRUISER', 'BACK ON FOOT', 2.0);
+          SP.checkpoint(S, sp.crashX + RW + 60);                              // on the cleared landing strip, past the wreck
+
         }
         // anyone who wasn't aboard (a late P2) is freed too
         for (const p of S.players) if (p.riding === sp.hold || p.riding === sp.drive) p.riding = null;

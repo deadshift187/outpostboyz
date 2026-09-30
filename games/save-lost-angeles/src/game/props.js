@@ -14,9 +14,11 @@
   // Real-world scale pass (hero draws 56×1.294 ≈ 72 px ≈ 1.75 m → ~41 px/m). Saint's PROP_H put a volleyball
   // net at 87 px (net tape at 0.7× the hero — should be ~1.3×) and made meters / news boxes / barricades as tall
   // as the hero. Only these keys are re-sized; everything else keeps his numbers.
-  //   net 104 → 156 px (net tape ≈ 93 px ≈ 2.3 m) · meter/boxA 38 → 57 px (≈1.4 m) · dsNewsBox 36 → 54 px
-  //   dsBallMachine 30 → 45 px · obBarricade 34 → 51 px · obBelt 34 → 51 px
-  const PROP_H = Object.assign({}, LA.CONTENT.PROP_H, { net: 104, meter: 38, boxA: 38, dsNewsBox: 36, dsBallMachine: 30, obBarricade: 34, obBelt: 34 });
+  //   net 104 → 156 px (net tape ≈ 93 px ≈ 2.3 m) · meter/boxA 38 → 57 px (≈1.4 m) · dsNewsBox 41 → 62 px (Saint
+  //   playtest: 54 read "too small" — the 3-box cluster now stands ≈0.8× the hero, aspect kept)
+  //   dsBallMachine 30 → 45 → 41 → 62 px (Saint playtest: "too small" — ≈0.85× the hero; it's now a HAZARD, hazards.js
+  //   'ballMachine', populate places that instead of the old harmless hurdle prop) · obBarricade 34 → 51 px · obBelt 34 → 51 px
+  const PROP_H = Object.assign({}, LA.CONTENT.PROP_H, { net: 104, meter: 38, boxA: 38, dsNewsBox: 41, dsBallMachine: 41, obBarricade: 34, obBelt: 34 });
   const O = '#191921';
   LA.gameplay = LA.gameplay || {};
   LA.gameplay.PROP_H = PROP_H;
@@ -44,9 +46,44 @@
       else { const bw = Math.max(14, pw * 0.84), bh = Math.min(ph, 96); s = { x: e.x + pw / 2 - bw / 2, y: e.y + ph - bh, w: bw, h: bh, kind: 'hurdle' }; }
       S.solids.push(s); e.solid = s;
     }
-    e.draw = function (ctx) { LA.di(ctx, k, this.x, this.y, this.w, this.h, this.flip); };
+    e.draw = function (ctx) { LA.di(ctx, (SHARPEN[k] && sharpArt(k)) || k, this.x, this.y, this.w, this.h, this.flip); };
     return e;
   });
+  // Low-res sources blown up by the scale pass read "out of focus" (net: Saint's source is only 161×96, drawn
+  // 262×156 = 1.63× before screen scale; his original PNG is the same size — needs regenerated art). Until then
+  // they get a one-time unsharp mask (σ≈1, amount below) on an offscreen copy at native size, then draw
+  // nearest-neighbour like everything else. Built once when the image decodes — never per frame.
+  const SHARPEN = {}, sharpCache = {};                                 // net: regenerated at 540px (opus-art.js), no longer needed
+  function sharpArt(k) {
+    if (k in sharpCache) return sharpCache[k];
+    const im = LA.img(k); if (!im) return null;
+    let out = null;
+    try {
+      const w = im.naturalWidth, h = im.naturalHeight, cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      const g = cv.getContext('2d'); g.drawImage(im, 0, 0);
+      const id = g.getImageData(0, 0, w, h), d = id.data, src = new Float32Array(d), tmp = new Float32Array(w * h * 4), K5 = [1, 4, 6, 4, 1];
+      const blur = (from, to, dx, dy) => {                            // alpha-weighted separable [1 4 6 4 1] blur
+        for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+          let r = 0, gg = 0, b = 0, ws = 0, as = 0;
+          for (let t = -2; t <= 2; t++) {
+            const xx = Math.min(w - 1, Math.max(0, x + t * dx)), yy = Math.min(h - 1, Math.max(0, y + t * dy)), i = (yy * w + xx) * 4;
+            const a = from[i + 3] * K5[t + 2]; r += from[i] * a; gg += from[i + 1] * a; b += from[i + 2] * a; ws += a; as += from[i + 3] * K5[t + 2];
+          }
+          const o = (y * w + x) * 4;
+          if (ws > 0) { to[o] = r / ws; to[o + 1] = gg / ws; to[o + 2] = b / ws; } else { to[o] = from[o]; to[o + 1] = from[o + 1]; to[o + 2] = from[o + 2]; }
+          to[o + 3] = as / 16;
+        }
+      };
+      const bl = new Float32Array(w * h * 4); blur(src, tmp, 1, 0); blur(tmp, bl, 0, 1);
+      const amt = SHARPEN[k];
+      for (let i = 0; i < d.length; i += 4) {
+        if (!src[i + 3]) continue;
+        for (let c = 0; c < 3; c++) { const diff = src[i + c] - bl[i + c]; if (Math.abs(diff) > 2) d[i + c] = Math.max(0, Math.min(255, src[i + c] + diff * amt)); }
+      }
+      g.putImageData(id, 0, 0); out = cv;
+    } catch (err) { out = null; }
+    return (sharpCache[k] = out);
+  }
 
   // ---------------- one-way platforms ----------------
   const AWN = [['#e2363f', '#fff4e0'], ['#2e8fd8', '#fff4e0'], ['#2f9e5e', '#fff4e0'], ['#ff9f2e', '#fff4e0'], ['#8a5ad4', '#fff4e0'], ['#ff6fae', '#fff4e0']];
