@@ -102,6 +102,24 @@
   .hire-soon .h::after{content:'';position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--red)}
   .hire-brands > div{display:flex;align-items:center;justify-content:center;aspect-ratio:1/1}
   .hire-brands img{width:100%;height:100%;object-fit:contain;display:block}
+  .hire-sb-intro{flex-direction:column;align-items:flex-start!important;justify-content:flex-end!important;gap:4px;padding:16px;background:var(--ink);color:var(--paper)}
+  .hire-sb-intro b{font-family:var(--disp);font-weight:400;font-size:clamp(44px,12vw,72px);line-height:.9;letter-spacing:-2px}
+  .hire-sb-intro span{font-family:var(--disp);font-size:clamp(15px,4vw,20px);line-height:1.05;text-transform:uppercase;letter-spacing:-.3px}
+  .hire-sb-intro i{font-style:normal;font-size:12px;line-height:1.35;color:rgba(255,255,255,.72)}
+  .hire-sb{container-type:inline-size;border-bottom:var(--bw) solid var(--ink)}
+  .hire-sb-list{list-style:none;margin:0;padding:14px;display:grid;grid-auto-flow:column;grid-auto-columns:62%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:14px;overscroll-behavior-x:contain;scrollbar-width:thin}
+  .hire-sb-list li{scroll-snap-align:start;min-width:0}
+  .hire-sb-list a{display:block;aspect-ratio:1/1;overflow:hidden;border:2px solid var(--ink);background:#e9e5dc}
+  .hire-sb-list a:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+  .hire-sb-list img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s}
+  .hire-sb-list a:hover img{transform:scale(1.04)}
+  .hire-sb-list b{display:block;margin-top:8px;font-size:13px;font-weight:900;line-height:1.15;text-transform:uppercase;letter-spacing:.3px}
+  .hire-sb-list span{display:block;font-size:12px;color:var(--grey)}
+  @container (min-width:480px){
+    .hire-sb-list{grid-auto-flow:row;grid-auto-columns:auto;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px 10px;overflow:visible;scroll-snap-type:none}
+    .hire-sb-list b{font-size:11px}
+    .hire-sb-list span{font-size:11px}
+  }
   /* learn + something else */
   .hire-extra{margin-top:24px;display:grid;grid-template-columns:1fr}
   .hire-extra > div{padding:20px;display:flex;flex-direction:column;gap:12px}
@@ -325,11 +343,25 @@
         <article class="hire-card">
           <div class="hire-pair hire-brands">
             <div style="background:#f3efe7"><img src="assets/work/watchpost-owl.webp" alt="WATCHPOST owl logo, wordmark and app icon" width="720" height="312" loading="lazy" decoding="async"></div>
-            <div style="background:#f3efe7"><img src="assets/work/vvs-brand.webp" alt="Vintage Vault Supply logo sheet: crest, reversed crest, monogram and brand colors" width="800" height="800" loading="lazy" decoding="async"></div>
+            <div class="hire-sb-intro"><b>10</b><span>Sample brands</span><i>Concept brands designed in-house to show range.</i></div>
+          </div>
+          <div class="hire-sb" role="region" aria-label="Sample brands">
+            <ul class="hire-sb-list">
+              <li><a href="assets/work/brands/tres-cohetes.webp" target="_blank" rel="noopener"><img src="assets/work/brands/tres-cohetes-sm.webp" srcset="assets/work/brands/tres-cohetes-sm.webp 500w, assets/work/brands/tres-cohetes.webp 1000w" sizes="(min-width:760px) 120px, 62vw" alt="Tres Cohetes concept brand: taco truck mockup, logo, colors and type" width="500" height="500" decoding="async"></a><b>Tres Cohetes</b><span>Tacos</span></li>
+              <li><a href="assets/work/brands/offramp-coffee.webp" target="_blank" rel="noopener"><img src="assets/work/brands/offramp-coffee-sm.webp" srcset="assets/work/brands/offramp-coffee-sm.webp 500w, assets/work/brands/offramp-coffee.webp 1000w" sizes="(min-width:760px) 120px, 62vw" alt="Offramp Coffee concept brand: coffee bag and cup mockup, logo, colors and type" width="500" height="500" decoding="async"></a><b>Offramp Coffee</b><span>Coffee</span></li>
+              <li><a href="assets/work/brands/curbfeel.webp" target="_blank" rel="noopener"><img src="assets/work/brands/curbfeel-sm.webp" srcset="assets/work/brands/curbfeel-sm.webp 500w, assets/work/brands/curbfeel.webp 1000w" sizes="(min-width:760px) 120px, 62vw" alt="Curbfeel concept brand: hoodie and sticker mockup, logo, colors and type" width="500" height="500" loading="lazy" decoding="async"></a><b>Curbfeel</b><span>Skatewear</span></li>
+              <li><a href="assets/work/brands/tapersmith.webp" target="_blank" rel="noopener"><img src="assets/work/brands/tapersmith-sm.webp" srcset="assets/work/brands/tapersmith-sm.webp 500w, assets/work/brands/tapersmith.webp 1000w" sizes="(min-width:760px) 120px, 62vw" alt="Tapersmith concept brand: storefront mockup, logo, colors and type" width="500" height="500" loading="lazy" decoding="async"></a><b>Tapersmith</b><span>Barbershop</span></li>
+              <li><a href="assets/work/brands/stairwell-athletic.webp" target="_blank" rel="noopener"><img src="assets/work/brands/stairwell-athletic-sm.webp" srcset="assets/work/brands/stairwell-athletic-sm.webp 500w, assets/work/brands/stairwell-athletic.webp 1000w" sizes="(min-width:760px) 120px, 62vw" alt="Stairwell Athletic concept brand: phone app and icon mockup, logo, colors and type" width="500" height="500" loading="lazy" decoding="async"></a><b>Stairwell Athletic</b><span>Fitness</span></li>
+              <li><a href="assets/work/brands/sunstroke-sauce.webp" target="_blank" rel="noopener"><img src="assets/work/brands/sunstroke-sauce-sm.webp" srcset="assets/work/brands/sunstroke-sauce-sm.webp 500w, assets/work/brands/sunstroke-sauce.webp 1000w" sizes="(min-width:760px) 120px, 62vw" alt="Sunstroke Sauce Co. concept brand: hot sauce bottles mockup, logo, colors and type" width="500" height="500" loading="lazy" decoding="async"></a><b>Sunstroke Sauce Co.</b><span>Hot sauce</span></li>
+              <li><a href="assets/work/brands/palmreader-plants.webp" target="_blank" rel="noopener"><img src="assets/work/brands/palmreader-plants-sm.webp" srcset="assets/work/brands/palmreader-plants-sm.webp 500w, assets/work/brands/palmreader-plants.webp 1000w" sizes="(min-width:760px) 120px, 62vw" alt="Palmreader Plants concept brand: pot and shopping bag mockup, logo, colors and type" width="500" height="500" loading="lazy" decoding="async"></a><b>Palmreader Plants</b><span>Plant shop</span></li>
+              <li><a href="assets/work/brands/loopcoast-records.webp" target="_blank" rel="noopener"><img src="assets/work/brands/loopcoast-records-sm.webp" srcset="assets/work/brands/loopcoast-records-sm.webp 500w, assets/work/brands/loopcoast-records.webp 1000w" sizes="(min-width:760px) 120px, 62vw" alt="Loopcoast Records concept brand: record sleeve and vinyl mockup, logo, colors and type" width="500" height="500" loading="lazy" decoding="async"></a><b>Loopcoast Records</b><span>Music</span></li>
+              <li><a href="assets/work/brands/beadline-detail.webp" target="_blank" rel="noopener"><img src="assets/work/brands/beadline-detail-sm.webp" srcset="assets/work/brands/beadline-detail-sm.webp 500w, assets/work/brands/beadline-detail.webp 1000w" sizes="(min-width:760px) 120px, 62vw" alt="Beadline Detail concept brand: van wrap mockup, logo, colors and type" width="500" height="500" loading="lazy" decoding="async"></a><b>Beadline Detail</b><span>Detailing</span></li>
+              <li><a href="assets/work/brands/crumbquake.webp" target="_blank" rel="noopener"><img src="assets/work/brands/crumbquake-sm.webp" srcset="assets/work/brands/crumbquake-sm.webp 500w, assets/work/brands/crumbquake.webp 1000w" sizes="(min-width:760px) 120px, 62vw" alt="Crumbquake concept brand: pastry box mockup, logo, colors and type" width="500" height="500" loading="lazy" decoding="async"></a><b>Crumbquake</b><span>Bakery</span></li>
+            </ul>
           </div>
           <div class="hire-body">
             <h3>Launch kit</h3>
-            <p>Your whole look, plus a site on the internet. Above: WATCHPOST and Vintage Vault Supply. And the site you're on.</p>
+            <p>Your whole look, plus a site on the internet. Above: WATCHPOST and ten sample brands. And the site you're on.</p>
             <div class="hire-rows">
               <div><span>Brand kit · logos, colors, fonts, social pack</span><b>$349</b></div>
               <div><span>Site · one page, mobile, contact form</span><b>$749</b></div>
