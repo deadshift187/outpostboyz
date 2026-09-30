@@ -199,7 +199,7 @@ loadBank();
 
 // Which categories have real host audio recorded. Random boards & auto-fill
 // prefer these so the game sounds fully-voiced with whatever's done so far.
-// VOICED stays null if the manifest can't load -> we just try the .wav and fall back to TTS.
+// VOICED stays null if the manifest can't load -> we just try the .mp3 and fall back to TTS.
 let VOICED=null;
 fetch('audio/manifest.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw 0;return r.json();}).then(m=>{VOICED=new Set((m&&m.voiced)||[]);}).catch(()=>{});
 function shuffle(list){const a=[...list];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -273,7 +273,7 @@ function playClue(catName,v,fallbackText){
   if(!voiceOn||hostMuted)return;
   if(VOICED&&!isVoiced(catName)){speak(fallbackText);return;}
   const owner=current;
-  const a=new Audio();a.preload='auto';a.src='audio/'+slugify(catName)+'-'+v+'.wav';
+  const a=new Audio();a.preload='auto';a.src='audio/'+slugify(catName)+'-'+v+'.mp3';   // 48kbps mono mp3 (~40KB/clip; was ~630KB .wav)
   clueAudio=a;
   const fallback=()=>{
     if(clueAudio!==a)return;          // already stopped/replaced
@@ -677,7 +677,7 @@ $('typeInput').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefaul
 $('againBtn').onclick=()=>{resetToMenu();if(loaded){selected=voicedFirst(ALL).slice(0,6).map(c=>c.name);start();}};
 $('pickBtn').onclick=resetToMenu;
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 <script src="../../assets/ob-sdk.js"></script>
 </body>
 </html>
