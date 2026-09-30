@@ -40,7 +40,25 @@ const PRECACHE = [
   '/games/scrap-run/js/render.js',
   '/games/scrap-run/js/bossgfx.js',
   '/games/scrap-run/js/net.js',
-  '/games/scrap-run/js/main.js'
+  '/games/scrap-run/js/main.js',
+  '/games/climb-or-die/',
+  '/games/climb-or-die/main.js',
+  '/games/climb-or-die/chat.js',
+  '/games/climb-or-die/gifts.json',
+  '/games/climb-or-die/platform/gifts.js',
+  '/games/climb-or-die/platform/overlay.js',
+  '/games/climb-or-die/game/index.js',
+  '/games/climb-or-die/game/consts.js',
+  '/games/climb-or-die/game/world.js',
+  '/games/climb-or-die/game/climber.js',
+  '/games/climb-or-die/game/effects.js',
+  '/games/climb-or-die/game/input.js',
+  '/games/climb-or-die/game/store.js',
+  '/games/climb-or-die/game/sfx.js',
+  '/games/climb-or-die/game/render.js',
+  '/games/climb-or-die/game/art.js',
+  '/games/climb-or-die/game/tower-chunks.json',
+  '/games/climb-or-die/game/sfx-presets.json'
 ];
 
 const MEDIA_EXT = /\.(wav|mp3|m4a|aac|ogg|oga|opus|flac|mp4|m4v|webm|mov)$/i;

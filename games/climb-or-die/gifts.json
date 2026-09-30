@@ -1,0 +1,179 @@
+{
+  "_help": "WEB EDITION copy of the CLIMB OR DIE gift map (read-only here). Gifts come from the simulated chat and the YOU ARE THE CHAT tray; tiers decide the effect exactly as on a real stream.",
+  "whaleThreshold": 1000,
+  "tiers": [
+    {
+      "min": 1,
+      "max": 9,
+      "action": "HELPER",
+      "label": "PLATFORM",
+      "sound": "helper"
+    },
+    {
+      "min": 10,
+      "max": 99,
+      "action": "OBSTACLE",
+      "label": "OBSTACLE!",
+      "sound": "sabotage"
+    },
+    {
+      "min": 100,
+      "max": 999,
+      "action": "KNOCKBACK",
+      "label": "KNOCKBACK!",
+      "sound": "sabotage"
+    },
+    {
+      "min": 1000,
+      "max": null,
+      "action": "METEOR",
+      "label": "METEOR!",
+      "sound": "whale"
+    }
+  ],
+  "overrides": {
+    "Finger Heart": {
+      "label": "HEART PLATFORM"
+    },
+    "Galaxy": {
+      "action": "METEOR",
+      "label": "METEOR!"
+    },
+    "Lion": {
+      "action": "ROCKET",
+      "label": "LION ROCKET!"
+    }
+  },
+  "events": {
+    "like": {
+      "action": "BOOST",
+      "label": "BOOST",
+      "sound": "like"
+    },
+    "follow": {
+      "action": "HELPER",
+      "label": "PLATFORM",
+      "sound": "follow"
+    },
+    "share": {
+      "action": "BOOST",
+      "label": "SUPER BOOST",
+      "sound": "follow",
+      "power": 60
+    },
+    "comment": {
+      "action": "NONE",
+      "sound": "comment"
+    },
+    "join": {
+      "action": "NONE",
+      "sound": null,
+      "feed": false
+    },
+    "sub": {
+      "action": "ROCKET",
+      "label": "SUB ROCKET",
+      "sound": "whale"
+    }
+  },
+  "climb-or-die": {
+    "heroName": "PATCH",
+    "giftSides": {
+      "Rose": "help",
+      "Finger Heart": "help",
+      "TikTok": "sab",
+      "Panda": "sab"
+    },
+    "tiers": [
+      {
+        "min": 1,
+        "max": 4,
+        "side": "gift",
+        "help": "PLANK",
+        "sab": "BOLT"
+      },
+      {
+        "min": 5,
+        "max": 9,
+        "side": "gift",
+        "help": "HEART_PAD",
+        "sab": "GREASE"
+      },
+      {
+        "min": 10,
+        "max": 99,
+        "help": "LADDER",
+        "sab": "DRONE"
+      },
+      {
+        "min": 100,
+        "max": 198,
+        "help": "SHIELD",
+        "sab": "SHOVE"
+      },
+      {
+        "min": 199,
+        "max": 498,
+        "help": "CORGI",
+        "sab": "EMP"
+      },
+      {
+        "min": 499,
+        "max": 698,
+        "help": "STAIRS",
+        "sab": "CROSSWIND"
+      },
+      {
+        "min": 699,
+        "max": 999,
+        "help": "ZIPLINE",
+        "sab": "CART"
+      },
+      {
+        "min": 1000,
+        "max": 1499,
+        "help": "UPDRAFT",
+        "sab": "METEOR"
+      },
+      {
+        "min": 1500,
+        "max": 4999,
+        "help": "GRAPPLE",
+        "sab": "LIGHTS_OUT"
+      },
+      {
+        "min": 5000,
+        "max": 19999,
+        "help": "PLANT_BEACON",
+        "sab": "HUNTER_KILLER"
+      },
+      {
+        "min": 20000,
+        "max": 29998,
+        "help": "ROCKET_RIDE",
+        "sab": "QUAKE"
+      },
+      {
+        "min": 29999,
+        "max": null,
+        "help": "EXTRACTION",
+        "sab": "OVERSEER"
+      }
+    ],
+    "knobs": {
+      "lightningLikes": 300,
+      "heatCap": 100,
+      "heatDecay": 5,
+      "knockScale": 1,
+      "telegraphScale": 1,
+      "liftCapM": 240,
+      "summitCap": 5,
+      "sessionSoftH": 6,
+      "sessionHardH": 6,
+      "legendIntervalS": 120,
+      "stunBudgetS": 1.5,
+      "stallAssistS": 90,
+      "idleBreakS": 60
+    }
+  }
+}

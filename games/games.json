@@ -58,6 +58,16 @@
       "added": "2026-09-29"
     },
     {
+      "slug": "climb-or-die",
+      "title": "CLIMB OR DIE",
+      "tagline": "You're the streamer. The chat decides if you live. Climb 250 m before the chopper leaves.",
+      "icon": "🧗",
+      "color": "#ffb347",
+      "controls": "TAP TO JUMP",
+      "badge": "NEW",
+      "added": "2026-09-29"
+    },
+    {
       "slug": "coming-soon-1",
       "title": "???",
       "tagline": "Next cartridge in production.",
