@@ -8,6 +8,7 @@
       "icon": "🌴",
       "color": "#ff4d9d",
       "price": "$4.99",
+      "status": "coming_soon",
       "available": true,
       "paid": true,
       "bountyStatus": "soon",

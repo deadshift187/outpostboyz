@@ -6,11 +6,11 @@
 <meta name="theme-color" content="#0b0d14">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Save Lost Angeles — Outpost Boyz</title>
-<meta name="description" content="Save Lost Angeles: a Mario-style platformer. You're Golden Boy vs. the system: 28 levels across 5 worlds of LA, 20 bosses, 3 heroes, 2-player co-op. $4.99, plays in your browser on phone or computer.">
+<meta name="description" content="Save Lost Angeles: a Mario-style platformer. You're Golden Boy vs. the system: 28 levels across 5 worlds of LA, 20 bosses, 3 heroes, 2-player co-op. Coming soon, in your browser on phone or computer.">
 <meta property="og:site_name" content="Outpost Boyz">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Save Lost Angeles — Outpost Boyz">
-<meta property="og:description" content="Golden Boy vs. the system. Run all of LA: 28 levels, 20 bosses, 2-player co-op. $4.99 in your browser, phone or computer.">
+<meta property="og:description" content="Golden Boy vs. the system. Run all of LA: 28 levels, 20 bosses, 2-player co-op. Coming soon to your browser, phone or computer.">
 <meta property="og:url" content="https://outpostboyz.com/games/save-lost-angeles/">
 <meta property="og:image" content="https://outpostboyz.com/assets/og/og-save-lost-angeles.png">
 <meta property="og:image:width" content="1200">
@@ -18,7 +18,7 @@
 <meta property="og:image:alt" content="Save Lost Angeles by Outpost Boyz: pixel-art Golden Boy leaps in front of the Hollywood sign. 28 levels, 20 bosses, co-op, play in your browser.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Save Lost Angeles — Outpost Boyz">
-<meta name="twitter:description" content="Golden Boy vs. the system. Run all of LA: 28 levels, 20 bosses, 2-player co-op. $4.99 in your browser, phone or computer.">
+<meta name="twitter:description" content="Golden Boy vs. the system. Run all of LA: 28 levels, 20 bosses, 2-player co-op. Coming soon to your browser, phone or computer.">
 <meta name="twitter:image" content="https://outpostboyz.com/assets/og/og-save-lost-angeles.png">
 <meta name="twitter:image:alt" content="Save Lost Angeles by Outpost Boyz: pixel-art Golden Boy leaps in front of the Hollywood sign. 28 levels, 20 bosses, co-op, play in your browser.">
 <link rel="canonical" href="https://outpostboyz.com/games/save-lost-angeles/">
@@ -60,7 +60,9 @@
      from this browser's IndexedDB copy when the version matches) and run from a Blob URL.
      Signed-out / not-owned visitors get the sell page: price card first (above the fold on phones), then the
      trailer (tap to play, preload none), lazy screenshots, pitch and the bounty. Media lives in promo/
-     (tools/la-site/promo, copied in by tools/update-lost-angeles.sh). -->
+     (tools/la-site/promo, copied in by tools/update-lost-angeles.sh).
+     COMING_SOON (below): while true the price card says COMING SOON with a "get notified" email field instead
+     of GET IT / BUY; owners and comped accounts still play. Flip-back steps: header of tools/update-lost-angeles.sh. -->
 <style>
 #obHome{position:fixed;top:max(10px,env(safe-area-inset-top));left:10px;z-index:50;display:none;align-items:center;
   padding:8px 12px;min-height:28px;border:1px solid rgba(255,255,255,.18);border-radius:6px;background:rgba(8,10,16,.72);
@@ -80,6 +82,18 @@
 #obGate .f{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin:0 0 12px;padding:0;list-style:none}
 #obGate .f li{border:1px solid rgba(255,255,255,.25);border-radius:4px;padding:4px 7px;font:800 10px/1.1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#cfd6e4}
 #obGate .p{font:900 30px/1 system-ui,sans-serif;color:#39ff14;margin:4px 0 12px}
+#obGate .p.soon{color:#ffd23f;letter-spacing:.06em}
+#obGate .nt{margin:4px 0 0;text-align:left}
+#obGate .nt label{display:block;font:700 12px/1.3 system-ui,sans-serif;color:#cfd6e4;margin:0 0 6px}
+#obGate .nt div{display:flex;gap:6px}
+#obGate .nt input{flex:1;min-width:0;min-height:44px;border:1px solid rgba(255,255,255,.25);border-radius:8px;background:rgba(255,255,255,.06);
+  color:#fff;font:16px/1.2 system-ui,sans-serif;padding:10px 12px}
+#obGate .nt input:focus-visible{outline:2px solid #ffd23f;outline-offset:1px}
+#obGate .nt button{flex:0 0 auto;min-height:44px;border:1px solid #ffd23f;border-radius:8px;background:transparent;color:#ffd23f;
+  font:900 12px/1 system-ui,sans-serif;letter-spacing:.1em;padding:0 14px;cursor:pointer}
+#obGate .nt button[disabled]{opacity:.6;cursor:wait}
+#obGate .nt p{font-size:12px;line-height:1.4;color:#8d93a3;margin:6px 0 0;min-height:1em}
+#obGate .nt p.ok{color:#39ff14}
 #obGate .b{display:block;width:100%;border:0;border-radius:8px 8px 18px 18px;background:#39ff14;color:#04140a;
   font:900 16px/1 system-ui,sans-serif;letter-spacing:.12em;padding:16px;min-height:48px;cursor:pointer;text-decoration:none;text-transform:uppercase}
 #obGate .b:focus-visible{outline:3px solid #fff;outline-offset:2px}
@@ -138,6 +152,7 @@ body.ob-playing #obInApp{display:none!important}
 (function () {
   'use strict';
   var SLUG = 'save-lost-angeles', PRICE = '$4.99';
+  var COMING_SOON = true;   // true = nobody can buy (owners/comped still play). Flip-back: header of tools/update-lost-angeles.sh
   var HERE = '/games/' + SLUG + '/';
   var gate = document.getElementById('obGate');
   var purchased = /[?&]purchased=1/.test(location.search);
@@ -154,7 +169,7 @@ body.ob-playing #obInApp{display:none!important}
   function card(html) {
     gate.className = ''; gate.innerHTML = '<div class="c">' + html + '</div>'; gate.style.display = 'flex';
   }
-  var TOP = '<div class="k">Outpost Boyz &middot; Out now</div><h1>SAVE LOST ANGELES</h1>' +
+  var TOP = '<div class="k">Outpost Boyz &middot; ' + (COMING_SOON ? 'Coming soon' : 'Out now') + '</div><h1>SAVE LOST ANGELES</h1>' +
     '<p class="t">Golden Boy vs. the system. Run all of LA.</p>' +
     '<ul class="f"><li>28 levels</li><li>5 worlds</li><li>20 bosses</li><li>3 heroes</li><li>2-player co-op</li><li>Phone + computer</li></ul>';
   var LEGAL = '<p class="lg">One-time purchase &middot; <a href="/terms/">Terms</a> &middot; <a href="/refunds/">Refunds</a> ' +
@@ -211,13 +226,43 @@ body.ob-playing #obInApp{display:none!important}
   }
 
   function busy(text) { card(TOP + '<div class="spin"></div><p class="m">' + esc(text) + '</p>'); }
+  // Coming soon: no price, no buy button. An optional email field (subscribers, source 'sla-notify') and a
+  // sign-in line so owners / comped accounts can still get in.
+  function soonCard(who) {
+    var ret = '/account/?return=' + encodeURIComponent(HERE);
+    sell(TOP + '<div class="p soon">COMING SOON</div>' +
+      '<form class="nt" id="obNotify" novalidate><label for="obNEmail">Get notified when it drops</label>' +
+        '<div><input id="obNEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="you@email.com">' +
+        '<button type="submit">NOTIFY ME</button></div><p id="obNMsg" role="status" aria-live="polite"></p></form>' +
+      (who ? '<p class="s">Signed in as <b>' + esc(who) + '</b>. <a href="/account/">Not you?</a></p>'
+           : '<p class="s">Already have it? <a href="' + ret + '">Sign in</a> and it opens.</p>'));
+    var f = document.getElementById('obNotify'), m = document.getElementById('obNMsg');
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var inp = document.getElementById('obNEmail'), btn = f.querySelector('button');
+      var email = inp.value.trim().toLowerCase();
+      m.className = '';
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { m.textContent = 'That email doesn’t look right.'; return; }
+      if (!window.OB || !OB.client) { m.textContent = 'That didn’t save. Email squad@outpostboyz.com and we’ll add you.'; return; }
+      btn.disabled = true; m.textContent = '';
+      Promise.resolve(OB.client.from('subscribers').insert({ email: email, source: 'sla-notify' })).catch(function () { return { error: {} }; })
+        .then(function (r) {
+          if (!r || !r.error || r.error.code === '23505') {
+            m.className = 'ok'; m.textContent = 'You’re on the list. We’ll email you when it drops.';
+            inp.disabled = true; btn.style.display = 'none';
+          } else { btn.disabled = false; m.textContent = 'Couldn’t save that. Try again in a minute.'; }
+        });
+    });
+  }
   function signinCard() {
+    if (COMING_SOON) return soonCard('');
     sell(TOP + '<div class="p">' + PRICE + '</div>' +
       '<a class="b" href="/account/?return=' + encodeURIComponent(HERE) + '">GET IT &mdash; ' + PRICE + '</a>' + LEGAL +
       '<p class="s">Make a free Outpost Boyz account, then it&rsquo;s yours for ' + PRICE + '. ' +
       'Already own it? <a href="/account/?return=' + encodeURIComponent(HERE) + '">Sign in</a> and it opens.</p>');
   }
   function buyCard(who) {
+    if (COMING_SOON) return soonCard(who);
     sell(TOP + '<div class="p">' + PRICE + '</div>' +
       '<button type="button" class="b" id="obBuy">BUY &mdash; ' + PRICE + '</button>' + LEGAL +
       (who ? '<p class="s">Signed in as <b>' + esc(who) + '</b>. <a href="/account/">Not you?</a></p>' : ''));

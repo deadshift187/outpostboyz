@@ -1,7 +1,9 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-const CATALOG: Record<string, { name: string; cents: number }> = {
-  "save-lost-angeles": { name: "Save Lost Angeles — Outpost Boyz", cents: 499 },
+// comingSoon: true = checkout refuses (409) so nobody can buy yet; owners/comped accounts still play via get-game.
+// Flip back to on sale: set comingSoon to false (see the header of tools/update-lost-angeles.sh).
+const CATALOG: Record<string, { name: string; cents: number; comingSoon?: boolean }> = {
+  "save-lost-angeles": { name: "Save Lost Angeles — Outpost Boyz", cents: 499, comingSoon: true },
 };
 
 const cors = {
@@ -30,15 +32,16 @@ Deno.serve(async (req) => {
     const key = Deno.env.get("STRIPE_SECRET_KEY");
     if (!key) return json({ error: "Store is not armed yet — check back soon" }, 503);
 
+    const { slug } = await req.json();
+    const item = CATALOG[slug];
+    if (!item) return json({ error: "Unknown game" }, 404);
+    if (item.comingSoon) return json({ error: "Coming soon" }, 409);
+
     const token = (req.headers.get("Authorization") || "").replace("Bearer ", "");
     const payload = JSON.parse(b64url(token.split(".")[1] || ""));
     const userId = payload.sub as string | undefined;
     const email = payload.email as string | undefined;
     if (!userId) return json({ error: "Sign in first" }, 401);
-
-    const { slug } = await req.json();
-    const item = CATALOG[slug];
-    if (!item) return json({ error: "Unknown game" }, 404);
 
     const page = "https://outpostboyz.com/games/" + slug + "/";
     const body = new URLSearchParams({

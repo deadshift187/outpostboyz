@@ -95,7 +95,7 @@
     <p class="bh-rule"><b>The win:</b> beat the <b>FULL CITY RUN</b> on <b>NATIVE</b> &mdash; 1 player, <b>GOLDEN BOY</b>, <b>zero continues</b>, one sitting &mdash; on an unedited video.</p>
 
     <div class="bh-cta">
-      <a class="btn btn-solid" href="../games/save-lost-angeles/" id="ctaGame">GET THE GAME &mdash; $4.99</a>
+      <a class="btn btn-solid" href="../games/save-lost-angeles/" id="ctaGame">THE GAME &mdash; COMING SOON</a>
       <a class="btn btn-line" href="rules/">OFFICIAL RULES</a>
     </div>
 
@@ -107,7 +107,7 @@
     <section class="bh-sec">
       <h2>How to enter</h2>
       <ol class="bh-steps">
-        <li><b>Own the game.</b> Buy SAVE LOST ANGELES ($4.99). It&rsquo;s yours to keep either way. Entering the bounty is free.</li>
+        <li><b>Own the game.</b> Get SAVE LOST ANGELES <span id="gamePrice">(coming soon)</span>. It&rsquo;s yours to keep either way. Entering the bounty is free.</li>
         <li><b>Sign in</b> on this page with the account that bought it.</li>
         <li>Press <b>ENTER THE BOUNTY</b>. Pick your state, confirm you&rsquo;re 18+ and agree to the rules.</li>
         <li><b>Record and play.</b> Start your screen recorder (or stream) on this page, then play the Full City Run on NATIVE.</li>
@@ -126,7 +126,7 @@
       <p class="bh-sub" style="margin-top:12px;">Cheats, console edits, modified games, macros, slow-mo or someone else playing = disqualified. The crew checks every claim by hand before anything is paid.</p>
     </section>
 
-    <p class="bh-fine">One prize: $100, paid by PayPal after the crew verifies the run, your ID and your age. 18+. Legal US residents only. Not open to residents of AR, AZ, CT, DE, IA, IN, LA, ME, MT, SC, SD or TN. Crew, their families, and comped or admin accounts can&rsquo;t win. The $4.99 is the price of the game; there is no entry fee and the price doesn&rsquo;t change with the bounty. Void where prohibited. Full details in the <a href="rules/">Official Rules</a>. Questions: <a href="mailto:squad@outpostboyz.com">squad@outpostboyz.com</a>.</p>
+    <p class="bh-fine">One prize: $100, paid by PayPal after the crew verifies the run, your ID and your age. 18+. Legal US residents only. Not open to residents of AR, AZ, CT, DE, IA, IN, LA, ME, MT, SC, SD or TN. Crew, their families, and comped or admin accounts can&rsquo;t win. What you pay is the price of the game; there is no entry fee and the price doesn&rsquo;t change with the bounty. Void where prohibited. Full details in the <a href="rules/">Official Rules</a>. Questions: <a href="mailto:squad@outpostboyz.com">squad@outpostboyz.com</a>.</p>
   </main>
 
   <footer class="footer">
@@ -166,6 +166,8 @@
     function msg(id, text, ok) { var el = $(id); if (!el) return; el.textContent = text || ''; el.className = 'bh-msg ' + (ok ? 'ok' : 'err'); }
 
     var S = { status: 'soon', openedAt: null, endsAt: null, winner: null, session: null, me: null };
+    // The game itself: store.json gauntlet status "coming_soon" = not for sale yet (nothing says "buy").
+    var G = { soon: true, price: '' };
 
     function paintBadge() {
       var b = $('badge'), t = $('badgeText'), w = $('when');
@@ -181,7 +183,7 @@
         t.textContent = 'ENDED — UNDEFEATED';
       } else {
         t.textContent = 'OPENS SOON';
-        w.textContent = 'The crew is still proving NATIVE is brutal but beatable. Buy the game and practice now.';
+        w.textContent = 'The crew is still proving NATIVE is brutal but beatable.' + (G.soon ? '' : ' Buy the game and practice now.');
       }
     }
 
@@ -311,7 +313,7 @@
       var owner = me.eligibility === 'ok';
       var html = '<div class="bh-who"><span>SIGNED IN AS</span><span class="bh-tag">' + esc(me.gamertag || 'no gamertag yet') + '</span></div>' +
         '<p>The bounty opens soon. ' + (owner ? 'You own the game, so you&rsquo;re ready &mdash; practice NATIVE now.' :
-          me.eligibility === 'not_owner' ? 'Buy the game now to be ready when it opens.' : '') + '</p>';
+          me.eligibility === 'not_owner' ? (G.soon ? 'The game is coming soon.' : 'Buy the game now to be ready when it opens.') : '') + '</p>';
       if (me.eligibility !== 'ok' && me.eligibility !== 'not_owner' && me.eligibilityMessage) html += '<p class="bh-warn">' + esc(me.eligibilityMessage) + '</p>';
       html += me.notify ? '<p class="bh-msg ok">You&rsquo;re on the list. We&rsquo;ll email you when it opens.</p>'
         : '<button type="button" class="btn btn-solid bh-btn" id="nMe">NOTIFY ME WHEN IT OPENS</button><p class="bh-msg" id="nMsg" role="status"></p>';
@@ -327,8 +329,11 @@
     function blockedPanel(me) {
       var el = me.eligibility;
       if (el === 'not_owner') {
-        card('Own it to enter', '<p>The bounty is for owners of SAVE LOST ANGELES. Get the game ($4.99), then come back and press ENTER THE BOUNTY.</p>' +
-          '<a class="btn btn-solid bh-btn" style="display:block;text-align:center;" href="../games/save-lost-angeles/">GET THE GAME &mdash; $4.99</a>');
+        card('Own it to enter', G.soon
+          ? '<p>The bounty is for owners of SAVE LOST ANGELES. The game is coming soon.</p>' +
+            '<a class="btn btn-line bh-btn" style="display:block;text-align:center;" href="../games/save-lost-angeles/">WATCH THE TRAILER</a>'
+          : '<p>The bounty is for owners of SAVE LOST ANGELES. Get the game (' + esc(G.price) + '), then come back and press ENTER THE BOUNTY.</p>' +
+            '<a class="btn btn-solid bh-btn" style="display:block;text-align:center;" href="../games/save-lost-angeles/">GET THE GAME &mdash; ' + esc(G.price) + '</a>');
       } else if (el === 'no_gamertag') {
         card('Pick a gamertag', '<p>' + esc(me.eligibilityMessage) + '</p><a class="btn btn-solid bh-btn" style="display:block;text-align:center;" href="../account/?return=/bounty/">SET MY GAMERTAG</a>');
       } else {
@@ -352,6 +357,12 @@
       try {
         var st = await (await fetch('../games/store.json', { cache: 'no-cache' })).json();
         var g = (st.gauntlet || []).filter(function (x) { return x.slug === SLUG; })[0] || {};
+        G.soon = g.status === 'coming_soon' || !g.available;
+        G.price = String(g.price || '');
+        if (!G.soon && G.price) {
+          $('ctaGame').innerHTML = 'GET THE GAME &mdash; ' + esc(G.price);
+          $('gamePrice').textContent = '(' + G.price + ')';
+        }
         var s = String(g.bountyStatus || 'soon');
         S.status = (s === 'open' || s === 'claimed') ? s : 'soon';
         var t = Date.parse(g.bountyOpenedAt || '');

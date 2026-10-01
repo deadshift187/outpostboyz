@@ -7,6 +7,12 @@
 #                                     Goes to the private Supabase bucket via tools/publish-lost-angeles-bundle.sh.
 #
 # Usage: bash tools/update-lost-angeles.sh      (then commit + push, then publish the bundle - see the output)
+#
+# COMING SOON switch (10/1/26: nobody can buy; owners + comped accounts still sign in and play). To put it ON SALE:
+#   1) games/store.json            delete the gauntlet entry's  "status": "coming_soon"  (homepage card/strip/blurb + /bounty/ follow)
+#   2) tools/la-site/gate.html     var COMING_SOON = false;   then rebuild the page (this script, or just its build.py page step) + commit
+#   3) supabase/functions/create-checkout/index.ts   comingSoon: false   then redeploy create-checkout (verify_jwt stays ON)
+#   4) static copy: tools/la-site/head.html meta descriptions ("Coming soon" -> price) and index.html og:/twitter:title ("coming soon" -> "out now")
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC="${OPUS_SRC:-$ROOT/../LOST-ANGELES-OPUS}"

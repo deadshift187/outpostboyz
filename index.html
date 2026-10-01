@@ -10,7 +10,7 @@
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://outpostboyz.com/">
   <meta property="og:site_name" content="Outpost Boyz">
-  <meta property="og:title" content="SAVE LOST ANGELES — out now from Outpost Boyz">
+  <meta property="og:title" content="SAVE LOST ANGELES — coming soon from Outpost Boyz">
   <meta property="og:description" content="28 levels, 20 bosses, 2-player co-op. Plays in your browser on phone or computer. Plus free games from the lab.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://outpostboyz.com/">
@@ -19,7 +19,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="SAVE LOST ANGELES by Outpost Boyz: Golden Boy jumping in front of the Hollywood sign">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="SAVE LOST ANGELES — out now from Outpost Boyz">
+  <meta name="twitter:title" content="SAVE LOST ANGELES — coming soon from Outpost Boyz">
   <meta name="twitter:description" content="28 levels, 20 bosses, 2-player co-op. Plays in your browser on phone or computer.">
   <meta name="twitter:image" content="https://outpostboyz.com/assets/og/og-save-lost-angeles.png">
   <link rel="icon" href="/favicon.ico" sizes="32x32">
@@ -181,7 +181,7 @@
       <a class="nav-social" href="https://www.instagram.com/outpostboyz" aria-label="Instagram"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
     </div>
   </nav>
-  <a class="launch-strip" href="games/save-lost-angeles/"><span class="ls-new">NEW</span><span class="ls-title">SAVE LOST ANGELES</span><span>28 levels · 20 bosses · co-op</span><span class="ls-go">PLAY NOW &rarr;</span></a>
+  <a class="launch-strip" href="games/save-lost-angeles/"><span class="ls-new">NEW</span><span class="ls-title">SAVE LOST ANGELES</span><span>28 levels · 20 bosses · co-op</span><span class="ls-go" id="lsGo">COMING SOON &rarr;</span></a>
 
   <header class="hero" id="top">
     <div class="hero-bg"></div>
@@ -228,7 +228,7 @@
       <div class="sec-head">
         <span class="sec-num">(03)</span>
         <h2>UNDEFEATED</h2>
-        <p class="sec-sub">Games nobody has beaten. The first one: SAVE LOST ANGELES, $4.99 on your account. First player to beat it gets $100.</p>
+        <p class="sec-sub">Games nobody has beaten. The first one: SAVE LOST ANGELES, <span id="gxPrice">coming soon</span>. First player to beat it gets $100.</p>
       </div>
 
       <div style="border: var(--bw) solid var(--ink); background: var(--ink); color: var(--paper); padding: 18px 22px; margin-bottom: 22px; font-size: 14px;">
@@ -686,12 +686,23 @@
         var gxFirst = gauntlet.filter(function (g) { return g.bountyStatus; })[0];
         var gxS = document.getElementById('gxStatus');
         if (gxS && gxFirst) gxS.innerHTML = '(' + gxLabel(gxFirst) + ')';
+        // store.json status "coming_soon" = not for sale yet (the game page shows the trailer + a notify field;
+        // owners/comped still play). Remove it (or set "on_sale") to sell again: card, launch strip and blurb follow.
+        var gxSoon = function (g) { return g.status === 'coming_soon'; };
+        var gxLa = gauntlet.filter(function (g) { return g.slug === 'save-lost-angeles'; })[0];
+        if (gxLa && gxLa.available && !gxSoon(gxLa)) {
+          var lsGo = document.getElementById('lsGo'); if (lsGo) lsGo.innerHTML = 'PLAY NOW &rarr;';
+          var gxP = document.getElementById('gxPrice'); if (gxP) gxP.textContent = gxLa.price + ' on your account';
+        }
         gg.innerHTML = gauntlet.map(function (g) {
-          var live = !!g.available;
+          var soon = gxSoon(g);
+          var live = !!g.available && !soon;
           // Paid gauntlet games sell (and unlock) on their own page: /games/<slug>/.
           var btn = live
             ? '<a class="game-play" href="games/' + g.slug + '/">GET IT &#8212; ' + g.price + '</a>'
-            : '<span class="game-play dim">COMING SOON</span>';
+            : soon && g.available
+              ? '<a class="game-play" href="games/' + g.slug + '/">WATCH THE TRAILER</a>'
+              : '<span class="game-play dim">COMING SOON</span>';
           var teaser = g.bountyStatus
             ? '<a href="bounty/" style="flex:0; display:block; font-weight:900; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--ink); border:2px solid var(--ink); padding:10px 12px; text-decoration:none; min-height:44px;">' +
               (g.bountyPrize || '$100') + ' BOUNTY &#183; ' + gxLabel(g) + ' &#8594;</a>'
