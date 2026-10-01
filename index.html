@@ -115,6 +115,14 @@
   .hire-sb-intro b{font-family:var(--disp);font-weight:400;font-size:clamp(44px,12vw,72px);line-height:.9;letter-spacing:-2px}
   .hire-sb-intro span{font-family:var(--disp);font-size:clamp(15px,4vw,20px);line-height:1.05;text-transform:uppercase;letter-spacing:-.3px}
   .hire-sb-intro i{font-style:normal;font-size:12px;line-height:1.35;color:rgba(255,255,255,.72)}
+  .hire-wp{border-bottom:var(--bw) solid var(--ink)}
+  .hire-wp p{margin:10px 12px 0;font-weight:900;font-size:11px;letter-spacing:1.5px;text-transform:uppercase}
+  .hire-wp ul{list-style:none;margin:0;padding:10px 12px 12px;display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:thin}
+  .hire-wp li{flex:0 0 58%;scroll-snap-align:start}
+  .hire-wp a{display:block;aspect-ratio:1200/884;overflow:hidden;border:2px solid var(--ink);background:#e9e5dc}
+  .hire-wp a:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+  .hire-wp img{width:100%;height:100%;object-fit:cover;display:block}
+  @media (min-width:760px){ .hire-wp li{flex-basis:44%} }
   .hire-sb{container-type:inline-size;border-bottom:var(--bw) solid var(--ink)}
   .hire-sb-list{list-style:none;margin:0;padding:14px;display:grid;grid-auto-flow:column;grid-auto-columns:62%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:14px;overscroll-behavior-x:contain;scrollbar-width:thin}
   .hire-sb-list li{scroll-snap-align:start;min-width:0}
@@ -355,9 +363,10 @@
         <!-- 4. LAUNCH KIT -->
         <article class="hire-card">
           <div class="hire-media" style="aspect-ratio:720/312;background:#f3efe7;display:flex;align-items:center;justify-content:center"><img src="assets/work/watchpost-owl.webp" alt="WATCHPOST owl logo, wordmark and app icon" width="720" height="312" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:contain"></div>
+          <div class="hire-wp" role="region" aria-label="More WATCHPOST logo directions"><p>More directions we explored</p><ul><li><a href="assets/work/watchpost/owl-amber.webp" target="_blank" rel="noopener"><img src="assets/work/watchpost/owl-amber-sm.webp" alt="WATCHPOST logo direction: Owl, amber" width="520" height="383" loading="lazy" decoding="async"></a></li><li><a href="assets/work/watchpost/lighthouse-blue.webp" target="_blank" rel="noopener"><img src="assets/work/watchpost/lighthouse-blue-sm.webp" alt="WATCHPOST logo direction: Lighthouse, blue" width="520" height="383" loading="lazy" decoding="async"></a></li><li><a href="assets/work/watchpost/lattice-hex.webp" target="_blank" rel="noopener"><img src="assets/work/watchpost/lattice-hex-sm.webp" alt="WATCHPOST logo direction: Lattice hex" width="520" height="383" loading="lazy" decoding="async"></a></li><li><a href="assets/work/watchpost/brutalist-w.webp" target="_blank" rel="noopener"><img src="assets/work/watchpost/brutalist-w-sm.webp" alt="WATCHPOST logo direction: Brutalist W" width="520" height="383" loading="lazy" decoding="async"></a></li><li><a href="assets/work/watchpost/moon-eye.webp" target="_blank" rel="noopener"><img src="assets/work/watchpost/moon-eye-sm.webp" alt="WATCHPOST logo direction: Moon eye" width="520" height="383" loading="lazy" decoding="async"></a></li><li><a href="assets/work/watchpost/badge-red-dot.webp" target="_blank" rel="noopener"><img src="assets/work/watchpost/badge-red-dot-sm.webp" alt="WATCHPOST logo direction: Security badge" width="520" height="383" loading="lazy" decoding="async"></a></li><li><a href="assets/work/watchpost/keyhole-eye.webp" target="_blank" rel="noopener"><img src="assets/work/watchpost/keyhole-eye-sm.webp" alt="WATCHPOST logo direction: Keyhole eye" width="520" height="383" loading="lazy" decoding="async"></a></li><li><a href="assets/work/watchpost/pillar-w.webp" target="_blank" rel="noopener"><img src="assets/work/watchpost/pillar-w-sm.webp" alt="WATCHPOST logo direction: Pillar W" width="520" height="383" loading="lazy" decoding="async"></a></li><li><a href="assets/work/watchpost/moon-ring.webp" target="_blank" rel="noopener"><img src="assets/work/watchpost/moon-ring-sm.webp" alt="WATCHPOST logo direction: Moon ring lens" width="520" height="383" loading="lazy" decoding="async"></a></li></ul></div>
           <div class="hire-body">
             <h3>Launch kit</h3>
-            <p>Your whole look, plus a site on the internet. Above: WATCHPOST. And the site you're on.</p>
+            <p>Your whole look, plus a site on the internet. Above: WATCHPOST and nine directions we explored for it. And the site you're on.</p>
             <div class="hire-rows">
               <div><span>Brand kit · logos, colors, fonts, social pack</span><b>$349</b></div>
               <div><span>Site · one page, mobile, contact form</span><b>$749</b></div>
