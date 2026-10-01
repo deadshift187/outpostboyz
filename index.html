@@ -33,6 +33,15 @@
   <link rel="preconnect" href="https://duogqviqgmbaynfrhrmq.supabase.co" crossorigin>
   <link rel="stylesheet" href="assets/style.css">
   <style>
+  /* Arcade gameplay previews: poster up top, muted clip plays on hover (desktop) or in view (touch). Inline for the same reason as below. */
+  .game-thumb{position:relative;display:block;margin:-28px -24px 6px;aspect-ratio:16/10;overflow:hidden;background:#111;border-bottom:2px solid var(--ink)}
+  .game-thumb img,.game-thumb video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .game-thumb video{opacity:0;transition:opacity .2s}
+  .game-thumb.playing video{opacity:1}
+  .game-thumb::after{content:'';position:absolute;inset:auto 0 0 0;height:45%;background:linear-gradient(transparent,rgba(0,0,0,.55));pointer-events:none}
+  .game-thumb .game-icon{position:absolute;left:10px;bottom:8px;z-index:1;font-size:26px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8))}
+  .game-card .game-badge{z-index:2}
+  @media (prefers-reduced-motion:reduce){.game-thumb video{display:none}}
   /* Hire the lab (services). Inline so it ships with the network-first HTML, not the cache-first style.css. */
   .hire-case,.hire-card,.hire-extra,.hire-form{border:var(--bw) solid var(--ink);background:var(--paper)}
   .hire-case{margin-bottom:24px}
@@ -286,13 +295,17 @@
       <div class="hire-grid">
         <!-- 1. GAME -->
         <article class="hire-card">
-          <a class="hire-media" href="games/save-lost-angeles/" style="aspect-ratio:4/3"><img src="assets/work/sla-coop.webp" alt="SAVE LOST ANGELES two-player co-op in Chinatown" width="800" height="450" loading="lazy" decoding="async"><span class="hire-tag">SAVE LOST ANGELES</span></a>
+          <div class="hire-media hire-vid hire-reel" style="aspect-ratio:16/9">
+            <video src="assets/work/game-reel.mp4" data-poster="assets/work/game-reel.webp" muted loop playsinline preload="none" width="720" height="404" aria-label="Reel of games we've made: SAVE LOST ANGELES, SCRAP RUN, STACKED, TIGHTROPE, the free arcade games, plus RUFF TRANSIT and DEAD SHIFT in progress"></video>
+            <span class="hire-tag">OUR GAMES</span>
+            <button type="button" class="hire-play" aria-label="Play the reel of our games"><span aria-hidden="true">&#9654;</span> PLAY</button>
+          </div>
           <div class="hire-body">
             <h3>A game, made for you</h3>
             <p>Gift games, promo games, channel games. Same crew that made SAVE LOST ANGELES and everything in THE LAB.</p>
             <div class="hire-rows">
-              <div><span>Arcade · we host it, you share the link</span><b>$199</b></div>
-              <div><span>Own it · full rights + source files</span><b>$799</b></div>
+              <div><span>Small 2D game · we host it, you share the link</span><b>Starting at $199</b></div>
+              <div><span>Own it · full rights + source files</span><b>Starting at $799</b></div>
               <div><span>Bigger idea · 3D, multiplayer, Steam</span><b>Contact us</b></div>
             </div>
             <div class="hire-links"><a href="games/save-lost-angeles/">Play Save Lost Angeles &rarr;</a><a href="#arcade">Free arcade &rarr;</a></div>
@@ -541,7 +554,11 @@
       grid.innerHTML = games.map(g => `
         <article class="game-card" style="--gc:${g.color || '#000'}">
           ${g.badge ? `<span class="chip chip-hot game-badge">${g.badge}</span>` : ''}
-          <div class="game-icon" aria-hidden="true">${g.icon || '🕹️'}</div>
+          ${g.poster ? `<a class="game-thumb" href="games/${g.slug}/" tabindex="-1" aria-hidden="true">
+            <img src="${g.poster}" alt="" width="480" height="300" loading="lazy" decoding="async">
+            ${g.preview ? `<video muted loop playsinline preload="none" data-src="${g.preview}" width="480" height="300"></video>` : ''}
+            <span class="game-icon">${g.icon || '🕹️'}</span>
+          </a>` : `<div class="game-icon" aria-hidden="true">${g.icon || '🕹️'}</div>`}
           <h3>${g.title}</h3>
           <p>${g.tagline || ''}</p>
           <div class="game-plays" data-plays="${g.slug}" hidden style="font-size:11px;letter-spacing:1px;color:#8892a0;margin:2px 0 8px;font-weight:700;">▶ <span>—</span> PLAYS</div>
@@ -555,6 +572,49 @@
         </article>`;
     } catch (e) {
       grid.innerHTML = '<p class="loading">ARCADE OFFLINE — REFRESH</p>';
+      return;
+    }
+    // Gameplay previews. Nothing downloads until a card is hovered (desktop) or sits in view (touch);
+    // reduced motion / data saver = posters only.
+    const mq = (q) => window.matchMedia && matchMedia(q).matches;
+    if (mq('(prefers-reduced-motion: reduce)') || (navigator.connection && navigator.connection.saveData)) return;
+    const thumbs = Array.from(grid.querySelectorAll('.game-thumb')).filter(t => t.querySelector('video'));
+    const play = (t) => {
+      const v = t.querySelector('video');
+      if (!v.src) v.src = v.dataset.src;
+      const p = v.play();
+      if (p && p.then) p.then(() => t.classList.add('playing')).catch(() => {});
+      else t.classList.add('playing');
+    };
+    const stop = (t) => {
+      const v = t.querySelector('video');
+      t.classList.remove('playing');
+      if (v.src) { v.pause(); try { v.currentTime = 0; } catch (e) {} }
+    };
+    if (mq('(hover: hover) and (pointer: fine)')) {
+      thumbs.forEach(t => {
+        const card = t.closest('.game-card');
+        card.addEventListener('mouseenter', () => play(t));
+        card.addEventListener('mouseleave', () => stop(t));
+        card.addEventListener('focusin', () => play(t));
+        card.addEventListener('focusout', (e) => { if (!card.contains(e.relatedTarget)) stop(t); });
+      });
+    } else if ('IntersectionObserver' in window) {
+      // Touch: the most-visible card plays (one at a time), after a short dwell so a fast scroll loads nothing.
+      const ratio = new Map(); let cur = null, timer = 0;
+      const pick = () => {
+        let best = null, br = 0.6;
+        ratio.forEach((r, t) => { if (r >= br) { best = t; br = r; } });
+        if (best === cur) return;
+        if (cur) stop(cur);
+        cur = best;
+        if (cur) play(cur);
+      };
+      const io = new IntersectionObserver((es) => {
+        es.forEach(e => ratio.set(e.target, e.isIntersecting ? e.intersectionRatio : 0));
+        clearTimeout(timer); timer = setTimeout(pick, 350);
+      }, { threshold: [0, 0.6, 0.8, 1] });
+      thumbs.forEach(t => io.observe(t));
     }
   })();
   </script>
@@ -762,9 +822,34 @@
       };
       p.addEventListener('click', play);
       v.addEventListener('click', function () {
-        if (v.paused) play(); else { v.pause(); w.classList.remove('on'); }
+        if (v.paused) { w.dataset.user = ''; play(); } else { v.pause(); w.classList.remove('on'); w.dataset.user = 'paused'; }
       });
     });
+    // The games reel plays itself (muted) while it's on screen; nothing loads until it scrolls into view.
+    // Reduced motion / data saver keep the PLAY button instead. A tap-to-pause sticks.
+    var calm = (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) || (navigator.connection && navigator.connection.saveData);
+    // Reel poster is lazy too (a <video poster> would download on first load).
+    document.querySelectorAll('.hire-reel video[data-poster]').forEach(function (v) {
+      var set = function () { if (!v.poster) v.poster = v.dataset.poster; };
+      if (!('IntersectionObserver' in window)) { set(); return; }
+      var po = new IntersectionObserver(function (es) { if (es.some(function (e) { return e.isIntersecting; })) { set(); po.disconnect(); } }, { rootMargin: '600px 0px' });
+      po.observe(v);
+    });
+    if (!calm && 'IntersectionObserver' in window) {
+      document.querySelectorAll('.hire-reel').forEach(function (w) {
+        var v = w.querySelector('video');
+        new IntersectionObserver(function (es) {
+          es.forEach(function (e) {
+            if (e.isIntersecting && e.intersectionRatio >= 0.5) {
+              if (w.dataset.user === 'paused') return;
+              w.classList.add('on');
+              var pr = v.play();
+              if (pr && pr.catch) pr.catch(function () { w.classList.remove('on'); });
+            } else if (!v.paused) { v.pause(); }
+          });
+        }, { threshold: [0, 0.5] }).observe(w);
+      });
+    }
     var send = document.getElementById('svcSend');
     if (!send) return;
     send.addEventListener('click', async function () {
