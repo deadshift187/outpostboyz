@@ -1,8 +1,10 @@
 // Phone touch controls: a d-pad (4- or 8-way) plus the game's action buttons. Every control dispatches the game's
 // own KeyboardEvent.code on window (keydown while held, keyup on release), so the games need no changes.
-const DIR_CODES = { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight' };
+// meta.dpadKeys overrides a direction's code (pileup: up = Space = hard drop); a button marked 'hold' shows HOLD.
+const ARROWS = { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight' };
 
 export function createTouch({ root, meta, onMenu }) {
+  const DIR_CODES = { ...ARROWS, ...(meta.dpadKeys || {}) };
   const held = new Map(); // code -> count of pointers holding it
   const key = (type, code) => { try { window.dispatchEvent(new KeyboardEvent(type, { code, key: code, bubbles: true, cancelable: true })); } catch (e) { /* old browser */ } };
   const press = (code) => { const n = held.get(code) || 0; held.set(code, n + 1); if (!n) key('keydown', code); };
@@ -10,7 +12,7 @@ export function createTouch({ root, meta, onMenu }) {
   const el = document.createElement('div');
   el.className = 'touch';
   el.innerHTML = `<div class="dpad" data-ways="${meta.dpad || 8}"><span class="dp-up">▲</span><span class="dp-down">▼</span><span class="dp-left">◀</span><span class="dp-right">▶</span><i class="dp-knob"></i></div>
-    <div class="tbtns${(meta.buttons || []).length > 3 ? ' many' : ''}">${(meta.buttons || []).map(([label, code]) => `<button type="button" class="tbtn" data-code="${code}">${label}</button>`).join('')}</div>
+    <div class="tbtns${(meta.buttons || []).length > 3 ? ' many' : ''}">${(meta.buttons || []).map(([label, code, kind]) => `<button type="button" class="tbtn${kind === 'hold' ? ' hold' : ''}" data-code="${code}"${kind === 'hold' ? ' data-hold="1"' : ''}>${label}${kind === 'hold' ? '<small>HOLD</small>' : ''}</button>`).join('')}</div>
     <div class="tsys"><button type="button" class="tbtn small" data-code="KeyP">II</button><button type="button" class="tbtn small menu-btn" data-menu="1">⚙</button></div>`;
   root.appendChild(el);
 

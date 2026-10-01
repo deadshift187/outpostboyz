@@ -29,17 +29,7 @@ export function titleFor(v, mostWantedId, id) {
  * Storage backends: { load(): Promise<doc|null>, save(doc, {beacon}): Promise, clip(kind, user, text) }.
  * remoteBackend() = the streamer app's server (/api/climb-or-die + /api/clip), the default in a browser.
  */
-export function remoteBackend() {
-  return {
-    async load() { const r = await fetch('/api/climb-or-die', { cache: 'no-store' }); return r.json(); },
-    async save(doc, { beacon = false } = {}) {
-      const body = JSON.stringify(doc);
-      if (beacon && navigator.sendBeacon) navigator.sendBeacon('/api/climb-or-die', new Blob([body], { type: 'application/json' }));
-      else await fetch('/api/climb-or-die', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: body.length < 60000 });
-    },
-    clip(kind, user, text) { fetch('/api/clip', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ts: Date.now(), type: kind, user, note: text }) }).catch(() => {}); },
-  };
-}
+export function remoteBackend() { return localStorageBackend(); } // web build: no /api/climb-or-die (sync.mjs)
 
 /** Ready backend for a serverless (web) build: the board lives in localStorage under `key`; clips are a no-op. */
 export function localStorageBackend(key = 'climb-or-die-board') {

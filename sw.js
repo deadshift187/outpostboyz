@@ -8,7 +8,7 @@
 //    audio/video (run-the-board's ~7MB of .mp3 clips stay network-only; offline it falls back to TTS).
 //
 // Bump VERSION on a deploy that changes cached assets to drop every old cache on activate.
-const VERSION = '2026-09-30a-live';
+const VERSION = '2026-09-30b-runend';
 const CACHE = 'ob-arcade-' + VERSION;
 
 // Precached on install so every free game plays offline after the first visit.
@@ -46,7 +46,7 @@ const PRECACHE = [
   '/games/stacked/',
   '/games/tightrope/',
   '/games/live/gifts.json',
-  '/games/live/climb/gifts.json',
+  '/games/live/stacked/gifts.json',
   '/games/live/tightrope/gifts.json',
   '/games/live/shared/shell.js',
   '/games/live/shared/shell.css',
@@ -54,6 +54,7 @@ const PRECACHE = [
   '/games/live/shared/audio.js',
   '/games/live/shared/sim.js',
   '/games/live/shared/touch.js',
+  '/games/live/shared/runend.js',
   '/games/live/shared/platform/gifts.js',
   '/games/live/shared/platform/overlay.js',
   '/games/live/shared/platform/sound.js',

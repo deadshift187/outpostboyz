@@ -4,8 +4,11 @@
 // SOLO (none), SIMULATION (bot chat + tray) or LIVE (browser connectors: Twitch IRC, TikFinity, YouTube, custom WS).
 //
 // URL options (all optional; the in-game menu is the normal way): ?mode=solo|sim|live  ?menu=0 (start playing,
-// menu closed: an OBS source)  ?transparent=1  ?mute=1  ?nonet=1 (climb)  ?whale=off|compact|full  ?hud=0
-// ?popout=1 (set by "Pop out stream window")  ?twitchIrc= / ?eulerWs=ws://localhost:PORT (test only: fake servers; localhost only)
+// menu closed: an OBS source)  ?transparent=1  ?mute=1  ?nonet=1 (STACKED)  ?whale=off|compact|full  ?hud=0
+// ?popout=1 (set by "Pop out stream window")
+// ?dev=1 (developer / QA only): shows the Custom WebSocket LIVE row and honours ?twitchIrc= / ?eulerWs=ws://localhost:PORT
+// (fake servers for the tests; localhost only). Public builds never show or read those.
+// Run end: every game fires window 'outpost:runend' CustomEvent {detail: {slug, score, reason}} (see runend.js).
 // Capture rule (web-research/browser-connect.md 5a): capture the window you PLAY in (Window Capture); a Browser Source /
 // Link source would be a second copy of the game with its own connections.
 import { mapEvent } from './platform/gifts.js';
@@ -22,6 +25,7 @@ import { createCustom } from './connect/custom.js';
 import { createSim, giftForTier } from './sim.js';
 import { createTouch } from './touch.js';
 import { GAMES, STREAMER_KEYS } from './games.js';
+import { createRunEnd } from './runend.js';
 
 const W = 1080, H = 1920;
 const SKEY = 'outpost-web:settings';
@@ -46,14 +50,16 @@ export async function boot(slug) {
   const meta = GAMES[slug];
   if (!meta) throw new Error('unknown game ' + slug);
   const params = new URLSearchParams(location.search);
+  const DEV = params.get('dev') === '1';
   const S = loadSettings();
+  if (!DEV) S.live.custom.on = false; // the Custom WebSocket feed is a dev/QA tool: never connects in a public build
   // URL overrides that are also settings: remembered, so the menu shows the truth
   if (params.get('transparent') === '1') S.transparent = true;
   if (params.get('mute') === '1') S.muted = true;
   if (meta.nonet && params.get('nonet') === '1') S.nonet = true;
   if (['solo', 'sim', 'live'].includes(params.get('mode'))) S.mode = params.get('mode');
   saveSettings(S);
-  // CLIMB OR DIE reads ?nonet=1 itself at createGame(): keep the address bar in step with the toggle
+  // STACKED (app slug climb-or-die) reads ?nonet=1 itself at createGame(): keep the address bar in step with the toggle
   if (meta.nonet) {
     const p = new URLSearchParams(location.search);
     if (S.nonet) p.set('nonet', '1'); else p.delete('nonet');
@@ -61,13 +67,15 @@ export async function boot(slug) {
     history.replaceState(null, '', location.pathname + (q ? '?' + q : '') + location.hash);
   }
 
-  document.title = `${meta.title} · web`;
+  // the page's own <title> wins (the site sets one); only a missing / placeholder title is filled in
+  if (!document.title.trim() || document.title === 'web game') document.title = `${meta.title} · Outpost Games`;
   const master = installMasterVolume(S.muted ? 0 : S.volume); // before the game makes its AudioContext
   if (S.transparent) document.documentElement.classList.add('transparent');
 
   const canvas = document.getElementById('stage');
   const ctx = canvas.getContext('2d');
   canvas.width = W; canvas.height = H;
+  if (meta.tapCanvas) canvas.classList.add('tap'); // the game reads taps on the stage: no scroll / zoom / callout there
   function fit() {
     const s = Math.min(innerWidth / W, innerHeight / H);
     canvas.style.width = `${W * s}px`; canvas.style.height = `${H * s}px`;
@@ -78,7 +86,7 @@ export async function boot(slug) {
   const getJSON = (u) => fetch(u, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(u + ' HTTP ' + r.status); return r.json(); });
   const table = await getJSON('./gifts.json');
   let giftMap, tierDoc;
-  if (slug === 'climb') { giftMap = table; tierDoc = table['climb-or-die'] || {}; }
+  if (meta.reg === 'climb-or-die') { giftMap = table; tierDoc = table['climb-or-die'] || {}; }
   else {
     const baseDoc = await getJSON('../gifts.json').catch(() => ({}));
     const { 'climb-or-die': _c, ...rest } = baseDoc;
@@ -106,6 +114,19 @@ export async function boot(slug) {
   let overlay = makeOverlay(S.mode !== 'solo');
   try { game.onConfig && game.onConfig(giftMap); } catch (err) { console.error('[game] onConfig', err); }
 
+  // run end -> window 'outpost:runend' {slug, score, reason} (runend.js)
+  const runEnds = [];
+  const runEnd = createRunEnd({ slug, game, onEnd: (d) => {
+    runEnds.push(d); if (runEnds.length > 50) runEnds.shift();
+    if (slug === 'stacked' && d.reason === 'timeout') toast(`7:00 is up: this run scores ${d.score} m. Keep climbing, the next run starts now.`);
+  } });
+  if (!runEnd.rule) console.warn('[runend] no run-end rule for ' + slug);
+  function toast(text) {
+    const t = document.createElement('div'); t.className = 'toast'; t.textContent = text;
+    (document.getElementById('shell') || document.body).appendChild(t);
+    setTimeout(() => t.classList.add('gone'), 5000); setTimeout(() => t.remove(), 6000);
+  }
+
   const platform = (window.__platform = { received: [], game, get overlay() { return overlay; }, gameSlug: slug, gameEntry: meta.entry, web: true, get giftMap() { return giftMap; } });
 
   // ---------- event pipeline ----------
@@ -131,15 +152,16 @@ export async function boot(slug) {
     stopPlatform(p);
     const c = S.live[p];
     if (p === 'twitch') {
-      const irc = params.get('twitchIrc');
+      const irc = DEV ? params.get('twitchIrc') : null; // test fakes: dev builds only
       live.twitch = createTwitch({ channel: c.channel, url: irc && isLocalWs(irc) ? irc : IRC_URL, getCfg: platformCfg, onEvent: (e) => hub.ingestEvent(e, 'twitch'), onState: (s, i) => onLiveState('twitch', s, i), isDup: hub.isDup });
     } else if (p === 'tiktok') {
       live.tiktok = c.plan === 'euler'
-        ? createEuler({ username: c.username, apiKey: c.eulerKey, ...(isLocalWs(params.get('eulerWs')) ? { base: params.get('eulerWs') } : {}), onRaw: (k, d) => hub.ingestRaw(k, d, 'euler'), onState: (s, i) => onLiveState('tiktok', s, i) })
+        ? createEuler({ username: c.username, apiKey: c.eulerKey, ...(DEV && isLocalWs(params.get('eulerWs')) ? { base: params.get('eulerWs') } : {}), onRaw: (k, d) => hub.ingestRaw(k, d, 'euler'), onState: (s, i) => onLiveState('tiktok', s, i) })
         : createTikFinity({ url: c.url || TIKFINITY_URL, onRaw: (k, d) => hub.ingestRaw(k, d, 'tikfinity'), onState: (s, i) => onLiveState('tiktok', s, i) });
     } else if (p === 'youtube') {
       live.youtube = createYouTube({ apiKey: c.key, target: c.target, getCfg: platformCfg, onEvent: (e) => hub.ingestEvent(e, 'youtube'), onState: (s, i) => onLiveState('youtube', s, i) });
     } else if (p === 'custom') {
+      if (!DEV) return;
       live.custom = createCustom({ url: c.url, onEvent: (e) => hub.ingestEvent(e, 'custom'), onState: (s, i) => onLiveState('custom', s, i) });
     }
     live[p].start();
@@ -273,13 +295,13 @@ export async function boot(slug) {
             <div class="acts"><button type="button" class="mini connect">Connect</button><button type="button" class="mini test">Test a Super Chat</button></div>
             <p class="msg"></p>
           </div>
-          <div class="plat" data-p="custom">
-            <div class="ph"><label class="check"><input type="checkbox" class="on"> <b>Custom</b> WebSocket</label><i class="dot"></i><a class="how" href="../tutorials/custom.html" target="_blank" rel="noopener">How to connect</a></div>
+          ${DEV ? `<div class="plat" data-p="custom">
+            <div class="ph"><label class="check"><input type="checkbox" class="on"> <b>Custom</b> WebSocket <em>(dev)</em></label><i class="dot"></i></div>
             <label class="row">WebSocket URL <input type="text" class="f-url" spellcheck="false" autocomplete="off" placeholder="ws://localhost:8080"></label>
             <p class="hint">Any feed that sends our normalized events as JSON: {"type":"gift","user":{"id":"1","nickname":"kai"},"gift":{"name":"Rose","coins":1,"count":1}}.</p>
             <div class="acts"><button type="button" class="mini connect">Connect</button><button type="button" class="mini test">Test an event</button></div>
             <p class="msg"></p>
-          </div>
+          </div>` : ''}
           <div class="liveact"><button type="button" class="mini forget">Forget keys</button><button type="button" class="btn go-live">CONNECT ALL &amp; GO LIVE</button></div>
           <div class="popout">
             <b>Put it on stream</b>
@@ -302,7 +324,7 @@ export async function boot(slug) {
           <table class="keys">${meta.keys.map(([a, k]) => `<tr><td>${esc(a)}</td><td><kbd>${esc(k)}</kbd></td></tr>`).join('')}<tr><td>This menu</td><td><kbd>Esc</kbd> / ⚙ / pad Select</td></tr></table>
           <p class="hint">Gamepad: ${esc(meta.pad)}.</p>
           <p class="hint skeys-hint">Streamer keys (turn on in SETTINGS): ${STREAMER_KEYS.map(([a, k]) => `${esc(a)} <kbd>${esc(k)}</kbd>`).join(' · ')}</p>
-          <p class="hint">Phones: a d-pad and action buttons appear on screen.</p>
+          <p class="hint">Phones: a d-pad and action buttons appear on screen (HOLD buttons work while your finger stays down).${meta.touchNote ? ' ' + esc(meta.touchNote) : ''}</p>
         </section>
         <footer><button type="button" class="btn play">▶ PLAY</button></footer>
       </div>`;
@@ -540,7 +562,7 @@ export async function boot(slug) {
     const dt = last == null ? 0 : Math.max(0, Math.min(1 / 30, (now - last) / 1000));
     last = now;
     pollPadMenu();
-    if (!menuOpen && !handedOff) game.update(dt);
+    if (!menuOpen && !handedOff) { game.update(dt); runEnd.poll(now); }
     if (game.takeFeed) for (const f of game.takeFeed()) overlay.note(f);
     overlay.update(dt);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -592,7 +614,7 @@ export async function boot(slug) {
 
   // debug / test handle
   window.__shell = {
-    slug, meta, settings: S, hub, sim, live, liveState, touch, master,
+    slug, meta, settings: S, hub, sim, live, liveState, touch, master, runEnds, dev: DEV,
     get menuOpen() { return menuOpen; }, get handedOff() { return handedOff; }, openMenu, setMode, startPlatform, stopPlatform, testEvent, popOut, handOff, ui, tierDoc,
     saveSettings: () => saveSettings(S),
   };

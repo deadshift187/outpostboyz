@@ -56,7 +56,6 @@
 <script type="module">
 import { boot } from '../shared/shell.js';
 const SLUG = 'tightrope';
-const TITLE = document.title;
 boot('tightrope').then(site).catch((e) => {
   console.error(e);
   const d = document.createElement('pre');
@@ -65,28 +64,26 @@ boot('tightrope').then(site).catch((e) => {
   document.body.appendChild(d);
 });
 
-// Outpost Boyz site hooks: home link, tab title, scores. The game never depends on any of it.
+// Outpost Boyz site hooks: home link + scores. The game never depends on any of it.
 function site(shell) {
-  document.title = TITLE;
   // the menu's "ALL GAMES" link is the home link: only visible while the menu is up, so it never covers play
-  const a = shell.ui && shell.ui.menu.querySelector('a.all');
+  const a = shell && shell.ui && shell.ui.menu.querySelector('a.all');
   if (a) { a.href = '/'; a.textContent = '◂ OUTPOST BOYZ'; a.classList.add('ob-home'); }
-  // a run ends at the summit (BIRD-9 on the rooftop); the next run starts after the cinematic.
-  // Score = the game's own run score (distance + height + summit bonus). Reported once per run.
-  let reported = null;
-  setInterval(() => {
-    try {
-      const S = window.__platform && window.__platform.game.dev.S;
-      if (!S || !S.cine || !S.run || reported === S.run) return;
-      reported = S.run;
-      const score = Math.round(S.cine.score != null ? S.cine.score : S.run.score) || 0;
-      if (window.OB) {
-        const p = OB.submitScore(SLUG, score); if (p && p.catch) p.catch(() => {});
-        const q = OB.gameOver(SLUG); if (q && q.catch) q.catch(() => {});
-      }
-    } catch (e) { /* offline / blocked: the game never depends on it */ }
-  }, 250);
 }
+// the shell fires 'outpost:runend' {slug, score, reason} once per ended run (shared/runend.js):
+// summit = the run score. One score + one gameOver per event.
+const seen = new WeakSet();
+addEventListener('outpost:runend', (e) => {
+  const d = e && e.detail;
+  if (!d || d.slug !== SLUG || seen.has(d)) return;
+  seen.add(d);
+  try {
+    if (window.OB) {
+      const p = OB.submitScore(SLUG, d.score); if (p && p.catch) p.catch(() => {});
+      const q = OB.gameOver(SLUG); if (q && q.catch) q.catch(() => {});
+    }
+  } catch (err) { /* offline / blocked: the game never depends on it */ }
+});
 </script>
 <!-- Outpost Boyz SDK: scores + play tracking (optional; the game runs fine offline without it) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>

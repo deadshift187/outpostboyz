@@ -267,7 +267,7 @@ export function createGame({ W = CW, H = CH, transparent = false, store: storeOp
     if (inp.any) {
       S.idleT = 0;
       if (S.onBreak) { S.onBreak = false; S.swallow = new Set(ACTION_KEYS.filter((k) => inp[k])); chip(S, 'BACK FROM BREAK', PAL.help); }
-      if (activityPing && inp.pad && hasDom && S.realT - S.padPing > 5) { S.padPing = S.realT; try { fetch('/api/activity').catch(() => {}); } catch (e) { /* ignore */ } }
+      if (activityPing && inp.pad && hasDom && S.realT - S.padPing > 5) { S.padPing = S.realT; try { void 0 /* web build: no /api/activity */; } catch (e) { /* ignore */ } }
     } else S.idleT += dt;
     if (S.swallow === true) S.swallow = new Set(ACTION_KEYS.filter((k) => inp[k]));
     if (S.swallow) {

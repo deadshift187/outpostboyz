@@ -7,6 +7,9 @@
 html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
 body { display: flex; align-items: center; justify-content: center; font-family: var(--ui); color: var(--ink); -webkit-tap-highlight-color: transparent; }
 canvas { display: block; outline: none; }
+canvas.tap { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; } /* games that read taps on the stage */
+#shell .tbtn small { display: block; font-size: 8px; letter-spacing: .5px; opacity: .7; margin-top: 2px; }
+#shell .tbtn.hold { border-style: dashed; }
 html.transparent, html.transparent body { background: transparent; }
 button, input, select { font: inherit; color: inherit; }
 
