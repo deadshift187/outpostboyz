@@ -17,6 +17,7 @@ function stacked(d, p, S, m) {
   if (m.runKey !== runKey) { m.runKey = runKey; m.maxM = 0; m.timedOut = false; }
   m.maxM = Math.max(m.maxM, n(d.heightM));
   if (rose(d, p, (x) => x.summits)) {
+    if (m.timedOut) return null; // the 7:00 timeout already ended (and scored) this run: one run, one score
     const sec = S.cine && Number.isFinite(S.cine.runSec) ? S.cine.runSec : n(S.sessionT) - n(runKey);
     return { score: 250 + Math.max(0, Math.round(STACKED_LIMIT_S - sec)), reason: 'summit', seconds: Math.round(sec) };
   }
